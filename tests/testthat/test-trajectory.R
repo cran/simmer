@@ -25,6 +25,22 @@ test_that("the trajectory stores the right number of activities", {
   
   expect_is(t0, "Trajectory")
   expect_equal(t0%>%get_n_activities(), 9)
+  
+  expect_output(t0%>%show_trajectory(), 
+"Trajectory: my trajectory, 9 activities
+{ Activity: Seize(nurse) | amount: 1 }
+{ Activity: Timeout(none) | duration: function() }
+{ Activity: Release(nurse) | amount: 1 }
+{ Activity: Branch(none) | merge: 1 }
+  Trajectory: anonymous, 6 activities
+  { Activity: Seize(doctor) | amount: 1 }
+  { Activity: Timeout(none) | duration: function() }
+  { Activity: Release(doctor) | amount: 1 }
+  { Activity: Branch(none) | merge: 1 }
+    Trajectory: anonymous, 3 activities
+    { Activity: Seize(administration) | amount: 1 }
+    { Activity: Timeout(none) | duration: function() }
+    { Activity: Release(administration) | amount: 1 }", fixed = TRUE)
 })
 
 test_that("the head/tail pointers are correctly placed", {
@@ -36,7 +52,7 @@ test_that("the head/tail pointers are correctly placed", {
   t0%>%seize("nurse", 1)
   
   expect_output(show_activity(t0%>%get_head()), "Seize")
-  expect_equal(t0%>%get_head(), t0%>%get_tail())
+  expect_output(show_activity(t0%>%get_tail()), "Seize")
   
   t0%>%timeout(function() rnorm(1, 15)) %>%
     release("nurse", 1)
