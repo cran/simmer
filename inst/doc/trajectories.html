@@ -10,7 +10,7 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2015-12-15" />
+<meta name="date" content="2015-12-16" />
 
 <title>Advanced trajectory usage</title>
 
@@ -54,7 +54,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">Advanced trajectory usage</h1>
 <h4 class="author"><em>Bart Smeets, Iñaki Ucar</em></h4>
-<h4 class="date"><em>2015-12-15</em></h4>
+<h4 class="date"><em>2015-12-16</em></h4>
 </div>
 
 
@@ -108,7 +108,7 @@ env&lt;-
 ## 1    0 patient0          my_key 123.0000000
 ## 2    5 patient0          my_key 124.0000000
 ## 3   10 patient0   dependent_key   0.0000000
-## 4   15 patient0 independent_key   0.8810414</code></pre>
+## 4   15 patient0 independent_key   0.7143711</code></pre>
 </div>
 <div id="seize-release" class="section level2">
 <h2>seize &amp; release</h2>
@@ -149,11 +149,11 @@ env&lt;-
 <span class="kw">get_mon_resources</span>(env)</code></pre>
 <pre><code>##   time server queue system resource
 ## 1    0      0     0      0   doctor
-## 2    3      2     0      2   doctor</code></pre>
+## 2    3      1     0      1   doctor</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env)</code></pre>
 <pre><code>##   time     name           key value
-## 1    0 patient0        health    73
-## 2    0 patient0 docs_to_seize     2</code></pre>
+## 1    0 patient0        health    20
+## 2    0 patient0 docs_to_seize     1</code></pre>
 </div>
 <div id="timeout" class="section level2">
 <h2>timeout</h2>
@@ -187,10 +187,10 @@ env&lt;-
 
 <span class="kw">get_mon_arrivals</span>(env)</code></pre>
 <pre><code>##       name start_time end_time activity_time finished
-## 1 patient0          0       87            87     TRUE</code></pre>
+## 1 patient0          0      118           118     TRUE</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env)</code></pre>
 <pre><code>##   time     name    key value
-## 1    0 patient0 health    62</code></pre>
+## 1    0 patient0 health    50</code></pre>
 <p>Be aware that if you want the <code>timeout</code>’s <code>task</code> parameter to be evaluated dynamically, you should supply a callable function. For example in <code>timeout(function() rpois(1, 10))</code>, <code>rpois(1, 10)</code> will be evaluated every time the timeout activity is executed. However, if you supply it in the form of <code>timeout(rpois(1, 10))</code>, it will only be evaluated at initalization and will remain static after that.</p>
 <p>Of course, this <code>task</code>, supplied as a function, may be as complex as you need and, for instance, check a resource’s status, interact with other entities in your simulation model… The same applies to all previous activities when they accept a function as a parameter.</p>
 </div>
