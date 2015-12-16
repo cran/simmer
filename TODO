@@ -1,7 +1,9 @@
- - add priorities to the event queue
-
- - link timetable to resource availability
- - add depletable resources
- - stop the simulation mid-run, adjust some parameters and continue the simulation
- - create release_all event
- - inspect the queue
+ - inspect the queue (some kind of "advanced peek")
+ - use Boost C++ (or C++11) to improve the efficiency
+ - change default behavior of `seize` and `release` (for version >=4.0.0, see issues #25, #27)
+ - implement batch/separate activities
+ - implement a parallel branch activity
+ - del_generator, del_resource
+ - add[del]_container (see simpy.resources.container)
+ - add[del]_store (see simpy.resources.store)
+ - monitoring: start/activity/end time per resource

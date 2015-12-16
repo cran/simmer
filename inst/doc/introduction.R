@@ -75,6 +75,7 @@ envs <- mclapply(1:100, function(i) {
 })
 
 ## ---- message=FALSE------------------------------------------------------
+envs[[1]] %>% get_n_generated("patient")
 envs[[1]] %>% get_capacity("doctor")
 envs[[1]] %>% get_queue_size("doctor")
 head(

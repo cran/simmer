@@ -3,6 +3,10 @@
 #include "activity.h"
 
 inline void Arrival::activate() {
+  double delay;
+  bool flag = TRUE;
+  if (!activity) goto finish;
+  
   if (start_time < 0) start_time = sim->now();
   
   if (sim->verbose)
@@ -11,27 +15,24 @@ inline void Arrival::activate() {
       "arrival: " << name << " | " << "activity: " << 
       activity->name << "(" << activity->resource << ")" << std::endl;
   
-  bool flag = TRUE;
-  double delay = activity->run(this);
+  delay = activity->run(this);
   if (delay == REJECTED) goto reject;
-  
   activity = activity->get_next();
-  if (!activity) goto finish;
   if (delay == ENQUEUED) goto end;
   
   activity_time += delay;
-  sim->schedule(delay, this);
+  sim->schedule(delay, this, activity ? activity->priority : 0);
   goto end;
   
 reject:
   flag = FALSE;
 finish:
-  sim->notify_end(this, flag);
+  gen->notify_end(sim->now(), this, flag);
 end:
   return;
 }
 
-void Generator::activate() {
+inline void Generator::activate() {
   // get the delay for the next arrival
   double delay = Rcpp::as<double>(dist());
   if (delay < 0) return;
@@ -39,16 +40,25 @@ void Generator::activate() {
   // format the name and create the next arrival
   char numstr[21];
   sprintf(numstr, "%d", count);
-  Arrival* arrival = new Arrival(sim, name + numstr, is_monitored(), first_activity);
+  Arrival* arrival = new Arrival(sim, name + numstr, is_monitored(), first_activity, this);
   
-  // schedule this generator and the arrival
-  sim->schedule(delay, this);
+  // schedule the arrival and the generator itself
   sim->schedule(delay, arrival);
+  sim->schedule(delay, this);
   
   count++;
 }
 
-int Resource::seize(Arrival* arrival, int amount) {
+int Arrival::set_attribute(std::string key, double value) {
+  attributes[key] = value;
+  
+  // monitoring
+  if (is_monitored() >= 2) gen->observe(sim->now(), this, key);
+  
+  return 0;
+}
+
+int Resource::seize(Arrival* arrival, int amount, int priority) {
   // monitoring
   if (is_monitored()) observe(sim->now());
   
@@ -60,7 +70,7 @@ int Resource::seize(Arrival* arrival, int amount) {
   // enqueue
   else if (room_in_queue(amount)) {
     queue_count += amount;
-    queue.push(std::make_pair(arrival, amount));
+    queue.push(RQItem(arrival, amount, priority, sim->now()));
     return ENQUEUED;
   }
   // reject
@@ -76,12 +86,10 @@ int Resource::release(Arrival* arrival, int amount) {
   
   // serve from the queue
   if (queue_count) {
-    Arrival* another_arrival = queue.front().first;
-    int another_amount = queue.front().second;
+    queue_count -= queue.top().amount;
+    server_count += queue.top().amount;
+    sim->schedule(0, queue.top().arrival);
     queue.pop();
-    queue_count -= another_amount;
-    server_count += another_amount;
-    sim->schedule(0, another_arrival);
   }
   return SUCCESS;
 }

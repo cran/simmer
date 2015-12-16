@@ -1,8 +1,7 @@
 #ifndef ACTIVITY_H
 #define ACTIVITY_H
 
-#include <Rcpp.h>
-#include <set>
+#include "simmer.h"
 
 // forward declarations
 class Arrival;
@@ -14,22 +13,28 @@ class Activity {
 public:
   std::string name;
   std::string resource;
+  bool provide_attrs;
   int n;
+  int priority;
   
   /**
    * Constructor.
-   * @param name      the name of the activity
-   * @param resource  the resource associated
+   * @param name          the name of the activity
+   * @param resource      the resource associated
+   * @param provide_attrs whether the activity should expose the arrival's attributes
+   * @param priority      resource accessing priority
    */
-  Activity(std::string name, std::string resource): 
-    name(name), resource(resource), n(1), ptr(NULL) {}
+  Activity(std::string name, std::string resource, bool provide_attrs, int priority = 0): 
+    name(name), resource(resource), provide_attrs(provide_attrs), 
+    n(1), priority(priority), next(NULL), prev(NULL)  {}
+  
   virtual ~Activity(){}
   
   /**
    * Print the activity info.
    * @param indent number of spaces at the beginning of each line
    */
-  virtual void show(int indent=0) {
+  virtual void print(int indent=0) {
     for (int i = 0; i < indent; ++i)
       Rcpp::Rcout << " ";
     Rcpp::Rcout << "{ Activity: " << name << "(" << resource << ") | ";
@@ -42,83 +47,85 @@ public:
   virtual double run(Arrival* arrival) = 0;
   
   /**
-   * Get the next activity in the chain.
+   * Getter/setter for the next activity in the chain.
    */
-  virtual Activity* get_next() { return ptr; }
+  virtual Activity* get_next() { return next; }
+  virtual void set_next(Activity* activity) { next = activity; }
   
   /**
-   * Set the next activity in the chain.
-   * @param activity a pointer to the next activity
+   * Getter/setter for the previous activity in the chain.
    */
-  virtual void set_next(Activity* activity) { ptr = activity; }
+  virtual Activity* get_prev() { return prev; }
+  virtual void set_prev(Activity* activity) { prev = activity; }
   
 private:
-  Activity* ptr;
+  Activity* next;
+  Activity* prev;
 };
 
 /**
  * Seize a resource.
  */
+template <class T>
 class Seize: public Activity {
 public:
-  Seize(std::string resource, int amount):
-    Activity("Seize", resource), amount(amount) {
-    if (amount < 0)
-      Rcpp::stop("not allowed to seize a negative amount");
-  }
+  Seize(std::string resource, T amount, bool provide_attrs, int priority):
+    Activity("Seize", resource, provide_attrs, fabs(priority)), amount(amount) {}
   
-  void show(int indent=0) {
-    Activity::show(indent);
-    Rcpp::Rcout << "amount: " << amount << " }" << std::endl;
-  }
-  
+  void print(int indent=0);
   double run(Arrival* arrival);
   
 private:
-  int amount;
+  T amount;
 };
 
 /**
  * Release a resource.
  */
+template <class T>
 class Release: public Activity {
 public:
-  Release(std::string resource, int amount):
-    Activity("Release", resource), amount(amount) {
-    if (amount < 0)
-      Rcpp::stop("not allowed to release a negative amount");
-  }
+  Release(std::string resource, T amount, bool provide_attrs):
+    Activity("Release", resource, provide_attrs, -1), amount(amount) {}
   
-  void show(int indent=0) {
-    Activity::show(indent);
-    Rcpp::Rcout << "amount: " << amount << " }" << std::endl;
-  }
-  
+  void print(int indent=0);
   double run(Arrival* arrival);
   
 private:
-  int amount;
+  T amount;
+};
+
+/**
+ * Set attributes.
+ */
+template <class T>
+class SetAttribute: public Activity {
+public:
+  SetAttribute(std::string key, T value, bool provide_attrs):
+    Activity("SetAttribute", "none", provide_attrs), key(key), value(value) {}
+  
+  void print(int indent=0);
+  double run(Arrival* arrival);
+  
+private:
+  std::string key;
+  T value;
 };
 
 /**
  * Timeout.
  */
+template <class T>
 class Timeout: public Activity {
 public:
-  Timeout(Rcpp::Function duration):
-    Activity("Timeout", "none"), duration(duration) {}
+  Timeout(T delay, bool provide_attrs):
+    Activity("Timeout", "none", provide_attrs), delay(delay) {}
   
-  void show(int indent=0) {
-    Activity::show(indent);
-    Rcpp::Rcout << "duration: function() }" << std::endl;
-  }
-  
-  double run(Arrival* arrival) {
-    return fabs(Rcpp::as<double>(duration()));
-  }
+  void print(int indent=0);
+  double run(Arrival* arrival);
   
 private:
-  Rcpp::Function duration;
+  T delay;
 };
 
 /**
@@ -127,8 +134,8 @@ private:
  */
 class Branch: public Activity {
 public:
-  Branch(Rcpp::Function option, std::vector<bool> merge, std::vector<Rcpp::Environment> trj):
-    Activity("Branch", "none"), option(option), merge(merge), trj(trj), selected(NULL) {
+  Branch(Rcpp::Function option, VEC<bool> merge, VEC<Rcpp::Environment> trj):
+    Activity("Branch", "none", 0), option(option), merge(merge), trj(trj), selected(NULL) {
     n = 0;
     for (unsigned int i = 0; i < trj.size(); i++) {
       Rcpp::Function get_head(trj[i]["get_head"]);
@@ -149,18 +156,17 @@ public:
     pending.clear();
   }
   
-  void show(int indent=0) {
+  void print(int indent=0) {
     for (unsigned int i = 0; i < trj.size(); i++) {
-      Activity::show(indent);
+      Activity::print(indent);
       Rcpp::Rcout << "merge: " << merge[i] << " }" << std::endl;
-      Rcpp::Function show(trj[i]["show"]);
-      show(indent+2);
+      Rcpp::Function print(trj[i]["print"]);
+      print(indent+2);
     }
   }
   
   double run(Arrival* arrival) {
-    std::set<Arrival*>::iterator search = pending.find(arrival);
-    if (search != pending.end())
+    if (pending.find(arrival) != pending.end())
       pending.erase(arrival);
     else {
       unsigned int i = Rcpp::as<unsigned int>(option());
@@ -184,11 +190,50 @@ public:
   
 private:
   Rcpp::Function option;
-  std::vector<bool> merge;
-  std::vector<Rcpp::Environment> trj;
+  VEC<bool> merge;
+  VEC<Rcpp::Environment> trj;
   Activity* selected;
-  std::vector<Activity*> path;
-  std::set<Arrival*> pending;
+  VEC<Activity*> path;
+  SET<Arrival*> pending;
+};
+
+/**
+ * Rollback to a previous activity.
+ */
+template <class T>
+class Rollback: public Activity {
+public:
+  Rollback(int amount, T times, bool provide_attrs):
+    Activity("Rollback", "none", provide_attrs), amount(fabs(amount)), times(times),
+    cached(NULL), selected(NULL) {}
+  
+  ~Rollback() { pending.clear(); }
+  
+  void print(int indent=0);
+  double run(Arrival* arrival);
+  
+  Activity* get_next() {
+    if (selected) {
+      Activity* aux = selected;
+      selected = NULL;
+      return aux;
+    } else 
+      return Activity::get_next();
+  }
+  
+private:
+  int amount;
+  T times;
+  Activity* cached, *selected;
+  MAP<Arrival*, int> pending;
+  
+  inline Activity* goback() {
+    int n = amount;
+    Activity* ptr = this;
+    while (ptr->get_prev() && n--)
+      ptr = ptr->get_prev();
+    return ptr;
+  }
 };
 
 #endif

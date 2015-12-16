@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Bart Smeets, Iñaki Ucar" />
+
+<meta name="date" content="2015-12-15" />
+
+<title>Advanced trajectory usage</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">Advanced trajectory usage</h1>
+<h4 class="author"><em>Bart Smeets, Iñaki Ucar</em></h4>
+<h4 class="date"><em>2015-12-15</em></h4>
+</div>
+
+
+<p>When a generator creates an arrival, it couples the arrival to a given trajectory. A trajectory is defined as an interlinkage of activities which together form the arrivals’ lifetime in the system. Once an arrival is coupled to the trajectory, it will (in general) start processing the activities in the trajectory in the specified order and, eventually, leave the system. Consider the following:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simmer)
+
+patient_traj&lt;-
+<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">seize</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">3</span>) %&gt;%
+<span class="st">  </span><span class="kw">release</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>)</code></pre>
+<p>Here we create a trajectory where a patient <em>seizes</em> a doctor for 3 minutes and then <em>releases</em> him again.</p>
+<p>This is a very straightforward example, however, most of the trajectory-related functions allow for more advanced usage. The different functions are introduced below.</p>
+<div id="set_attribute" class="section level2">
+<h2>set_attribute</h2>
+<p>The <code>set_attribute(trajectory, key, value)</code> function set the <code>value</code> of an arrival’s attribute <code>key</code>. Be aware that <code>value</code> can only be numeric.</p>
+<pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
+<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;my_key&quot;</span>, <span class="dv">123</span>) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;my_key&quot;</span>, <span class="dv">456</span>)
+
+env&lt;-
+<span class="st">  </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>()
+
+<span class="kw">get_mon_attributes</span>(env)</code></pre>
+<pre><code>##   time     name    key value
+## 1    0 patient0 my_key   123
+## 2    5 patient0 my_key   456</code></pre>
+<p>Above, a trajectory which <em>only</em> sets attribute <code>my_key</code> to value <code>123</code> is launched once by an arrival generated at time 0 (check <code>?at</code>). Using <code>get_mon_attributes</code> we can look at the evolution of the value of <code>my_key</code>.</p>
+<p>If you want to set an attribute that depends on another attribute, or on the current value of the attribute to be set, this is also possible. In fact, if, instead of a numeric value, you supply a function with one parameter, the current set of attributes is passed as a list to that function. Whatever (numeric value) your function returns is set as the value of the specified attribute key. If the supplied function has no parameters, it is evaluated in the same way, but the attribute list is not accesible in the function body. This means that, if you supply a function to the <code>value</code> parameter, it has to be in the form of either <code>function(attrs){}</code> (first case) or <code>function(){}</code> (second case). Below, you can see an example of this in practice.</p>
+<pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
+<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;my_key&quot;</span>, <span class="dv">123</span>) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;my_key&quot;</span>, function(attrs) attrs[[<span class="st">&quot;my_key&quot;</span>]] +<span class="st"> </span><span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;dependent_key&quot;</span>, function(attrs) <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;my_key&quot;</span>]]&lt;=<span class="dv">123</span>, <span class="dv">1</span>, <span class="dv">0</span>)) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;independent_key&quot;</span>, function() <span class="kw">runif</span>(<span class="dv">1</span>))
+
+env&lt;-
+<span class="st">  </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>()
+
+<span class="kw">get_mon_attributes</span>(env)</code></pre>
+<pre><code>##   time     name             key       value
+## 1    0 patient0          my_key 123.0000000
+## 2    5 patient0          my_key 124.0000000
+## 3   10 patient0   dependent_key   0.0000000
+## 4   15 patient0 independent_key   0.8810414</code></pre>
+</div>
+<div id="seize-release" class="section level2">
+<h2>seize &amp; release</h2>
+<p>The <code>seize(trajectory, resource, amount)</code> function seizes a specified <code>amount</code> of resources of type <code>resource</code>. Conversely, the <code>release(trajectory, resource, amount)</code> function releases a specified <code>amount</code> of resource of type <code>resource</code>. Be aware that, in order to use these functions in relation to a specific resource type, you have to create that resource type in your definition of the simulation environment (check <code>?add_resource</code>).</p>
+<p>Consider the following example:</p>
+<pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
+<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">seize</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">3</span>) %&gt;%
+<span class="st">  </span><span class="kw">release</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>)
+
+env&lt;-
+<span class="st">  </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dt">capacity=</span><span class="dv">1</span>, <span class="dt">mon =</span> <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%
+<span class="st">  </span><span class="kw">run</span>()
+
+<span class="kw">get_mon_resources</span>(env)</code></pre>
+<pre><code>##   time server queue system resource
+## 1    0      0     0      0   doctor
+## 2    3      1     0      1   doctor</code></pre>
+<p>Here the <code>mon=1</code> argument (=default) of <code>add_resource</code> makes the simulation environment monitor the resource usage. Using the <code>get_mon_resources(env)</code> function you can get access to the log of the usage evolution of resources.</p>
+<p>There are situations where you want to let the amount of resources seized/released be dependent on a specific function or on a previously set attribute. To achieve this, you can pass a function in the form of either <code>function(){}</code> or <code>function(attrs){}</code> to the <code>amount</code> parameter instead of a numeric value. If going for the latter, the current state of the arrival’s attributes will be passed to <code>attrs</code> as a list which you can inspect. This allows for the following:</p>
+<pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
+<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;health&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">20</span>:<span class="dv">80</span>, <span class="dv">1</span>)) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;docs_to_seize&quot;</span>, function(attrs) <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;health&quot;</span>]]&lt;<span class="dv">50</span>, <span class="dv">1</span>, <span class="dv">2</span>)) %&gt;%
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;doctor&quot;</span>, function(attrs) attrs[[<span class="st">&quot;docs_to_seize&quot;</span>]]) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">3</span>) %&gt;%
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;doctor&quot;</span>, function(attrs) attrs[[<span class="st">&quot;docs_to_seize&quot;</span>]])
+
+env&lt;-
+<span class="st">  </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dt">capacity=</span><span class="dv">2</span>, <span class="dt">mon =</span> <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>()
+
+<span class="kw">get_mon_resources</span>(env)</code></pre>
+<pre><code>##   time server queue system resource
+## 1    0      0     0      0   doctor
+## 2    3      2     0      2   doctor</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env)</code></pre>
+<pre><code>##   time     name           key value
+## 1    0 patient0        health    73
+## 2    0 patient0 docs_to_seize     2</code></pre>
+</div>
+<div id="timeout" class="section level2">
+<h2>timeout</h2>
+<p>At its simplest, the <code>timeout(trajectory, task)</code> function delays the arrival’s advance through the trajectory for a specified amount of time. Consider the following minimal example where we simply supply a static value to the timeout’s <code>task</code> parameter.</p>
+<pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
+<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">3</span>)
+
+env&lt;-
+<span class="st">  </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dt">capacity=</span><span class="dv">2</span>, <span class="dt">mon =</span> <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>()
+
+<span class="kw">get_mon_arrivals</span>(env)</code></pre>
+<pre><code>##       name start_time end_time activity_time finished
+## 1 patient0          0        3             3     TRUE</code></pre>
+<p>Often, however, you want a timeout to be dependent on a distribution or, for example, an earlier set attribute. This is achieved by passing a function in to form of either <code>function(){}</code> or <code>function(attrs){}</code> to the <code>task</code> parameter. In the following example this functionality is demonstrated:</p>
+<pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
+<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;health&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">20</span>:<span class="dv">80</span>, <span class="dv">1</span>)) %&gt;%
+<span class="st">  </span><span class="co"># distribution-based timeout</span>
+<span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">rpois</span>(<span class="dv">1</span>, <span class="dv">10</span>)) %&gt;%
+<span class="st">  </span><span class="co"># attribute-dependent timeout</span>
+<span class="st">  </span><span class="kw">timeout</span>(function(attrs) (<span class="dv">100</span> -<span class="st"> </span>attrs[[<span class="st">&quot;health&quot;</span>]]) *<span class="st"> </span><span class="dv">2</span>)
+
+env&lt;-
+<span class="st">  </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>()
+
+<span class="kw">get_mon_arrivals</span>(env)</code></pre>
+<pre><code>##       name start_time end_time activity_time finished
+## 1 patient0          0       87            87     TRUE</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env)</code></pre>
+<pre><code>##   time     name    key value
+## 1    0 patient0 health    62</code></pre>
+<p>Be aware that if you want the <code>timeout</code>’s <code>task</code> parameter to be evaluated dynamically, you should supply a callable function. For example in <code>timeout(function() rpois(1, 10))</code>, <code>rpois(1, 10)</code> will be evaluated every time the timeout activity is executed. However, if you supply it in the form of <code>timeout(rpois(1, 10))</code>, it will only be evaluated at initalization and will remain static after that.</p>
+<p>Of course, this <code>task</code>, supplied as a function, may be as complex as you need and, for instance, check a resource’s status, interact with other entities in your simulation model… The same applies to all previous activities when they accept a function as a parameter.</p>
+</div>
+<div id="branch" class="section level2">
+<h2>branch</h2>
+<p>in progress…</p>
+</div>
+<div id="rollback" class="section level2">
+<h2>rollback</h2>
+<p>The <code>rollback(trajectory, amount, times, check)</code> function allows an arrival to rollback the trajectory an <code>amount</code> number of steps.</p>
+<p>Consider the following where a string is printed in the timeout function. After the first run, the trajectory is rolled back 3 times.</p>
+<pre class="sourceCode r"><code class="sourceCode r">t0&lt;-<span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(function(){
+    <span class="kw">print</span>(<span class="st">&quot;Hello!&quot;</span>)
+    <span class="dv">0</span>}) %&gt;%
+<span class="st">  </span><span class="kw">rollback</span>(<span class="dt">amount=</span><span class="dv">1</span>, <span class="dt">times=</span><span class="dv">3</span>)
+
+
+<span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;hello_sayer&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">run</span>()</code></pre>
+<pre><code>## [1] &quot;Hello!&quot;
+## [1] &quot;Hello!&quot;
+## [1] &quot;Hello!&quot;
+## [1] &quot;Hello!&quot;</code></pre>
+<pre><code>## Simmer environment: anonymous | now: 0 | next: Inf
+## { Generator: hello_sayer | monitored: 1 | n_generated: 1 }</code></pre>
+<p>The <code>rollback</code> function also accepts an optional <code>check</code> parameter which overrides the default amount-based behaviour. This parameter must be a function that returns a logical value. Each time an arrival reaches the activity, this <code>check</code> is evaluated to determine whether the <code>rollback</code> with <code>amount</code> steps must be performed or not. Consider the following example:</p>
+<pre class="sourceCode r"><code class="sourceCode r">t0&lt;-<span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;happiness&quot;</span>, <span class="dv">0</span>) %&gt;%
+<span class="st">  </span><span class="co"># the timeout function is used simply to print something and returns 0,</span>
+<span class="st">  </span><span class="co"># hence it is a dummy timeout</span>
+<span class="st">  </span><span class="kw">timeout</span>(function(attrs){
+    <span class="kw">cat</span>(<span class="st">&quot;&gt;&gt; Happiness level is at: &quot;</span>, attrs[[<span class="st">&quot;happiness&quot;</span>]], <span class="st">&quot; -- &quot;</span>)
+    <span class="kw">cat</span>(<span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">25</span>,<span class="st">&quot;PETE: I'm feeling crappy...&quot;</span>,
+           <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">50</span>,<span class="st">&quot;PETE: Feelin' a bit moody&quot;</span>,
+                  <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">75</span>,<span class="st">&quot;PETE: Just had a good espresso&quot;</span>,
+                         <span class="st">&quot;PETE: Let's do this! (and stop this loop...)&quot;</span>)))
+    , <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+    <span class="kw">return</span>(<span class="dv">0</span>)
+  }) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;happiness&quot;</span>, function(attrs) attrs[[<span class="st">&quot;happiness&quot;</span>]] +<span class="st"> </span><span class="dv">25</span>) %&gt;%
+<span class="st">  </span><span class="kw">rollback</span>(<span class="dt">amount=</span><span class="dv">2</span>, <span class="dt">check=</span>function(attrs) attrs[[<span class="st">&quot;happiness&quot;</span>]] &lt;<span class="st"> </span><span class="dv">100</span>)
+
+
+<span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;mood_swinger&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">run</span>()</code></pre>
+<pre><code>## &gt;&gt; Happiness level is at:  0  -- PETE: I'm feeling crappy... 
+## &gt;&gt; Happiness level is at:  25  -- PETE: Feelin' a bit moody 
+## &gt;&gt; Happiness level is at:  50  -- PETE: Just had a good espresso 
+## &gt;&gt; Happiness level is at:  75  -- PETE: Let's do this! (and stop this loop...)</code></pre>
+<pre><code>## Simmer environment: anonymous | now: 0 | next: Inf
+## { Generator: mood_swinger | monitored: 1 | n_generated: 1 }</code></pre>
+</div>
+<div id="bringing-it-all-together" class="section level2">
+<h2>Bringing it all together</h2>
+<p>in progress…</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

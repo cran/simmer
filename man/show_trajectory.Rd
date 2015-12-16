@@ -2,7 +2,7 @@
 % Please edit documentation in R/trajectory.R
 \name{show_trajectory}
 \alias{show_trajectory}
-\title{Show a trajectory}
+\title{Print a trajectory (deprecated)}
 \usage{
 show_trajectory(traj)
 }
@@ -15,6 +15,7 @@ It can be used to visualise a trajectory's internal structure.
 \seealso{
 Other methods to deal with trajectories:
 \link{create_trajectory}, \link{get_head}, \link{get_tail},
-\link{get_n_activities}, \link{seize}, \link{release}, \link{timeout}, \link{branch}.
+\link{get_n_activities}, \link{seize}, \link{release}, \link{timeout}, 
+\link{set_attribute}, \link{branch}, \link{rollback}.
 }
 
