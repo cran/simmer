@@ -83,23 +83,37 @@ Simmer <- R6Class("Simmer",
       self
     },
     
-    get_mon_arrivals = function() {
-      if (sum(private$gen>0))
-        do.call(rbind, lapply(names(private$gen[private$gen>0]), function(i) {
-          monitor_data <- as.data.frame(
-            get_mon_arrivals_(private$sim_obj, i)
-          )
-        }))
-      else data.frame(name = character(),
-                      start_time = numeric(),
-                      end_time = numeric(), 
-                      activity_time = numeric(), 
-                      finished = logical())
+    get_mon_arrivals = function(per_resource=FALSE) {
+      if (per_resource) {
+        if (sum(private$gen>0))
+          do.call(rbind, lapply(names(private$gen[private$gen>0]), function(i) {
+            monitor_data <- as.data.frame(
+              get_mon_arrivals_per_resource_(private$sim_obj, i)
+            )
+          }))
+        else data.frame(name = character(),
+                        start_time = numeric(),
+                        end_time = numeric(), 
+                        activity_time = numeric(), 
+                        resource = character())
+      } else {
+        if (sum(private$gen>0))
+          do.call(rbind, lapply(names(private$gen[private$gen>0]), function(i) {
+            monitor_data <- as.data.frame(
+              get_mon_arrivals_(private$sim_obj, i)
+            )
+          }))
+        else data.frame(name = character(),
+                        start_time = numeric(),
+                        end_time = numeric(), 
+                        activity_time = numeric(), 
+                        finished = logical())
+      }
     },
     
     get_mon_attributes = function() {
-      if (sum(private$gen>0))
-        do.call(rbind, lapply(names(private$gen[private$gen>0]), function(i) {
+      if (sum(private$gen>1))
+        do.call(rbind, lapply(names(private$gen[private$gen>1]), function(i) {
           monitor_data <- as.data.frame(
             get_mon_attributes_(private$sim_obj, i)
           )
@@ -323,7 +337,8 @@ add_generator <- function(env, name_prefix, trajectory, dist, mon=1)
 #'
 #' Gets the arrivals' monitored data (if any).
 #' 
-#' @param env the simulation environment.
+#' @param env the simulation environment (or a list of environments).
+#' @param per_resource whether the activity should be reported on a per-resource basis (by default: FALSE).
 #' @return Returns a data frame.
 #' @seealso Other methods to deal with a simulation environment:
 #' \link{simmer}, \link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
@@ -331,13 +346,14 @@ add_generator <- function(env, name_prefix, trajectory, dist, mon=1)
 #' \link{get_mon_resources}, \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
 #' \link{get_server_count}, \link{get_queue_count}.
 #' @export
-get_mon_arrivals <- function(env) env$get_mon_arrivals()
+get_mon_arrivals <- function(env, per_resource=FALSE) 
+  envs_apply(env, "get_mon_arrivals", per_resource)
 
 #' Get attribute statistics
 #'
 #' Gets the arrivals' attributes over time (if any).
 #' 
-#' @param env the simulation environment.
+#' @param env the simulation environment (or a list of environments).
 #' @return Returns a data frame.
 #' @seealso Other methods to deal with a simulation environment:
 #' \link{simmer}, \link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
@@ -345,13 +361,13 @@ get_mon_arrivals <- function(env) env$get_mon_arrivals()
 #' \link{get_mon_resources}, \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
 #' \link{get_server_count}, \link{get_queue_count}.
 #' @export
-get_mon_attributes <- function(env) env$get_mon_attributes()
+get_mon_attributes <- function(env) envs_apply(env, "get_mon_attributes")
 
 #' Get resource statistics
 #'
 #' Gets the resources' monitored data (if any).
 #' 
-#' @param env the simulation environment.
+#' @param env the simulation environment (or a list of environments).
 #' @return Returns a data frame.
 #' @seealso Other methods to deal with a simulation environment:
 #' \link{simmer}, \link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
@@ -359,7 +375,7 @@ get_mon_attributes <- function(env) env$get_mon_attributes()
 #' \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
 #' \link{get_server_count}, \link{get_queue_count}.
 #' @export
-get_mon_resources <- function(env) env$get_mon_resources()
+get_mon_resources <- function(env) envs_apply(env, "get_mon_resources")
 
 #' Get the number of arrivals generated
 #'
