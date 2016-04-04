@@ -2,22 +2,27 @@
 #' 
 #' Plot the usage of a resource over the simulation time frame.
 #' 
-#' @param envs a single simmer environment or a list of environments representing several replications
-#' @param resource_name the name of the resource (character value)
-#' @param items the components of the resource to be plotted
-#' @param steps adds the changes in the resource usage
+#' @param envs a single simmer environment or a list of environments representing several replications.
+#' @param resource_name the name of the resource (character value).
+#' @param items the components of the resource to be plotted.
+#' @param steps adds the changes in the resource usage.
+#' 
+#' @return a ggplot2 object.
+#' @seealso \link{plot_resource_utilization},
+#' \link{plot_evolution_arrival_times}, \link{plot_attributes}.
 #' @export
 plot_resource_usage <- function(envs, resource_name, items=c("queue", "server", "system"), steps = FALSE) {
+  checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))
   # Hack to avoid spurious notes
-  resource <- item <- value <- replication <- time <- NULL
+  resource <- item <- value <- server <- queue <- system <- replication <- time <- NULL
   
   monitor_data <- envs %>% get_mon_resources() %>% 
     dplyr::filter(resource == resource_name) %>%
-    tidyr::gather(item, value, 2:4) %>%
+    tidyr::gather(item, value, server, queue, system) %>%
     dplyr::mutate(item = factor(item)) %>%
     dplyr::filter(item %in% items) %>%
     dplyr::group_by(resource, replication, item) %>%
-    dplyr::mutate(mean = cumsum(value * diff(c(0,time))) / time) %>% 
+    dplyr::mutate(mean = c(0, cumsum(head(value, -1) * diff(time))) / time) %>% 
     dplyr::ungroup()
   
   if (is.list(envs)) env <- envs[[1]]
@@ -25,30 +30,18 @@ plot_resource_usage <- function(envs, resource_name, items=c("queue", "server", 
   queue_size <- env $ get_queue_size(resource_name)
   capacity <- env $ get_capacity(resource_name)
   system <- capacity + queue_size
+  limits <- data.frame(item = c("queue", "server", "system"),
+                       value = c(queue_size, capacity, system))
   
   plot_obj<-
     ggplot2::ggplot(monitor_data) +
     ggplot2::aes(x=time, color=item) +
     ggplot2::geom_line(ggplot2::aes(y=mean, group=interaction(replication, item))) +
     ggplot2::ggtitle(paste("Resource usage:", resource_name)) +
-    ggplot2::scale_y_continuous(breaks=seq(0,1000,1)) +
-    ggplot2::scale_color_discrete(limits=levels(monitor_data$item)) +
     ggplot2::ylab("in use") +
     ggplot2::xlab("time") +
-    ggplot2::expand_limits(y=0)
-  
-  if("server" %in% items){
-    plot_obj <- plot_obj +
-      ggplot2::geom_hline(yintercept=capacity, lty=2, color="red")
-  }
-  if("queue" %in% items && queue_size >= 0){
-    plot_obj <- plot_obj +
-      ggplot2::geom_hline(yintercept=queue_size, lty=2, color="green")
-  }
-  if("system" %in% items && queue_size >= 0){
-    plot_obj <- plot_obj +
-      ggplot2::geom_hline(yintercept=system, lty=2, color="blue")
-  }
+    ggplot2::expand_limits(y=0) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept=value, color=item), limits, lty=2)
   
   if(steps == T){
     plot_obj <- plot_obj +
@@ -62,12 +55,17 @@ plot_resource_usage <- function(envs, resource_name, items=c("queue", "server", 
 #' 
 #' Plot the utilization of specified resources in the simulation.
 #' 
-#' @param envs a single simmer environment or a list of environments representing several replications
-#' @param resources a character vector with at least one resource specified - e.g. "c('res1','res2')"
+#' @param envs a single simmer environment or a list of environments representing several replications.
+#' @param resources a character vector with at least one resource specified - e.g. "c('res1','res2')".
+#' 
+#' @return a ggplot2 object.
+#' @seealso \link{plot_resource_usage}, 
+#' \link{plot_evolution_arrival_times}, \link{plot_attributes}.
 #' @export
 plot_resource_utilization <- function(envs, resources) {
+  checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))
   # Hack to avoid spurious notes
-  resource <- item <- value <- replication <- capacity <- runtime <- 
+  resource <- item <- value <- server <- queue <- system <- replication <- capacity <- runtime <- 
     in_use <- utilization <- Q25 <- Q50 <- Q75 <- time <- NULL
   
   if (is.list(envs)) env <- envs[[1]]
@@ -75,7 +73,7 @@ plot_resource_utilization <- function(envs, resources) {
   
   monitor_data <- envs %>% get_mon_resources() %>% 
     dplyr::filter(resource %in% resources) %>%
-    tidyr::gather(item, value, 2:4) %>%
+    tidyr::gather(item, value, server, queue, system) %>%
     dplyr::mutate(item = factor(item)) %>%
     dplyr::filter(item == "server") %>%
     dplyr::group_by(resource) %>%
@@ -106,10 +104,15 @@ plot_resource_utilization <- function(envs, resources) {
 #' 
 #' Plot the evolution of arrival related times (flow, activity and waiting time).
 #' 
-#' @param envs a single simmer environment or a list of environments representing several replications
-#' @param type one of c("flow_time","activity_time","waiting_time")
+#' @param envs a single simmer environment or a list of environments representing several replications.
+#' @param type one of c("flow_time","activity_time","waiting_time").
+#' 
+#' @return a ggplot2 object.
+#' @seealso \link{plot_resource_usage}, \link{plot_resource_utilization},
+#' \link{plot_attributes}.
 #' @export
 plot_evolution_arrival_times <- function(envs, type=c("flow_time","activity_time","waiting_time")){
+  checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))
   # Hack to avoid spurious notes
   end_time <- start_time <- flow_time <- activity_time <- 
     replication <- waiting_time <- NULL
@@ -152,26 +155,29 @@ plot_evolution_arrival_times <- function(envs, type=c("flow_time","activity_time
 #' 
 #' Plot the evolution of user-supplied attribute data.
 #' 
-#' @param envs a single simmer environment or a list of environments representing several replications
-#' @param keys the keys of attributes you want to plot (if left empty, all attributes are shown)
+#' @param envs a single simmer environment or a list of environments representing several replications.
+#' @param keys the keys of attributes you want to plot (if left empty, all attributes are shown).
 #'
+#' @return a ggplot2 object.
+#' @seealso \link{plot_resource_usage}, \link{plot_resource_utilization},
+#' \link{plot_evolution_arrival_times}.
 #' @export
-plot_attributes<-function(envs, keys=c()){
+plot_attributes <- function(envs, keys=c()) {
+  checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))
   # Hack to avoid spurious notes
   time <- key <- value <- replication <- NULL
   
   monitor_data <- envs %>% get_mon_attributes()
   
-  if(length(keys)>0) monitor_data <- monitor_data %>%  dplyr::filter(key %in% keys)
+  if(length(keys)>0) monitor_data <- monitor_data %>% dplyr::filter(key %in% keys)
   
   plot_obj<-
     ggplot2::ggplot(monitor_data) +
     ggplot2::aes(x=time, y=value) +
-    ggplot2::geom_line(alpha=.4, ggplot2::aes(group=replication)) + 
+    ggplot2::geom_step(alpha=.4, ggplot2::aes(group=replication)) + 
     ggplot2::stat_smooth() +
     ggplot2::xlab("simulation time") +
     ggplot2::ylab("value") +
-    
     ggplot2::expand_limits(y=0)
   
   if(length(unique(monitor_data$key))>1){

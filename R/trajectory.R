@@ -27,13 +27,17 @@ Trajectory <- R6Class("Trajectory",
     
     get_n_activities = function() { private$n_activities },
     
-    seize = function(resource, amount=1, priority=0) {
+    seize = function(resource, amount=1, priority=0, preemptible=0, restart=FALSE) {
       resource <- evaluate_value(resource)
       amount <- evaluate_value(amount)
       priority <- evaluate_value(priority)
+      preemptible <- evaluate_value(preemptible)
+      restart <- evaluate_value(restart)
       if (is.function(amount))
-        private$add_activity(Seize__new_func(resource, amount, needs_attrs(amount), priority))
-      else private$add_activity(Seize__new(resource, amount, priority))
+        private$add_activity(Seize__new_func(resource, amount, needs_attrs(amount), 
+                                             priority, preemptible, restart))
+      else private$add_activity(Seize__new(resource, amount, 
+                                           priority, preemptible, restart))
     },
     
     release = function(resource, amount=1) {
@@ -65,7 +69,7 @@ Trajectory <- R6Class("Trajectory",
         stop("the number of elements does not match")
       for (i in trj) if (!inherits(i, "Trajectory"))
         stop("not a trajectory")
-      private$add_activity(Branch__new(option, merge, trj))
+      private$add_activity(Branch__new(option, needs_attrs(option), merge, trj))
     },
     
     rollback = function(amount, times=1, check) {
@@ -101,11 +105,14 @@ Trajectory <- R6Class("Trajectory",
 #' by arrivals of the same type.
 #' 
 #' @param name the name of the trajectory.
+#' 
 #' @return Returns an environment that represents the trajectory.
 #' @seealso Other methods to deal with trajectories:
 #' \link{get_head}, \link{get_tail},
 #' \link{get_n_activities}, \link{seize}, \link{release}, \link{timeout}, 
 #' \link{set_attribute}, \link{branch}, \link{rollback}.
+#' @export
+#' 
 #' @examples
 #' t0 <- create_trajectory("my trajectory") %>%
 #'   ## add an intake activity
@@ -138,29 +145,14 @@ Trajectory <- R6Class("Trajectory",
 #'   timeout(function() 2)
 #' 
 #' t1
-#' @export
 create_trajectory <- function(name="anonymous") Trajectory$new(name)
-
-#' Print a trajectory (deprecated)
-#'
-#' It can be used to visualise a trajectory's internal structure.
-#' 
-#' @param traj the trajectory object.
-#' @seealso Other methods to deal with trajectories:
-#' \link{create_trajectory}, \link{get_head}, \link{get_tail},
-#' \link{get_n_activities}, \link{seize}, \link{release}, \link{timeout}, 
-#' \link{set_attribute}, \link{branch}, \link{rollback}.
-#' @export
-show_trajectory <- function(traj) {
-  .Deprecated("print")
-  traj
-}
 
 #' Get the first activity
 #'
 #' It can be used to get the pointer to a trajectory's first activity.
 #' 
 #' @param traj the trajectory object.
+#' 
 #' @return An external pointer to an activity object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_tail},
@@ -174,6 +166,7 @@ get_head <- function(traj) traj$get_head()
 #' It can be used to get the pointer to a trajectory's last activity.
 #' 
 #' @param traj the trajectory object.
+#' 
 #' @return An external pointer to an activity object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},
@@ -187,6 +180,7 @@ get_tail <- function(traj) traj$get_tail()
 #' It can be used to get the total number of activities defined inside a trajectory.
 #' 
 #' @param traj the trajectory object.
+#' 
 #' @return The number of activities in the trajectory.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},
@@ -202,14 +196,22 @@ get_n_activities <- function(traj) traj$get_n_activities()
 #' @param traj the trajectory object.
 #' @param resource the name of the resource.
 #' @param amount the amount to seize.
-#' @param priority the priority of the seize (a higher integer equals higher priority, defaults to 0)
+#' @param priority the priority of the seize (a higher integer equals higher 
+#' priority; defaults to the minimum priority, which is 0).
+#' @param preemptible if the seize occurs in a preemptive resource, this parameter 
+#' establishes the minimum incoming priority that can preempt this arrival (a seize 
+#' with a priority equal to `preemptible` or more gains the resource; by default, 
+#' any seize may cause preemption in a preemptive resource).
+#' @param restart whether the activity must be restarted after being preempted.
+#' 
 #' @return The trajectory object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},
 #' \link{get_tail}, \link{get_n_activities}, \link{release}, \link{timeout}, 
 #' \link{set_attribute}, \link{branch}, \link{rollback}.
 #' @export
-seize <- function(traj, resource, amount=1, priority=0) traj$seize(resource, amount, priority)
+seize <- function(traj, resource, amount=1, priority=0, preemptible=0, restart=FALSE)
+  traj$seize(resource, amount, priority, preemptible, restart)
 
 #' Add a release activity
 #'
@@ -218,6 +220,7 @@ seize <- function(traj, resource, amount=1, priority=0) traj$seize(resource, amo
 #' @param traj the trajectory object.
 #' @param resource the name of the resource.
 #' @param amount the amount to release.
+#' 
 #' @return The trajectory object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},
@@ -234,6 +237,7 @@ release <- function(traj, resource, amount=1) traj$release(resource, amount)
 #' @param traj the trajectory object.
 #' @param task a callable object (a function) that returns a numeric value 
 #' (negative values are automatically coerced to positive).
+#' 
 #' @return The trajectory object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},
@@ -249,6 +253,7 @@ timeout <- function(traj, task) traj$timeout(task)
 #' @param traj the trajectory object.
 #' @param key the attribute key (is coerced to a string).
 #' @param value the value (should be numeric or a function which returns a numeric).
+#' 
 #' @return The trajectory object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},
@@ -268,6 +273,7 @@ set_attribute <- function(traj, key, value) traj$set_attribute(key, value)
 #' @param merge a vector of \code{n} booleans that indicate whether the arrival must 
 #' continue executing activities after each path or not.
 #' @param ... \code{n} trajectory objects describing each path.
+#' 
 #' @return The trajectory object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},
@@ -287,6 +293,7 @@ branch <- function(traj, option, merge, ...) traj$branch(option, merge, ...)
 #' @param check a callable object (a function) that must return a boolean. If
 #' present, the \code{times} parameter is ignored, and the activity uses this
 #' function to check whether the rollback must be done or not.
+#' 
 #' @return The trajectory object.
 #' @seealso Other methods to deal with trajectories:
 #' \link{create_trajectory}, \link{get_head},

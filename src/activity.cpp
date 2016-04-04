@@ -23,13 +23,15 @@ void Seize<Rcpp::Function>::print(int indent) {
 
 template <>
 double Seize<int>::run(Arrival* arrival) {
-  return arrival->sim->get_resource(resource)->seize(arrival, amount, priority);
+  return arrival->sim->get_resource(resource)->seize(arrival, amount, 
+                                    priority, preemptible, restart);
 }
 
 template <>
 double Seize<Rcpp::Function>::run(Arrival* arrival) {
   return arrival->sim->get_resource(resource)->seize(arrival, 
-                                    execute_call<int>(amount, arrival, provide_attrs), priority);
+                                    execute_call<int>(amount, arrival, provide_attrs), 
+                                    priority, preemptible, restart);
 }
 
 template <>
@@ -96,6 +98,20 @@ template <>
 double SetAttribute<Rcpp::Function>::run(Arrival* arrival) {
   return arrival->set_attribute(key, 
                                 execute_call<double>(value, arrival, provide_attrs));
+}
+
+double Branch::run(Arrival* arrival) {
+  if (pending.find(arrival) != pending.end())
+    pending.erase(arrival);
+  else {
+    unsigned int i = execute_call<unsigned int>(option, arrival, provide_attrs);
+    if (i < 1 || i > path.size())
+      Rcpp::stop("index out of range");
+    selected = path[i-1];
+    if (merge[i-1])
+      pending.insert(arrival);
+  }
+  return 0;
 }
 
 template <>

@@ -30,7 +30,7 @@ class Simulator {
   };
   
   typedef PQUEUE<Event> PQueue;
-  typedef MAP<std::string, Entity*> EntMap;
+  typedef UMAP<std::string, Entity*> EntMap;
   
 public:
   std::string name;
@@ -65,7 +65,7 @@ public:
       ((Resource*)itr.second)->reset();
     foreach_ (EntMap::value_type& itr, generator_map) {
       ((Generator*)itr.second)->reset();
-      ((Generator*)itr.second)->activate();
+      ((Generator*)itr.second)->run();
     }
   }
   
@@ -96,7 +96,7 @@ public:
   inline bool step() {
     if (event_queue.empty()) return 0;
     now_ = event_queue.top().time;
-    event_queue.top().process->activate();
+    event_queue.top().process->run();
     event_queue.pop();
     return 1;
     // ... and that's it! :D
@@ -118,14 +118,14 @@ public:
    * @param   name_prefix     prefix for the arrival names
    * @param   first_activity  the first activity of a user-defined R trajectory
    * @param   dis             an user-defined R function that provides random numbers
-   * @param   mon             int that indicates whether this entity must be monitored
+   * @param   mon             monitoring level
    */
   bool add_generator(std::string name_prefix, 
                      Activity* first_activity, Rcpp::Function dist, int mon) {
     if (generator_map.find(name_prefix) == generator_map.end()) {
       Generator* gen = new Generator(this, name_prefix, mon, first_activity, dist);
       generator_map[name_prefix] = gen;
-      gen->activate();
+      gen->run();
       return TRUE;
     }
     Rcpp::warning("generator " + name + " already defined");
@@ -134,14 +134,25 @@ public:
   
   /**
    * Add a resource to the simulator.
-   * @param   name        the name
-   * @param   capacity    server capacity (-1 means infinity)
-   * @param   queue_size  room in the queue (-1 means infinity)
-   * @param   mon         bool that indicates whether this entity must be monitored
+   * @param   name          the name
+   * @param   capacity      server capacity (-1 means infinity)
+   * @param   queue_size    room in the queue (-1 means infinity)
+   * @param   mon           whether this entity must be monitored
+   * @param   preemptive    whether the resource is preemptive
+   * @param   preempt_order fifo or lifo
    */
-  bool add_resource(std::string name, int capacity, int queue_size, bool mon) {
+  bool add_resource(std::string name, int capacity, int queue_size, bool mon,
+                    bool preemptive, std::string preempt_order) {
     if (resource_map.find(name) == resource_map.end()) {
-      Resource* res = new Resource(this, name, mon, capacity, queue_size);
+      Resource* res;
+      if (!preemptive)
+        res = new Resource(this, name, mon, capacity, queue_size);
+      else {
+        if (preempt_order.compare("fifo") == 0)
+          res = new PreemptiveResource<FIFO>(this, name, mon, capacity, queue_size);
+        else
+          res = new PreemptiveResource<LIFO>(this, name, mon, capacity, queue_size);
+      }
       resource_map[name] = res;
       return TRUE;
     }
