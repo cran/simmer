@@ -1,6 +1,8 @@
 #include "simmer.h"
 #include "activity.h"
 #include "entity.h"
+#include "process.h"
+#include "resource.h"
 #include "stats.h"
 #include "simulator.h"
 
@@ -30,10 +32,16 @@ double now_(SEXP sim_) {
 }
 
 //[[Rcpp::export]]
-double peek_(SEXP sim_) {
+SEXP peek_(SEXP sim_, SEXP steps_) {
   XPtr<Simulator> sim(sim_);
+  int steps = as<int>(steps_);
   
-  return sim->peek();
+  std::pair<VEC<double>, VEC<std::string> > ret = sim->peek(steps);
+  
+  return Rcpp::List::create(
+    Rcpp::Named("time")     = ret.first,
+    Rcpp::Named("process")  = ret.second
+  );
 }
 
 //[[Rcpp::export]]
@@ -74,6 +82,19 @@ bool add_resource_(SEXP sim_, SEXP name_, SEXP capacity_, SEXP queue_size_, SEXP
   std::string preempt_order = as<std::string>(preempt_order_);
   
   return sim->add_resource(name, capacity, queue_size, mon, preemptive, preempt_order);
+}
+
+//[[Rcpp::export]]
+bool add_resource_manager_(SEXP sim_, SEXP name_, SEXP param_, 
+                           SEXP intervals_, SEXP values_, SEXP period_) {
+  XPtr<Simulator> sim(sim_);
+  std::string name = as<std::string>(name_);
+  std::string param = as<std::string>(param_);
+  VEC<double> intervals = as<VEC<double> >(intervals_);
+  VEC<int> values = as<VEC<int> >(values_);
+  int period = as<int>(period_);
+  
+  return sim->add_resource_manager(name, param, intervals, values, period);
 }
 
 //[[Rcpp::export]]
@@ -131,9 +152,39 @@ SEXP get_mon_resource_(SEXP sim_, SEXP name_) {
   StatsMap* stats = sim->get_resource(name)->get_observations();
   
   return Rcpp::List::create(
+    Rcpp::Named("time")       = stats->get<double>("time"),
+    Rcpp::Named("server")     = stats->get<int>("server"),
+    Rcpp::Named("queue")      = stats->get<int>("queue"),
+    Rcpp::Named("capacity")   = stats->get<int>("capacity"),
+    Rcpp::Named("queue_size") = stats->get<int>("queue_size")
+  );
+}
+
+//[[Rcpp::export]]
+SEXP get_mon_resource_counts_(SEXP sim_, SEXP name_) {
+  XPtr<Simulator> sim(sim_);
+  std::string name = as<std::string>(name_);
+  
+  StatsMap* stats = sim->get_resource(name)->get_observations();
+  
+  return Rcpp::List::create(
     Rcpp::Named("time")   = stats->get<double>("time"),
     Rcpp::Named("server") = stats->get<int>("server"),
     Rcpp::Named("queue")  = stats->get<int>("queue")
+  );
+}
+
+//[[Rcpp::export]]
+SEXP get_mon_resource_limits_(SEXP sim_, SEXP name_) {
+  XPtr<Simulator> sim(sim_);
+  std::string name = as<std::string>(name_);
+  
+  StatsMap* stats = sim->get_resource(name)->get_observations();
+  
+  return Rcpp::List::create(
+    Rcpp::Named("time")   = stats->get<double>("time"),
+    Rcpp::Named("server") = stats->get<int>("capacity"),
+    Rcpp::Named("queue")  = stats->get<int>("queue_size")
   );
 }
 
@@ -325,10 +376,10 @@ SEXP activity_get_prev_(SEXP activity_) {
 }
 
 //[[Rcpp::export]]
-void activity_chain_(SEXP activity_, SEXP the_next_) {
-  XPtr<Activity> activity(activity_);
-  XPtr<Activity> the_next(the_next_);
+void activity_chain_(SEXP first_, SEXP second_) {
+  XPtr<Activity> first(first_);
+  XPtr<Activity> second(second_);
   
-  activity->set_next(the_next);
-  the_next->set_prev(activity);
+  first->set_next(second);
+  second->set_prev(first);
 }

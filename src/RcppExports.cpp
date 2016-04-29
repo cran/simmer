@@ -39,13 +39,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // peek_
-double peek_(SEXP sim_);
-RcppExport SEXP simmer_peek_(SEXP sim_SEXP) {
+SEXP peek_(SEXP sim_, SEXP steps_);
+RcppExport SEXP simmer_peek_(SEXP sim_SEXP, SEXP steps_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
-    __result = Rcpp::wrap(peek_(sim_));
+    Rcpp::traits::input_parameter< SEXP >::type steps_(steps_SEXP);
+    __result = Rcpp::wrap(peek_(sim_, steps_));
     return __result;
 END_RCPP
 }
@@ -102,6 +103,22 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// add_resource_manager_
+bool add_resource_manager_(SEXP sim_, SEXP name_, SEXP param_, SEXP intervals_, SEXP values_, SEXP period_);
+RcppExport SEXP simmer_add_resource_manager_(SEXP sim_SEXP, SEXP name_SEXP, SEXP param_SEXP, SEXP intervals_SEXP, SEXP values_SEXP, SEXP period_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type name_(name_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type param_(param_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type intervals_(intervals_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type values_(values_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type period_(period_SEXP);
+    __result = Rcpp::wrap(add_resource_manager_(sim_, name_, param_, intervals_, values_, period_));
+    return __result;
+END_RCPP
+}
 // get_mon_arrivals_
 SEXP get_mon_arrivals_(SEXP sim_, SEXP name_);
 RcppExport SEXP simmer_get_mon_arrivals_(SEXP sim_SEXP, SEXP name_SEXP) {
@@ -147,6 +164,30 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
     Rcpp::traits::input_parameter< SEXP >::type name_(name_SEXP);
     __result = Rcpp::wrap(get_mon_resource_(sim_, name_));
+    return __result;
+END_RCPP
+}
+// get_mon_resource_counts_
+SEXP get_mon_resource_counts_(SEXP sim_, SEXP name_);
+RcppExport SEXP simmer_get_mon_resource_counts_(SEXP sim_SEXP, SEXP name_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type name_(name_SEXP);
+    __result = Rcpp::wrap(get_mon_resource_counts_(sim_, name_));
+    return __result;
+END_RCPP
+}
+// get_mon_resource_limits_
+SEXP get_mon_resource_limits_(SEXP sim_, SEXP name_);
+RcppExport SEXP simmer_get_mon_resource_limits_(SEXP sim_SEXP, SEXP name_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type name_(name_SEXP);
+    __result = Rcpp::wrap(get_mon_resource_limits_(sim_, name_));
     return __result;
 END_RCPP
 }
@@ -398,13 +439,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // activity_chain_
-void activity_chain_(SEXP activity_, SEXP the_next_);
-RcppExport SEXP simmer_activity_chain_(SEXP activity_SEXP, SEXP the_next_SEXP) {
+void activity_chain_(SEXP first_, SEXP second_);
+RcppExport SEXP simmer_activity_chain_(SEXP first_SEXP, SEXP second_SEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< SEXP >::type activity_(activity_SEXP);
-    Rcpp::traits::input_parameter< SEXP >::type the_next_(the_next_SEXP);
-    activity_chain_(activity_, the_next_);
+    Rcpp::traits::input_parameter< SEXP >::type first_(first_SEXP);
+    Rcpp::traits::input_parameter< SEXP >::type second_(second_SEXP);
+    activity_chain_(first_, second_);
     return R_NilValue;
 END_RCPP
 }

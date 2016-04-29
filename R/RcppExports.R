@@ -13,8 +13,8 @@ now_ <- function(sim_) {
     .Call('simmer_now_', PACKAGE = 'simmer', sim_)
 }
 
-peek_ <- function(sim_) {
-    .Call('simmer_peek_', PACKAGE = 'simmer', sim_)
+peek_ <- function(sim_, steps_) {
+    .Call('simmer_peek_', PACKAGE = 'simmer', sim_, steps_)
 }
 
 step_ <- function(sim_) {
@@ -33,6 +33,10 @@ add_resource_ <- function(sim_, name_, capacity_, queue_size_, mon_, preemptive_
     .Call('simmer_add_resource_', PACKAGE = 'simmer', sim_, name_, capacity_, queue_size_, mon_, preemptive_, preempt_order_)
 }
 
+add_resource_manager_ <- function(sim_, name_, param_, intervals_, values_, period_) {
+    .Call('simmer_add_resource_manager_', PACKAGE = 'simmer', sim_, name_, param_, intervals_, values_, period_)
+}
+
 get_mon_arrivals_ <- function(sim_, name_) {
     .Call('simmer_get_mon_arrivals_', PACKAGE = 'simmer', sim_, name_)
 }
@@ -47,6 +51,14 @@ get_mon_attributes_ <- function(sim_, name_) {
 
 get_mon_resource_ <- function(sim_, name_) {
     .Call('simmer_get_mon_resource_', PACKAGE = 'simmer', sim_, name_)
+}
+
+get_mon_resource_counts_ <- function(sim_, name_) {
+    .Call('simmer_get_mon_resource_counts_', PACKAGE = 'simmer', sim_, name_)
+}
+
+get_mon_resource_limits_ <- function(sim_, name_) {
+    .Call('simmer_get_mon_resource_limits_', PACKAGE = 'simmer', sim_, name_)
 }
 
 get_n_generated_ <- function(sim_, name_) {
@@ -129,7 +141,7 @@ activity_get_prev_ <- function(activity_) {
     .Call('simmer_activity_get_prev_', PACKAGE = 'simmer', activity_)
 }
 
-activity_chain_ <- function(activity_, the_next_) {
-    invisible(.Call('simmer_activity_chain_', PACKAGE = 'simmer', activity_, the_next_))
+activity_chain_ <- function(first_, second_) {
+    invisible(.Call('simmer_activity_chain_', PACKAGE = 'simmer', first_, second_))
 }
 

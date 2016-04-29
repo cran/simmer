@@ -3,12 +3,16 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 library(ggplot2)
 theme_set(theme_bw())
+knitr::read_demo("A-introduction", "simmer")
 
-## ---- message=FALSE------------------------------------------------------
+## ----setup, message=FALSE------------------------------------------------
 library(simmer)
 
-## ------------------------------------------------------------------------
-t0 <- create_trajectory("my trajectory") %>%
+env <- simmer("SuperDuperSim")
+env
+
+## ----part1---------------------------------------------------------------
+patient <- create_trajectory("patients' path") %>%
   ## add an intake activity 
   seize("nurse", 1) %>%
   timeout(function() rnorm(1, 15)) %>%
@@ -22,46 +26,46 @@ t0 <- create_trajectory("my trajectory") %>%
   timeout(function() rnorm(1, 5)) %>%
   release("administration", 1)
 
-## ------------------------------------------------------------------------
-env <- simmer("SuperDuperSim") %>%
+## ----part2---------------------------------------------------------------
+env %>%
   add_resource("nurse", 1) %>%
   add_resource("doctor", 2) %>%
   add_resource("administration", 1) %>%
-  add_generator("patient", t0, function() rnorm(1, 10, 2))
+  add_generator("patient", patient, function() rnorm(1, 10, 2))
 
-## ---- message=FALSE------------------------------------------------------
+## ----part3, message=FALSE------------------------------------------------
 env %>% run(until=80)
 env %>% now()
-env %>% peek()
+env %>% peek(3)
 
-## ---- message=FALSE------------------------------------------------------
+## ----part4, message=FALSE------------------------------------------------
 env %>% onestep()
 env %>% onestep() %>% onestep() %>% onestep()
 env %>% now()
-env %>% peek()
+env %>% peek(Inf, verbose=TRUE)
 
-## ---- message=FALSE------------------------------------------------------
+## ----part5, message=FALSE------------------------------------------------
 env %>% 
   run(until=120) %>%
   now()
 
-## ---- message=FALSE------------------------------------------------------
+## ----part6, message=FALSE------------------------------------------------
 env %>% 
   reset() %>% 
   run(until=80) %>%
   now()
 
-## ------------------------------------------------------------------------
+## ----part7---------------------------------------------------------------
 envs <- lapply(1:100, function(i) {
   simmer("SuperDuperSim") %>%
     add_resource("nurse", 1) %>%
     add_resource("doctor", 2) %>%
     add_resource("administration", 1) %>%
-    add_generator("patient", t0, function() rnorm(1, 10, 2)) %>%
+    add_generator("patient", patient, function() rnorm(1, 10, 2)) %>%
     run(80)
 })
 
-## ------------------------------------------------------------------------
+## ----part8---------------------------------------------------------------
 library(parallel)
 
 envs <- mclapply(1:100, function(i) {
@@ -69,12 +73,12 @@ envs <- mclapply(1:100, function(i) {
     add_resource("nurse", 1) %>%
     add_resource("doctor", 2) %>%
     add_resource("administration", 1) %>%
-    add_generator("patient", t0, function() rnorm(1, 10, 2)) %>%
+    add_generator("patient", patient, function() rnorm(1, 10, 2)) %>%
     run(80) %>%
     wrap()
 })
 
-## ---- message=FALSE------------------------------------------------------
+## ----part9, message=FALSE------------------------------------------------
 envs[[1]] %>% get_n_generated("patient")
 envs[[1]] %>% get_capacity("doctor")
 envs[[1]] %>% get_queue_size("doctor")
@@ -85,27 +89,15 @@ head(
   envs %>% get_mon_arrivals()
 )
 
-## ------------------------------------------------------------------------
-t1 <- create_trajectory("trajectory with a branch") %>%
-  seize("server", 1) %>%
-  branch(function() sample(1:2, 1), merge=c(T, F), 
-    create_trajectory("branch1") %>%
-      timeout(function() 1),
-    create_trajectory("branch2") %>%
-      timeout(function() rexp(1, 3)) %>%
-      release("server", 1)
-  ) %>%
-  release("server", 1)
-
-## ---- message=FALSE------------------------------------------------------
+## ----part10, message=FALSE-----------------------------------------------
 plot_resource_utilization(envs, c("nurse", "doctor","administration"))
 
-## ---- message=FALSE------------------------------------------------------
+## ----part11, message=FALSE-----------------------------------------------
 plot_resource_usage(envs, "doctor", items="server", steps=T)
 
-## ---- message=FALSE------------------------------------------------------
+## ----part12, message=FALSE-----------------------------------------------
 plot_resource_usage(envs[[6]], "doctor", items="server", steps=T)
 
-## ---- message=FALSE------------------------------------------------------
+## ----part13, message=FALSE-----------------------------------------------
 plot_evolution_arrival_times(envs, type = "flow_time")
 

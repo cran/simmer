@@ -3,7 +3,7 @@
 #include "activity.h"
 
 template <typename T>
-inline T execute_call(Rcpp::Function call, Arrival* arrival, bool provide_attrs) {
+T execute_call(Rcpp::Function call, Arrival* arrival, bool provide_attrs) {
   if (provide_attrs)
     return Rcpp::as<T>(call(Rcpp::wrap(*arrival->get_attributes())));
   else return Rcpp::as<T>(call());
@@ -101,16 +101,10 @@ double SetAttribute<Rcpp::Function>::run(Arrival* arrival) {
 }
 
 double Branch::run(Arrival* arrival) {
-  if (pending.find(arrival) != pending.end())
-    pending.erase(arrival);
-  else {
-    unsigned int i = execute_call<unsigned int>(option, arrival, provide_attrs);
-    if (i < 1 || i > path.size())
-      Rcpp::stop("index out of range");
-    selected = path[i-1];
-    if (merge[i-1])
-      pending.insert(arrival);
-  }
+  unsigned int i = execute_call<unsigned int>(option, arrival, provide_attrs);
+  if (i < 1 || i > heads.size())
+    Rcpp::stop("index out of range");
+  selected = heads[i-1];
   return 0;
 }
 

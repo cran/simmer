@@ -9,8 +9,7 @@ rollback(traj, amount, times = 1, check)
 \arguments{
 \item{traj}{the trajectory object.}
 
-\item{amount}{the amount of activities to roll back (of the same level; it does
-not go into branches).}
+\item{amount}{the amount of activities (of the same or parent trajectories) to roll back.}
 
 \item{times}{the number of repetitions until an arrival may continue.}
 
@@ -25,7 +24,7 @@ The trajectory object.
 Adds a new activity that goes backwards in the trajectory.
 }
 \seealso{
-Other methods to deal with trajectories:
+Other methods for dealing with trajectories:
 \link{create_trajectory}, \link{get_head},
 \link{get_tail}, \link{get_n_activities}, \link{seize}, \link{release},
 \link{set_attribute}, \link{timeout}, \link{branch}.

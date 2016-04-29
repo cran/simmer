@@ -11,9 +11,9 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2016-04-04" />
+<meta name="date" content="2016-04-29" />
 
-<title>Advanced trajectory usage</title>
+<title>Advanced Trajectory Usage</title>
 
 
 
@@ -68,25 +68,40 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="fluid-row" id="header">
 
 
-<h1 class="title">Advanced trajectory usage</h1>
+<h1 class="title">Advanced Trajectory Usage</h1>
 <h4 class="author"><em>Bart Smeets, Iñaki Ucar</em></h4>
-<h4 class="date"><em>2016-04-04</em></h4>
+<h4 class="date"><em>2016-04-29</em></h4>
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#available-set-of-activities">Available set of activities</a><ul>
+<li><a href="#set_attribute">set_attribute</a></li>
+<li><a href="#seize-release">seize &amp; release</a></li>
+<li><a href="#timeout">timeout</a></li>
+<li><a href="#branch">branch</a></li>
+<li><a href="#rollback">rollback</a></li>
+</ul></li>
+<li><a href="#interacting-with-the-environment-from-within-a-trajectory">Interacting with the environment from within a trajectory</a></li>
+</ul>
+</div>
 
-<p>When a generator creates an arrival, it couples the arrival to a given trajectory. A trajectory is defined as an interlinkage of activities which together form the arrivals’ lifetime in the system. Once an arrival is coupled to the trajectory, it will (in general) start processing the activities in the trajectory in the specified order and, eventually, leave the system. Consider the following:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simmer)
-
-patient_traj&lt;-
+<span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(dplyr)</code></pre></div>
+<div id="available-set-of-activities" class="section level2">
+<h2>Available set of activities</h2>
+<p>When a generator creates an arrival, it couples the arrival to a given trajectory. A trajectory is defined as an interlinkage of activities which together form the arrivals’ lifetime in the system. Once an arrival is coupled to the trajectory, it will (in general) start processing the activities in the trajectory in the specified order and, eventually, leave the system. Consider the following:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
 <span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">3</span>) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>)</code></pre></div>
 <p>Here we create a trajectory where a patient <em>seizes</em> a doctor for 3 minutes and then <em>releases</em> him again.</p>
 <p>This is a very straightforward example, however, most of the trajectory-related functions allow for more advanced usage. The different functions are introduced below.</p>
-<div id="set_attribute" class="section level2">
-<h2>set_attribute</h2>
+<div id="set_attribute" class="section level3">
+<h3>set_attribute</h3>
 <p>The <code>set_attribute(trajectory, key, value)</code> function set the <code>value</code> of an arrival’s attribute <code>key</code>. Be aware that <code>value</code> can only be numeric.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
 <span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
@@ -99,10 +114,10 @@ env&lt;-
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
 <span class="st">  </span><span class="kw">run</span>()
 
-<span class="kw">get_mon_attributes</span>(env)</code></pre></div>
-<pre><code>##   time     name    key value replication
-## 1    0 patient0 my_key   123           1
-## 2    5 patient0 my_key   456           1</code></pre>
+<span class="kw">get_mon_attributes</span>(env)
+<span class="co">#&gt;   time     name    key value replication</span>
+<span class="co">#&gt; 1    0 patient0 my_key   123           1</span>
+<span class="co">#&gt; 2    5 patient0 my_key   456           1</span></code></pre></div>
 <p>Above, a trajectory which <em>only</em> sets attribute <code>my_key</code> to value <code>123</code> is launched once by an arrival generated at time 0 (check <code>?at</code>). Using <code>get_mon_attributes</code> we can look at the evolution of the value of <code>my_key</code>.</p>
 <p>If you want to set an attribute that depends on another attribute, or on the current value of the attribute to be set, this is also possible. In fact, if, instead of a numeric value, you supply a function with one parameter, the current set of attributes is passed as a list to that function. Whatever (numeric value) your function returns is set as the value of the specified attribute key. If the supplied function has no parameters, it is evaluated in the same way, but the attribute list is not accesible in the function body. This means that, if you supply a function to the <code>value</code> parameter, it has to be in the form of either <code>function(attrs){}</code> (first case) or <code>function(){}</code> (second case). Below, you can see an example of this in practice.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
@@ -120,15 +135,15 @@ env&lt;-
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
 <span class="st">  </span><span class="kw">run</span>()
 
-<span class="kw">get_mon_attributes</span>(env)</code></pre></div>
-<pre><code>##   time     name             key       value replication
-## 1    0 patient0          my_key 123.0000000           1
-## 2    5 patient0          my_key 124.0000000           1
-## 3   10 patient0   dependent_key   0.0000000           1
-## 4   15 patient0 independent_key   0.6834019           1</code></pre>
+<span class="kw">get_mon_attributes</span>(env)
+<span class="co">#&gt;   time     name             key        value replication</span>
+<span class="co">#&gt; 1    0 patient0          my_key 123.00000000           1</span>
+<span class="co">#&gt; 2    5 patient0          my_key 124.00000000           1</span>
+<span class="co">#&gt; 3   10 patient0   dependent_key   0.00000000           1</span>
+<span class="co">#&gt; 4   15 patient0 independent_key   0.02128283           1</span></code></pre></div>
 </div>
-<div id="seize-release" class="section level2">
-<h2>seize &amp; release</h2>
+<div id="seize-release" class="section level3">
+<h3>seize &amp; release</h3>
 <p>The <code>seize(trajectory, resource, amount)</code> function seizes a specified <code>amount</code> of resources of type <code>resource</code>. Conversely, the <code>release(trajectory, resource, amount)</code> function releases a specified <code>amount</code> of resource of type <code>resource</code>. Be aware that, in order to use these functions in relation to a specific resource type, you have to create that resource type in your definition of the simulation environment (check <code>?add_resource</code>).</p>
 <p>Consider the following example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
@@ -143,10 +158,10 @@ env&lt;-
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%
 <span class="st">  </span><span class="kw">run</span>()
 
-<span class="kw">get_mon_resources</span>(env)</code></pre></div>
-<pre><code>##   time server queue system resource replication
-## 1    0      1     0      1   doctor           1
-## 2    3      0     0      0   doctor           1</code></pre>
+<span class="kw">get_mon_resources</span>(env)
+<span class="co">#&gt;   time server queue system resource replication</span>
+<span class="co">#&gt; 1    0      1     0      1   doctor           1</span>
+<span class="co">#&gt; 2    3      0     0      0   doctor           1</span></code></pre></div>
 <p>Here the <code>mon=1</code> argument (=default) of <code>add_resource</code> makes the simulation environment monitor the resource usage. Using the <code>get_mon_resources(env)</code> function you can get access to the log of the usage evolution of resources.</p>
 <p>There are situations where you want to let the amount of resources seized/released be dependent on a specific function or on a previously set attribute. To achieve this, you can pass a function in the form of either <code>function(){}</code> or <code>function(attrs){}</code> to the <code>amount</code> parameter instead of a numeric value. If going for the latter, the current state of the arrival’s attributes will be passed to <code>attrs</code> as a list which you can inspect. This allows for the following:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
@@ -163,17 +178,17 @@ env&lt;-
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
 <span class="st">  </span><span class="kw">run</span>()
 
-<span class="kw">get_mon_resources</span>(env)</code></pre></div>
-<pre><code>##   time server queue system resource replication
-## 1    0      1     0      1   doctor           1
-## 2    3      0     0      0   doctor           1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env)</code></pre></div>
-<pre><code>##   time     name           key value replication
-## 1    0 patient0        health    26           1
-## 2    0 patient0 docs_to_seize     1           1</code></pre>
+<span class="kw">get_mon_resources</span>(env)
+<span class="co">#&gt;   time server queue system resource replication</span>
+<span class="co">#&gt; 1    0      1     0      1   doctor           1</span>
+<span class="co">#&gt; 2    3      0     0      0   doctor           1</span>
+<span class="kw">get_mon_attributes</span>(env)
+<span class="co">#&gt;   time     name           key value replication</span>
+<span class="co">#&gt; 1    0 patient0        health    44           1</span>
+<span class="co">#&gt; 2    0 patient0 docs_to_seize     1           1</span></code></pre></div>
 </div>
-<div id="timeout" class="section level2">
-<h2>timeout</h2>
+<div id="timeout" class="section level3">
+<h3>timeout</h3>
 <p>At its simplest, the <code>timeout(trajectory, task)</code> function delays the arrival’s advance through the trajectory for a specified amount of time. Consider the following minimal example where we simply supply a static value to the timeout’s <code>task</code> parameter.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
 <span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
@@ -185,9 +200,9 @@ env&lt;-
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
 <span class="st">  </span><span class="kw">run</span>()
 
-<span class="kw">get_mon_arrivals</span>(env)</code></pre></div>
-<pre><code>##       name start_time end_time activity_time finished replication
-## 1 patient0          0        3             3     TRUE           1</code></pre>
+<span class="kw">get_mon_arrivals</span>(env)
+<span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
+<span class="co">#&gt; 1 patient0          0        3             3     TRUE           1</span></code></pre></div>
 <p>Often, however, you want a timeout to be dependent on a distribution or, for example, an earlier set attribute. This is achieved by passing a function in to form of either <code>function(){}</code> or <code>function(attrs){}</code> to the <code>task</code> parameter. In the following example this functionality is demonstrated:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj&lt;-
 <span class="st">  </span><span class="kw">create_trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
@@ -202,21 +217,68 @@ env&lt;-
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
 <span class="st">  </span><span class="kw">run</span>()
 
-<span class="kw">get_mon_arrivals</span>(env)</code></pre></div>
-<pre><code>##       name start_time end_time activity_time finished replication
-## 1 patient0          0       78            78     TRUE           1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env)</code></pre></div>
-<pre><code>##   time     name    key value replication
-## 1    0 patient0 health    67           1</code></pre>
+<span class="kw">get_mon_arrivals</span>(env)
+<span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
+<span class="co">#&gt; 1 patient0          0      133           133     TRUE           1</span>
+<span class="kw">get_mon_attributes</span>(env)
+<span class="co">#&gt;   time     name    key value replication</span>
+<span class="co">#&gt; 1    0 patient0 health    38           1</span></code></pre></div>
 <p>Be aware that if you want the <code>timeout</code>’s <code>task</code> parameter to be evaluated dynamically, you should supply a callable function. For example in <code>timeout(function() rpois(1, 10))</code>, <code>rpois(1, 10)</code> will be evaluated every time the timeout activity is executed. However, if you supply it in the form of <code>timeout(rpois(1, 10))</code>, it will only be evaluated at initalization and will remain static after that.</p>
 <p>Of course, this <code>task</code>, supplied as a function, may be as complex as you need and, for instance, check a resource’s status, interact with other entities in your simulation model… The same applies to all previous activities when they accept a function as a parameter.</p>
 </div>
-<div id="branch" class="section level2">
-<h2>branch</h2>
-<p>in progress…</p>
+<div id="branch" class="section level3">
+<h3>branch</h3>
+<p>The <code>branch(trajectory, option, merge, ...)</code> method offers the possibility of adding alternative paths in the trajectory. The following example shows how a trajectory can be built with a 50-50 chance for an arrival to pass through each path of a two-path branch.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t1 &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>(<span class="st">&quot;trajectory with a branch&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;server&quot;</span>, <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">branch</span>(function() <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">2</span>, <span class="dv">1</span>), <span class="dt">merge=</span><span class="kw">c</span>(T, F), 
+         <span class="kw">create_trajectory</span>(<span class="st">&quot;branch1&quot;</span>) %&gt;%
+<span class="st">           </span><span class="kw">timeout</span>(function() <span class="dv">1</span>),
+         <span class="kw">create_trajectory</span>(<span class="st">&quot;branch2&quot;</span>) %&gt;%
+<span class="st">           </span><span class="kw">timeout</span>(function() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">3</span>)) %&gt;%
+<span class="st">           </span><span class="kw">release</span>(<span class="st">&quot;server&quot;</span>, <span class="dv">1</span>)
+  ) %&gt;%
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;server&quot;</span>, <span class="dv">1</span>)</code></pre></div>
+<p>When an arrival gets to the branch, the first argument is evaluated to select a specific path to follow, so it must be callable and must return a numeric value between 1 and <code>n</code>, where <code>n</code> is the number of paths defined. The second argument, <code>merge</code>, indicates whether the arrival must continue executing the activities after the selected path or not. In the example above, only the first path continues to the last <em>release</em>.</p>
+<p>Sometimes you may need to count how many times a certain trajectory in a certain branch is entered, or how much time arrivals spend inside that trajectory. For these situations, it is handy to use resources with infinite capacity just for <em>accounting</em> purposes, like in the example below.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t0 &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">  </span><span class="kw">branch</span>(function() <span class="kw">sample</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dv">1</span>), <span class="kw">c</span>(T, T),
+         <span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">           </span><span class="kw">seize</span>(<span class="st">&quot;branch1&quot;</span>, <span class="dv">1</span>) %&gt;%
+<span class="st">           </span><span class="co"># do stuff here</span>
+<span class="st">           </span><span class="kw">timeout</span>(function() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>)) %&gt;%
+<span class="st">           </span><span class="kw">release</span>(<span class="st">&quot;branch1&quot;</span>, <span class="dv">1</span>),
+         <span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">           </span><span class="kw">seize</span>(<span class="st">&quot;branch2&quot;</span>, <span class="dv">1</span>) %&gt;%
+<span class="st">           </span><span class="co"># do stuff here</span>
+<span class="st">           </span><span class="kw">timeout</span>(function() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">2</span>)) %&gt;%
+<span class="st">           </span><span class="kw">release</span>(<span class="st">&quot;branch2&quot;</span>, <span class="dv">1</span>))
+
+env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, t0, <span class="kw">at</span>(<span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">1000</span>))) %&gt;%
+<span class="st">  </span><span class="co"># Resources with infinite capacity, just for accounting purposes</span>
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;branch1&quot;</span>, <span class="ot">Inf</span>) %&gt;%
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;branch2&quot;</span>, <span class="ot">Inf</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>()
+
+arrivals &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env, <span class="dt">per_resource =</span> T)
+
+<span class="co"># Times that each branch was entered</span>
+arrivals %&gt;%<span class="st"> </span><span class="kw">count</span>(resource)
+<span class="co">#&gt; Source: local data frame [2 x 2]</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;   resource     n</span>
+<span class="co">#&gt;     (fctr) (int)</span>
+<span class="co">#&gt; 1  branch1   483</span>
+<span class="co">#&gt; 2  branch2   517</span>
+
+<span class="co"># The `activity_time` is the total time inside each branch for each arrival</span>
+<span class="co"># Let's see the distributions</span>
+<span class="kw">ggplot</span>(arrivals) +<span class="st"> </span><span class="kw">geom_histogram</span>(<span class="kw">aes</span>(<span class="dt">x=</span>activity_time)) +<span class="st"> </span><span class="kw">facet_wrap</span>(~resource)</code></pre></div>
+<p><img src="data:image/png;base64,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" title alt style="display: block; margin: auto;" /></p>
 </div>
-<div id="rollback" class="section level2">
-<h2>rollback</h2>
+<div id="rollback" class="section level3">
+<h3>rollback</h3>
 <p>The <code>rollback(trajectory, amount, times, check)</code> function allows an arrival to rollback the trajectory an <code>amount</code> number of steps.</p>
 <p>Consider the following where a string is printed in the timeout function. After the first run, the trajectory is rolled back 3 times.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t0&lt;-<span class="kw">create_trajectory</span>() %&gt;%
@@ -228,13 +290,13 @@ env&lt;-
 
 <span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;hello_sayer&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">run</span>()</code></pre></div>
-<pre><code>## [1] &quot;Hello!&quot;
-## [1] &quot;Hello!&quot;
-## [1] &quot;Hello!&quot;
-## [1] &quot;Hello!&quot;</code></pre>
-<pre><code>## Simmer environment: anonymous | now: 0 | next: Inf
-## { Generator: hello_sayer | monitored: 1 | n_generated: 1 }</code></pre>
+<span class="st">  </span><span class="kw">run</span>()
+<span class="co">#&gt; [1] &quot;Hello!&quot;</span>
+<span class="co">#&gt; [1] &quot;Hello!&quot;</span>
+<span class="co">#&gt; [1] &quot;Hello!&quot;</span>
+<span class="co">#&gt; [1] &quot;Hello!&quot;</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 0 | next: </span>
+<span class="co">#&gt; { Generator: hello_sayer | monitored: 1 | n_generated: 1 }</span></code></pre></div>
 <p>The <code>rollback</code> function also accepts an optional <code>check</code> parameter which overrides the default amount-based behaviour. This parameter must be a function that returns a logical value. Each time an arrival reaches the activity, this <code>check</code> is evaluated to determine whether the <code>rollback</code> with <code>amount</code> steps must be performed or not. Consider the following example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t0&lt;-<span class="kw">create_trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;happiness&quot;</span>, <span class="dv">0</span>) %&gt;%
@@ -243,10 +305,10 @@ env&lt;-
 <span class="st">  </span><span class="kw">timeout</span>(function(attrs){
     <span class="kw">cat</span>(<span class="st">&quot;&gt;&gt; Happiness level is at: &quot;</span>, attrs[[<span class="st">&quot;happiness&quot;</span>]], <span class="st">&quot; -- &quot;</span>)
     <span class="kw">cat</span>(<span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">25</span>,<span class="st">&quot;PETE: I'm feeling crappy...&quot;</span>,
-           <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">50</span>,<span class="st">&quot;PETE: Feelin' a bit moody&quot;</span>,
-                  <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">75</span>,<span class="st">&quot;PETE: Just had a good espresso&quot;</span>,
-                         <span class="st">&quot;PETE: Let's do this! (and stop this loop...)&quot;</span>)))
-    , <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+               <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">50</span>,<span class="st">&quot;PETE: Feelin' a bit moody&quot;</span>,
+                      <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">75</span>,<span class="st">&quot;PETE: Just had a good espresso&quot;</span>,
+                             <span class="st">&quot;PETE: Let's do this! (and stop this loop...)&quot;</span>)))
+        , <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
     <span class="kw">return</span>(<span class="dv">0</span>)
   }) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;happiness&quot;</span>, function(attrs) attrs[[<span class="st">&quot;happiness&quot;</span>]] +<span class="st"> </span><span class="dv">25</span>) %&gt;%
@@ -255,17 +317,58 @@ env&lt;-
 
 <span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;mood_swinger&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">run</span>()</code></pre></div>
-<pre><code>## &gt;&gt; Happiness level is at:  0  -- PETE: I'm feeling crappy... 
-## &gt;&gt; Happiness level is at:  25  -- PETE: Feelin' a bit moody 
-## &gt;&gt; Happiness level is at:  50  -- PETE: Just had a good espresso 
-## &gt;&gt; Happiness level is at:  75  -- PETE: Let's do this! (and stop this loop...)</code></pre>
-<pre><code>## Simmer environment: anonymous | now: 0 | next: Inf
-## { Generator: mood_swinger | monitored: 1 | n_generated: 1 }</code></pre>
+<span class="st">  </span><span class="kw">run</span>()
+<span class="co">#&gt; &gt;&gt; Happiness level is at:  0  -- PETE: I'm feeling crappy... </span>
+<span class="co">#&gt; &gt;&gt; Happiness level is at:  25  -- PETE: Feelin' a bit moody </span>
+<span class="co">#&gt; &gt;&gt; Happiness level is at:  50  -- PETE: Just had a good espresso </span>
+<span class="co">#&gt; &gt;&gt; Happiness level is at:  75  -- PETE: Let's do this! (and stop this loop...)</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 0 | next: </span>
+<span class="co">#&gt; { Generator: mood_swinger | monitored: 1 | n_generated: 1 }</span></code></pre></div>
 </div>
-<div id="bringing-it-all-together" class="section level2">
-<h2>Bringing it all together</h2>
-<p>in progress…</p>
+</div>
+<div id="interacting-with-the-environment-from-within-a-trajectory" class="section level2">
+<h2>Interacting with the environment from within a trajectory</h2>
+<p>It is possible to interact with the simulation environment in order to extract parameters of interest such as the current simulation time (<code>now()</code>), status of resources (<code>get_capacity</code>, <code>get_queue_size</code>, <code>get_server_count</code>, <code>get_queue_count</code>), status of generators (<code>get_n_generated</code>) or directly to gather the history of monitored values (<code>get_mon_*</code>). You may also want (or in other words, your model may need) to check and use all this information to take decisions inside a given trajectory.</p>
+<p>For instance, let’s suppose we just want to print the simulation time at a given point in a trajectory. The only requirement is that you must define the simulation environment <strong>before</strong> running the simulation. This won’t work:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">remove</span>(env)
+
+t &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">print</span>(env %&gt;%<span class="st"> </span><span class="kw">now</span>()))
+
+env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, t, function() <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>(<span class="dv">4</span>)
+<span class="co">#&gt; Error in eval(expr, envir, enclos): objeto 'env' no encontrado</span></code></pre></div>
+<p>Because the global <code>env</code> is not available at runtime: the simulation runs <em>and then</em> the resulting object is assigned to <code>env</code>. We need to assign first, then run. So this will work:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">print</span>(env %&gt;%<span class="st"> </span><span class="kw">now</span>()))
+
+env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, t, function() <span class="dv">1</span>)
+
+env %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dv">4</span>)
+<span class="co">#&gt; [1] 1</span>
+<span class="co">#&gt; [1] 2</span>
+<span class="co">#&gt; [1] 3</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 4 | next: 4</span>
+<span class="co">#&gt; { Generator: dummy | monitored: 1 | n_generated: 5 }</span></code></pre></div>
+<p>And we get the expected output. However, as a general rule of good practice, <strong>it is recommended to instantiate the environment always in the first place</strong>, to avoid possible mistakes and because the code becomes more readable:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># First, instantiate the environment</span>
+env &lt;-<span class="st"> </span><span class="kw">simmer</span>()
+
+<span class="co"># Here I'm using it</span>
+t &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">print</span>(env %&gt;%<span class="st"> </span><span class="kw">now</span>()))
+
+<span class="co"># And finally, run it</span>
+env %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, t, function() <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">run</span>(<span class="dv">4</span>)
+<span class="co">#&gt; [1] 1</span>
+<span class="co">#&gt; [1] 2</span>
+<span class="co">#&gt; [1] 3</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 4 | next: 4</span>
+<span class="co">#&gt; { Generator: dummy | monitored: 1 | n_generated: 5 }</span></code></pre></div>
 </div>
 
 

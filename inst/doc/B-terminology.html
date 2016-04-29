@@ -9,9 +9,9 @@
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="author" content="Bart Smeets, Iñaki Ucar" />
+<meta name="author" content="Iñaki Ucar, Bart Smeetss" />
 
-<meta name="date" content="2016-04-04" />
+<meta name="date" content="2016-04-29" />
 
 <title>Terminology</title>
 
@@ -69,8 +69,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 <h1 class="title">Terminology</h1>
-<h4 class="author"><em>Bart Smeets, Iñaki Ucar</em></h4>
-<h4 class="date"><em>2016-04-04</em></h4>
+<h4 class="author"><em>Iñaki Ucar, Bart Smeetss</em></h4>
+<h4 class="date"><em>2016-04-29</em></h4>
 
 </div>
 
@@ -79,7 +79,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul>
 <li><p><strong>Arrival</strong> An arrival is created by a generator. An arrival can be considered a process, an active entity which has a number of activities associated to it and (in general) a limited lifetime in the system. These activities conform to a trajectory specification.</p></li>
 <li><p><strong>Trajectory</strong> When a generator creates an arrival, it couples the arrival to a given trajectory. A trajectory is defined as an interlinkage of activities which together form the arrivals’ lifetime in the system. Once an arrival is coupled to the trajectory, it will (in general) start processing the activities in the trajectory in the specified order and, eventually, leave the system.</p></li>
-<li><p><strong>Activity</strong> There are different kinds of activities that allow arrivals to interact with resources, perform custom tasks while spending time in the system, move back and forth through the trajectory dynamically… Currently, the set of available activities consist of <code>seize</code>, <code>release</code>, <code>timeout</code>, <code>set_attribute</code>, <code>rollback</code> and <code>branch</code>. See their respective documentation for details.</p></li>
+<li><p><strong>Activity</strong> There are different kinds of activities that allow arrivals to interact with resources, perform custom tasks while spending time in the system, move back and forth through the trajectory dynamically… Currently, the set of available activities consist of <code>seize</code>, <code>release</code>, <code>timeout</code>, <code>set_attribute</code>, <code>rollback</code> and <code>branch</code>. See their respective documentation for details (e.g. <code>?seize</code>).</p></li>
 <li><p><strong>Generator</strong> A generator is a process which creates arrivals with a given interarrival time pattern. These arrivals follow a specified trajectory.</p></li>
 <li><strong>Resource</strong> A resource is in essence a passive entity. It comprises two parts:
 <ul>
@@ -87,8 +87,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><strong>Queue</strong> When an arrival tries to seize a resource (tries to access its server) and it is <em>busy</em>, this arrival is appended to the queue (of a given length) if there is room for it. If not, the arrival is rejected and immediately leaves the system.</li>
 </ul></li>
 </ul>
-<div id="bringing-it-together" class="section level2">
-<h2>Bringing it together</h2>
+<div id="from-terminology-to-model" class="section level2">
+<h2>From terminology to model</h2>
+<p>In the simulation model below we create a <strong>trajectory</strong> which we will call <code>my trajectory</code>. This trajectory consists of three consecutive <strong>activities</strong>; a <code>seize</code>, <code>timeout</code> and <code>release</code> event. In the <code>seize</code> and <code>release</code> events a associated <strong>resource</strong> type is specified. In this case the resource type is called <code>operator</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simmer)
 
 <span class="co"># create a trajectory &quot;my_trajectory&quot;</span>
@@ -100,9 +101,9 @@ t0&lt;-
 <span class="st">  </span><span class="co"># spend some (stochastic) time holding that resource</span>
 <span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">rpois</span>(<span class="dv">1</span>,<span class="dv">50</span>)) %&gt;%
 <span class="st">  </span><span class="co"># release the previously seized unit of &quot;operator&quot;</span>
-<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>)
-
-env&lt;-<span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>)</code></pre></div>
+<p>Once the trajectory has been created, the simulation object (a <code>simmer</code> instance) is set up. One of the first steps is to actually attach a <strong>resource</strong> instance called <code>operator</code>. Next, a <strong>generator</strong> instance is attached. This generator, called <code>my_generator</code>, has an associated trajectory (<code>my_trajectory</code> stored in <code>t0</code>) and an associated <code>dist</code> function. Once <code>run()</code> is called the simulation model will start running. The generator <code>my_generator</code> will create an <strong>arrival</strong> at an interarrival time delivered by the function passed to <code>dist</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env&lt;-<span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="co"># a resource called &quot;operator&quot;&quot; is created with a capacity of 1 and an infinite queue size</span>
 <span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>) %&gt;%
 <span class="st">  </span><span class="co"># this generator will create arrivals at each interval rpois(1,40) during</span>
@@ -111,7 +112,8 @@ env&lt;-<span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;my_generator&quot;</span>, 
                 <span class="dt">trajectory =</span> t0,
                 <span class="dt">dist =</span> function() <span class="kw">rpois</span>(<span class="dv">1</span>, <span class="dv">40</span>)) %&gt;%
-<span class="st">  </span><span class="kw">run</span>()</code></pre></div>
+<span class="st">  </span>run</code></pre></div>
+<p>For more information, see the other vignettes or the function specific help documentation (e.g. <code>?simmer</code>).</p>
 </div>
 
 
