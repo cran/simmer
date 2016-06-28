@@ -4,10 +4,10 @@
 \alias{get_mon_arrivals}
 \title{Get arrival statistics}
 \usage{
-get_mon_arrivals(env, per_resource = FALSE)
+get_mon_arrivals(envs, per_resource = FALSE)
 }
 \arguments{
-\item{env}{the simulation environment (or a list of environments).}
+\item{envs}{the simulation environment (or a list of environments).}
 
 \item{per_resource}{whether the activity should be reported on a per-resource basis (by default: FALSE).}
 }
@@ -22,6 +22,6 @@ Other methods for dealing with a simulation environment:
 \link{simmer}, \link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
 \link{add_resource}, \link{add_generator}, \link{get_mon_attributes},
 \link{get_mon_resources}, \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
-\link{get_server_count}, \link{get_queue_count}.
+\link{set_capacity}, \link{set_queue_size}, \link{get_server_count}, \link{get_queue_count}.
 }
 

@@ -3,9 +3,8 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 library(ggplot2)
 theme_set(theme_bw())
-knitr::read_demo("B-terminology", "simmer")
 
-## ----create-trajectory---------------------------------------------------
+## ------------------------------------------------------------------------
 library(simmer)
 
 # create a trajectory "my_trajectory"
@@ -19,7 +18,7 @@ t0<-
   # release the previously seized unit of "operator"
   release("operator", 1)
 
-## ----setup-simmer--------------------------------------------------------
+## ------------------------------------------------------------------------
 env<-simmer() %>%
   # a resource called "operator"" is created with a capacity of 1 and an infinite queue size
   add_resource("operator", 1, Inf) %>%
@@ -29,5 +28,5 @@ env<-simmer() %>%
   add_generator("my_generator", 
                 trajectory = t0,
                 dist = function() rpois(1, 40)) %>%
-  run
+  run()
 

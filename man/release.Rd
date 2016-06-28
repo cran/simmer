@@ -11,7 +11,7 @@ release(traj, resource, amount = 1)
 
 \item{resource}{the name of the resource.}
 
-\item{amount}{the amount to release.}
+\item{amount}{the amount to release, accepts either a callable object (a function) or a numeric value.}
 }
 \value{
 The trajectory object.
@@ -21,8 +21,9 @@ Adds a new activity capable of releasing a resource to the tail of a trajectory.
 }
 \seealso{
 Other methods for dealing with trajectories:
-\link{create_trajectory}, \link{get_head},
-\link{get_tail}, \link{get_n_activities}, \link{seize}, \link{timeout}, 
-\link{set_attribute}, \link{branch}, \link{rollback}.
+\link{create_trajectory}, \link{get_head}, \link{get_tail}, 
+\link{get_n_activities}, \link{join}, \link{seize},
+\link{set_attribute}, \link{timeout}, \link{branch}, \link{rollback}, \link{leave}, 
+\link{seize_selected}, \link{release_selected}, \link{select}.
 }
 

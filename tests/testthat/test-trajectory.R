@@ -1,18 +1,33 @@
 context("basic trajectory functionality")
 
+t0 <- create_trajectory(verbose=TRUE) %>%
+  seize("nurse", 1) %>%
+  select(c("a", "b")) %>%
+  seize_selected(1) %>%
+  timeout(function() rnorm(1, 15)) %>%
+  leave(0) %>%
+  branch(function() 1, T, create_trajectory(verbose=TRUE)%>%timeout(function() 1)) %>%
+  set_attribute("dummy", 1) %>%
+  rollback(1) %>%
+  release_selected(1) %>%
+  release("nurse", 1)
+
+trajs <- c(create_trajectory(verbose=TRUE) %>% seize("nurse", 1),
+           create_trajectory(verbose=TRUE) %>% select(c("a", "b")),
+           create_trajectory(verbose=TRUE) %>% seize_selected(1),
+           create_trajectory(verbose=TRUE) %>% timeout(function() rnorm(1, 15)),
+           create_trajectory(verbose=TRUE) %>% leave(0),
+           create_trajectory(verbose=TRUE) %>% branch(function() 1, T, create_trajectory(verbose=TRUE)%>%timeout(function() 1)),
+           create_trajectory(verbose=TRUE) %>% set_attribute("dummy", 1),
+           create_trajectory(verbose=TRUE) %>% rollback(1),
+           create_trajectory(verbose=TRUE) %>% release_selected(1),
+           create_trajectory(verbose=TRUE) %>% release("nurse", 1))
+
 test_that("the activity chain grows as expected", {
-  t0 <- create_trajectory() %>%
-    seize("nurse", 1) %>%
-    timeout(function() rnorm(1, 15)) %>%
-    branch(function() 1, T, create_trajectory()%>%timeout(function() 1)) %>%
-    set_attribute("dummy", 1) %>%
-    rollback(1) %>%
-    release("nurse", 1)
-  
   head <- t0%>%get_head()
-  for (i in 1:5) head <- get_next_activity(head)
+  for (i in 1:9) head <- get_next_activity(head)
   tail <- t0%>%get_tail()
-  for (i in 1:5) tail <- get_prev_activity(tail)
+  for (i in 1:9) tail <- get_prev_activity(tail)
   
   expect_output(print_activity(head), "Release")
   expect_output(print_activity(t0%>%get_tail()), "Release")
@@ -20,6 +35,35 @@ test_that("the activity chain grows as expected", {
   expect_output(print_activity(tail), "Seize")
   expect_output(print_activity(t0%>%get_head()), "Seize")
   expect_equal(get_prev_activity(tail), NULL)
+})
+
+test_that("the activity chain grows as expected using join", {
+  t <- join(trajs)
+  
+  head <- t%>%get_head()
+  for (i in 1:9) head <- get_next_activity(head)
+  tail <- t%>%get_tail()
+  for (i in 1:9) tail <- get_prev_activity(tail)
+  
+  expect_output(print_activity(head), "Release")
+  expect_output(print_activity(t%>%get_tail()), "Release")
+  expect_equal(get_next_activity(head), NULL)
+  expect_output(print_activity(tail), "Seize")
+  expect_output(print_activity(t%>%get_head()), "Seize")
+  expect_equal(get_prev_activity(tail), NULL)
+  
+  expect_true(length(capture.output(t)) == length(capture.output(t0)))
+  
+  # check that pointers differ
+  ptrs <- lapply(trajs, function(i) {
+    line <- capture.output(i)
+    regmatches(line, regexpr("<- 0x[[:alnum:]]{7} ->", line))
+  }) %>% unlist
+  ptrs_t <- lapply(capture.output(t0), function(i) {
+    regmatches(i, regexpr("<- 0x[[:alnum:]]{7} ->", i))
+  }) %>% unlist
+  
+  expect_false(any(ptrs == ptrs_t))
 })
 
 test_that("the trajectory stores the right number of activities", {
@@ -50,15 +94,15 @@ test_that("the trajectory stores the right number of activities", {
     set_attribute("dummy", function() 1)
   
   expect_is(t0, "simmer.trajectory")
-  expect_equal(t0%>%get_n_activities(), 13)
+  expect_equal(t0%>%get_n_activities(), 15)
   
   output <- paste0(".*(",
-    "13 activities", 
+    "15 activities", 
     ".*Seize.*nurse.*1", 
     ".*Timeout.*function", 
     ".*Release.*nurse.*1", 
     ".*Branch.*1", 
-      ".*6 activities", 
+      ".*7 activities", 
       ".*Seize.*doctor.*function", 
       ".*Timeout.*function", 
       ".*Release.*doctor.*function", 
@@ -100,7 +144,7 @@ test_that("we can force some errors (just to complete coverage)", {
   
   t0 <- create_trajectory() %>% timeout(function() {})
   t0$.__enclos_env__$private$head <- NULL
-  expect_error(t0 %>% print)
+  expect_error(t0 %>% capture.output)
   expect_error(t0$.__enclos_env__$private$add_activity(NULL))
   
   t0 <- create_trajectory() %>% timeout(function() {})

@@ -22,14 +22,17 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#define FMT_0 std::setw(10) << std::right
-#define FMT_11 std::setw(12) << std::right
-#define FMT_12 std::setw(15) << std::left
-#define FMT_21 std::setw(12) << std::right
-#define FMT_22 std::setw(15) << std::left
+#define FMT(n, justify) std::setw(n) << std::justify
 
-#define PRIORITY_RELEASE    -3
-#define PRIORITY_MANAGER    -2
-#define PRIORITY_GENERATOR  -1
+#define PRIORITY_RELEASE        -4
+#define PRIORITY_MANAGER        -3
+#define PRIORITY_RELEASE_POST   -2
+#define PRIORITY_GENERATOR      -1
+
+#define BASE_CLONEABLE(Type) \
+  virtual Type* clone() const = 0;
+
+#define CLONEABLE(Type) \
+  virtual Type* clone() const { return new Type(*this); }
 
 #endif

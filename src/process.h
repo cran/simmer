@@ -6,6 +6,7 @@
 // forward declarations
 class Activity;
 class Arrival;
+class Resource;
 
 /** 
  * Abstract class for processes, active entities that need a method run().
@@ -45,6 +46,19 @@ private:
   unsigned int index;
 };
 
+class DelayedTask: public Process {
+  typedef boost::function<void ()> Task;
+  
+public:
+  DelayedTask(Simulator* sim, std::string name, Task task): 
+    Process(sim, name, false), task(task) {}
+  
+  void run();
+  
+private:
+  Task task;
+};
+
 typedef UMAP<std::string, double> Attr;
 
 /**
@@ -72,6 +86,10 @@ public:
     traj_stats.clear();
     res_stats.clear();
     attr_stats.clear();
+    Rcpp::Environment dist_env(dist.environment());
+    Rcpp::Environment reset_env(dist_env[".reset"]);
+    Rcpp::Function reset_fun(reset_env["reset"]);
+    reset_fun();
   }
   
   void run();
@@ -138,6 +156,7 @@ class Arrival: public Process {
     ArrTime(): start(-1), activity(0) {}
   };
   typedef UMAP<std::string, ArrTime> ResTime;
+  typedef UMAP<int, Resource*> SelMap;
   
 public:
   /**
@@ -161,6 +180,8 @@ public:
   void set_start(std::string name, double start) { restime[name].start = start; }
   void set_activity(std::string name, double act) { restime[name].activity = act; }
   double get_activity(std::string name) { return restime[name].activity; }
+  void set_selected(int id, Resource* res) { selected[id] = res; }
+  Resource* get_selected(int id) { return selected[id]; }
   
   void leave(std::string resource, double time) {
     gen->notify_release(name, restime[resource].start, time, 
@@ -168,6 +189,7 @@ public:
   }
   
   void terminate(double time, bool finished) {
+    lifetime.activity -= remaining;
     if (is_monitored() >= 1)
       gen->notify_end(name, lifetime.start, time, lifetime.activity, finished);
     delete this;
@@ -181,6 +203,7 @@ private:
   Attr attributes;    /**< user-defined (key, value) pairs */
   double busy_until;  /**< next scheduled event time */
   double remaining;   /**< time remaining in a deactivated arrival */
+  SelMap selected;    /**< selected resource */
 };
 
 #endif

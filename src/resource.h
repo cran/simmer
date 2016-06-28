@@ -95,6 +95,7 @@ public:
   * @return  SUCCESS
   */
   int release(Arrival* arrival, int amount);
+  int post_release();
   
   /**
   * Gather resource statistics.
@@ -125,8 +126,8 @@ protected:
   
   void verbose_print(double time, std::string arrival, std::string status) {
     Rcpp::Rcout << 
-      FMT_0 << time << " |" << FMT_11 << "resource: " << FMT_12 << name << "|" << 
-      FMT_21 << "arrival: " << FMT_22 << arrival << "| " << status << std::endl;
+      FMT(10, right) << time << " |" << FMT(12, right) << "resource: " << FMT(15, left) << name << "|" << 
+      FMT(12, right) << "arrival: " << FMT(15, left) << arrival << "| " << status << std::endl;
   }
   
   virtual bool room_in_server(int amount, int priority) {
@@ -200,8 +201,9 @@ protected:
 template <typename T>
 class PreemptiveResource: public Resource {
 public:
-  PreemptiveResource(Simulator* sim, std::string name, int mon, int capacity, int queue_size):
-    Resource(sim, name, mon, capacity, queue_size) {}
+  PreemptiveResource(Simulator* sim, std::string name, int mon, 
+                     int capacity, int queue_size, bool keep_queue):
+    Resource(sim, name, mon, capacity, queue_size), keep_queue(keep_queue) {}
   
   virtual void reset() {
     Resource::reset();
@@ -212,6 +214,7 @@ public:
   }
   
 protected:
+  bool keep_queue;
   RPQueue preempted;    /**< preempted arrivals */
   T server;             /**< server container */
   
@@ -236,8 +239,16 @@ protected:
       double last = first->arrival->get_activity(this->name);
       first->arrival->set_activity(this->name, time - last);
     }
-    preempted.insert((*first));
-    queue_count += first->amount;
+    if (keep_queue) {
+      if (!room_in_queue(first->amount, first->priority)) {
+        if (verbose) verbose_print(time, first->arrival->name, "REJECT");
+        first->arrival->terminate(time, false);
+      } else insert_in_queue(verbose, time, first->arrival, first->amount, 
+                             first->priority, first->preemptible, first->restart);
+    } else {
+      preempted.insert((*first));
+      queue_count += first->amount;
+    }
     server_count -= first->amount;
     server.erase(first);
     return true;

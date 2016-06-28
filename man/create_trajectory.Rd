@@ -4,10 +4,12 @@
 \alias{create_trajectory}
 \title{Create a trajectory}
 \usage{
-create_trajectory(name = "anonymous")
+create_trajectory(name = "anonymous", verbose = FALSE)
 }
 \arguments{
 \item{name}{the name of the trajectory.}
+
+\item{verbose}{enable showing additional information.}
 }
 \value{
 Returns an environment that represents the trajectory.
@@ -36,7 +38,7 @@ t0
 t1 <- create_trajectory("trajectory with a branch") \%>\%
   seize("server", 1) \%>\%
   ## 50-50 chance for each branch
-  branch(function() sample(1:2, 1), merge=c(TRUE, FALSE), 
+  branch(function() sample(1:2, 1), continue=c(TRUE, FALSE), 
     create_trajectory("branch1") \%>\%
       timeout(function() 1),
     create_trajectory("branch2") \%>\%
@@ -51,8 +53,9 @@ t1
 }
 \seealso{
 Other methods for dealing with trajectories:
-\link{get_head}, \link{get_tail},
-\link{get_n_activities}, \link{seize}, \link{release}, \link{timeout}, 
-\link{set_attribute}, \link{branch}, \link{rollback}.
+\link{get_head}, \link{get_tail}, \link{get_n_activities}, 
+\link{join}, \link{seize}, \link{release}, 
+\link{set_attribute}, \link{timeout}, \link{branch}, \link{rollback}, \link{leave}, 
+\link{seize_selected}, \link{release_selected}, \link{select}.
 }
 

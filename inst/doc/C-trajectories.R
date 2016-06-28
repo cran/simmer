@@ -3,21 +3,20 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 library(ggplot2)
 theme_set(theme_bw())
-knitr::read_demo("C-trajectories", "simmer")
 
-## ----setup, message=FALSE------------------------------------------------
+## ---- message=FALSE------------------------------------------------------
 library(simmer)
 library(ggplot2)
 library(dplyr)
 
-## ----part1---------------------------------------------------------------
+## ------------------------------------------------------------------------
 patient_traj<-
   create_trajectory(name = "patient_trajectory") %>%
   seize(resource = "doctor", amount = 1) %>%
   timeout(3) %>%
   release(resource = "doctor", amount = 1)
 
-## ----part2---------------------------------------------------------------
+## ------------------------------------------------------------------------
 patient_traj<-
   create_trajectory(name = "patient_trajectory") %>%
   set_attribute("my_key", 123) %>%
@@ -31,7 +30,7 @@ env<-
 
 get_mon_attributes(env)
 
-## ----part3---------------------------------------------------------------
+## ------------------------------------------------------------------------
 patient_traj<-
   create_trajectory(name = "patient_trajectory") %>%
   set_attribute("my_key", 123) %>%
@@ -49,7 +48,7 @@ env<-
 
 get_mon_attributes(env)
 
-## ----part4---------------------------------------------------------------
+## ------------------------------------------------------------------------
 patient_traj<-
   create_trajectory(name = "patient_trajectory") %>%
   seize(resource = "doctor", amount = 1) %>%
@@ -64,7 +63,7 @@ env<-
 
 get_mon_resources(env)
 
-## ----part5---------------------------------------------------------------
+## ------------------------------------------------------------------------
 patient_traj<-
   create_trajectory(name = "patient_trajectory") %>%
   set_attribute("health", function() sample(20:80, 1)) %>%
@@ -82,7 +81,7 @@ env<-
 get_mon_resources(env)
 get_mon_attributes(env)
 
-## ----part6---------------------------------------------------------------
+## ------------------------------------------------------------------------
 patient_traj<-
   create_trajectory(name = "patient_trajectory") %>%
   timeout(3)
@@ -95,7 +94,7 @@ env<-
 
 get_mon_arrivals(env)
 
-## ----part7---------------------------------------------------------------
+## ------------------------------------------------------------------------
 patient_traj<-
   create_trajectory(name = "patient_trajectory") %>%
   set_attribute("health", function() sample(20:80, 1)) %>%
@@ -112,10 +111,10 @@ env<-
 get_mon_arrivals(env)
 get_mon_attributes(env)
 
-## ----part8---------------------------------------------------------------
+## ------------------------------------------------------------------------
 t1 <- create_trajectory("trajectory with a branch") %>%
   seize("server", 1) %>%
-  branch(function() sample(1:2, 1), merge=c(T, F), 
+  branch(function() sample(1:2, 1), continue=c(T, F), 
          create_trajectory("branch1") %>%
            timeout(function() 1),
          create_trajectory("branch2") %>%
@@ -124,7 +123,7 @@ t1 <- create_trajectory("trajectory with a branch") %>%
   ) %>%
   release("server", 1)
 
-## ----part9, message = FALSE----------------------------------------------
+## ---- message = FALSE----------------------------------------------------
 t0 <- create_trajectory() %>%
   branch(function() sample(c(1, 2), 1), c(T, T),
          create_trajectory() %>%
@@ -154,19 +153,18 @@ arrivals %>% count(resource)
 # Let's see the distributions
 ggplot(arrivals) + geom_histogram(aes(x=activity_time)) + facet_wrap(~resource)
 
-## ----part10--------------------------------------------------------------
+## ------------------------------------------------------------------------
 t0<-create_trajectory() %>%
   timeout(function(){
     print("Hello!")
     0}) %>%
   rollback(amount=1, times=3)
 
-
 simmer() %>%
   add_generator("hello_sayer", t0, at(0)) %>% 
   run()
 
-## ----part11--------------------------------------------------------------
+## ------------------------------------------------------------------------
 t0<-create_trajectory() %>%
   set_attribute("happiness", 0) %>%
   # the timeout function is used simply to print something and returns 0,
@@ -183,12 +181,26 @@ t0<-create_trajectory() %>%
   set_attribute("happiness", function(attrs) attrs[["happiness"]] + 25) %>%
   rollback(amount=2, check=function(attrs) attrs[["happiness"]] < 100)
 
-
 simmer() %>%
   add_generator("mood_swinger", t0, at(0)) %>% 
   run()
 
-## ----part12, error = TRUE------------------------------------------------
+## ------------------------------------------------------------------------
+t1 <- create_trajectory() %>% seize("dummy", 1)
+t2 <- create_trajectory() %>% timeout(1)
+t3 <- create_trajectory() %>% release("dummy", 1)
+
+t0 <- join(t1, t2, t3)
+t0
+
+## ------------------------------------------------------------------------
+t0 <- create_trajectory() %>%
+  join(t1) %>%
+  timeout(1) %>%
+  join(t3)
+t0
+
+## ---- error = TRUE-------------------------------------------------------
 remove(env)
 
 t <- create_trajectory() %>%
@@ -198,7 +210,7 @@ env <- simmer() %>%
   add_generator("dummy", t, function() 1) %>%
   run(4)
 
-## ----part13--------------------------------------------------------------
+## ------------------------------------------------------------------------
 t <- create_trajectory() %>%
   timeout(function() print(env %>% now()))
 
@@ -207,7 +219,7 @@ env <- simmer() %>%
 
 env %>% run(4)
 
-## ----part14--------------------------------------------------------------
+## ------------------------------------------------------------------------
 # First, instantiate the environment
 env <- simmer()
 

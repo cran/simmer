@@ -2,9 +2,10 @@
 #include "simulator.h"
 
 void Resource::set_capacity(int value) {
+  if (capacity == value) return;
   int last = capacity;
   capacity = value;
-  if (capacity > last) {
+  if (capacity > last || capacity < 0) {
     // serve another
     while (queue_count) 
       if (!try_serve_from_queue(sim->verbose, sim->now())) break;
@@ -16,6 +17,7 @@ void Resource::set_capacity(int value) {
 }
 
 void Resource::set_queue_size(int value) {
+  if (queue_size == value) return;
   queue_size = value;
   if (is_monitored()) observe(sim->now());
 }
@@ -33,8 +35,10 @@ int Resource::seize(Arrival* arrival, int amount, int priority, int preemptible,
   }
   // enqueue
   else if (room_in_queue(amount, priority)) {
-    if (arrival->is_monitored())
+    if (arrival->is_monitored()) {
       arrival->set_start(this->name, sim->now());
+      arrival->set_activity(this->name, 0);
+    }
     insert_in_queue(sim->verbose, sim->now(), arrival, amount, priority, preemptible, restart);
     status = ENQUEUED;
   }
@@ -59,9 +63,18 @@ int Resource::release(Arrival* arrival, int amount) {
   remove_from_server(sim->verbose, sim->now(), arrival, amount);
   
   // serve another
+  DelayedTask* task = new DelayedTask(sim, "Post-Release", 
+                                      boost::bind(&Resource::post_release, this));
+  sim->schedule(0, task, PRIORITY_RELEASE_POST);
+  
+  return SUCCESS;
+}
+
+int Resource::post_release() {
+  // serve another
   while (queue_count) 
     if (!try_serve_from_queue(sim->verbose, sim->now())) break;
-  
+    
   if (is_monitored()) observe(sim->now());
   return SUCCESS;
 }

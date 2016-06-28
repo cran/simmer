@@ -4,10 +4,10 @@
 \alias{get_mon_resources}
 \title{Get resource statistics}
 \usage{
-get_mon_resources(env, data = "counts")
+get_mon_resources(envs, data = c("counts", "limits"))
 }
 \arguments{
-\item{env}{the simulation environment (or a list of environments).}
+\item{envs}{the simulation environment (or a list of environments).}
 
 \item{data}{whether to retrieve the "counts", the "limits" or both.}
 }
@@ -22,6 +22,6 @@ Other methods for dealing with a simulation environment:
 \link{simmer}, \link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
 \link{add_resource}, \link{add_generator}, \link{get_mon_arrivals}, \link{get_mon_attributes},
 \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
-\link{get_server_count}, \link{get_queue_count}.
+\link{set_capacity}, \link{set_queue_size}, \link{get_server_count}, \link{get_queue_count}.
 }
 

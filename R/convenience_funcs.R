@@ -5,7 +5,7 @@
 #' @param ... a vector or multiple parameters of times at which to initiate an arrival.
 #'
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{every}, \link{from}, 
+#' @seealso \link{add_generator}, \link{from}, 
 #' \link{to}, \link{from_to}.
 #' @export
 #'
@@ -15,20 +15,12 @@
 #'   add_generator("dummy", t0, at(0, c(1,10,30), 40, 43)) %>%
 #'   run(100)
 at <- function(...) {
-  time_vec <- unlist(list(...))
+  time_vec <- c(...)
   time_diffs <- c(time_vec[1], diff(time_vec))
-  i <- 0
-  function() {
-    if (i < length(time_diffs)) {
-      i <<- i+1
-      return(time_diffs[i])
-    } else {
-      return(-1)
-    }
-  }
+  function() return(c(time_diffs, -1))
 }
 
-#' Arrivals every specific interval
+#' [Deprecated] Arrivals every specific interval
 #' 
 #' Generator convenience function to generate arrivals every specific interval.
 #' When the generator reaches the last interval, it starts again from the first one.
@@ -39,23 +31,10 @@ at <- function(...) {
 #' @seealso \link{add_generator}, \link{at}, \link{from}, 
 #' \link{to}, \link{from_to}.
 #' @export
-#'
-#' @examples
-#' t0 <- create_trajectory() %>% timeout(0)
-#' env <- simmer(verbose=TRUE) %>%
-#'   add_generator("dummy", t0, every(1, 2, 1)) %>%
-#'   run(10)
 every <- function(...) {
-  time_diffs <- unlist(list(...))
-  i <- 0
-  function() {
-    if (i < length(time_diffs)) {
-      i <<- i+1
-    } else {
-      i <<- 1
-    }
-    return(time_diffs[i])
-  }
+  .Deprecated("function() c(...)")  # nocov
+  time_diffs <- c(...)              # nocov
+  function() return(time_diffs)     # nocov
 }
 
 #' Generate arrivals starting at a specified time
@@ -71,7 +50,7 @@ every <- function(...) {
 #' \code{start_time}).
 #' 
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{at}, \link{every}, 
+#' @seealso \link{add_generator}, \link{at},  
 #' \link{to}, \link{from_to}.
 #' @export
 #'
@@ -104,7 +83,7 @@ from <- function(start_time, dist, arrive=TRUE) {
 #' @param dist a function modelling the interarrival times.
 #'
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{at}, \link{every}, \link{from}, 
+#' @seealso \link{add_generator}, \link{at}, \link{from}, 
 #' \link{from_to}.
 #' @export
 #'
@@ -117,12 +96,11 @@ to <- function(stop_time, dist) {
   counter <- 0
   function() {
     dt <- dist()
-    counter <<- counter + dt
-    if (counter < stop_time) {
-      return(dt)
-    } else {
-      return(-1)
-    }
+    len <- length(dt)
+    dt <- dt[cumsum(dt) + counter < stop_time]
+    counter <<- counter + sum(dt)
+    if (len == length(dt)) return(dt)
+    return(c(dt, -1))
   }
 }
 
@@ -140,7 +118,7 @@ to <- function(stop_time, dist) {
 #' \code{start_time}).
 #' 
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{at}, \link{every}, \link{from}, 
+#' @seealso \link{add_generator}, \link{at}, \link{from}, 
 #' \link{to}.
 #' @export
 #'
@@ -158,17 +136,17 @@ from_to <- function(start_time, stop_time, dist, arrive=TRUE){
       if (arrive) {
         dt <- start_time
       } else {
-        dt <- start_time + dist()
+        dt <- dist()
+        dt[1] <- dt[1] + start_time
       }
     } else {
       dt <- dist()
     }
-    counter <<- counter + dt
-    if (counter < stop_time) {
-      return(dt)
-    } else {
-      return(-1)
-    }
+    len <- length(dt)
+    dt <- dt[cumsum(dt) + counter < stop_time]
+    counter <<- counter + sum(dt)
+    if (len == length(dt)) return(dt)
+    return(c(dt, -1))
   }
 }
 

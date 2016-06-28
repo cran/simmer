@@ -3,16 +3,15 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 library(ggplot2)
 theme_set(theme_bw())
-knitr::read_demo("E-ctmc", "simmer")
 
-## ----setup, message=FALSE------------------------------------------------
+## ---- message=FALSE------------------------------------------------------
 library(simmer)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 set.seed(1234)
 
-## ----example1-part1------------------------------------------------------
+## ------------------------------------------------------------------------
 # Arrival rate
 lambda <- 3/20
 # Service rate (cars, motorcycles)
@@ -28,7 +27,7 @@ B <- c(1, 0, 0)
 P <- solve(t(A), B)
 N_average_theor <- sum(P * c(1, 0, 1)) ; N_average_theor
 
-## ----example1-part2------------------------------------------------------
+## ------------------------------------------------------------------------
 option.1 <- function(t) {
   car <- create_trajectory() %>%
     seize("pump", amount=1) %>%
@@ -47,7 +46,7 @@ option.1 <- function(t) {
     run(until=t)
 }
 
-## ----example1-part3------------------------------------------------------
+## ------------------------------------------------------------------------
 option.2 <- function(t) {
   vehicle <- create_trajectory() %>%
     seize("pump", amount=1) %>%
@@ -64,7 +63,7 @@ option.2 <- function(t) {
     run(until=t)
 }
 
-## ----example1-part4------------------------------------------------------
+## ------------------------------------------------------------------------
 option.3 <- function(t) {
   vehicle <- create_trajectory() %>%
     seize("pump", amount=1) %>%
@@ -80,14 +79,14 @@ option.3 <- function(t) {
     run(until=t)
 }
 
-## ----example1-part5------------------------------------------------------
+## ------------------------------------------------------------------------
 gas.station <- option.3(5000)
 
 # Evolution + theoretical value
 graph <- plot_resource_usage(gas.station, "pump", items="system")
 graph + geom_hline(yintercept=N_average_theor)
 
-## ----example1-part6, eval=FALSE------------------------------------------
+## ---- eval=FALSE---------------------------------------------------------
 #  library(microbenchmark)
 #  
 #  t <- 1000/lambda
@@ -98,7 +97,7 @@ graph + geom_hline(yintercept=N_average_theor)
 #  graph + scale_y_log10(breaks=function(limits) pretty(limits, 5)) +
 #    ylab("Time [milliseconds]")
 
-## ----example2-part1------------------------------------------------------
+## ------------------------------------------------------------------------
 # Theoretical resolution
 A <- matrix(c(1,                   0,       0,               mu[1],            0,
               1, -(1-p)*lambda-mu[1],   mu[1],                   0,            0,
@@ -110,7 +109,7 @@ B <- c(1, 0, 0, 0, 0)
 P <- solve(t(A), B)
 N_average_theor <- sum(P * c(2, 1, 0, 1, 2)) ; N_average_theor
 
-## ----example2-part2------------------------------------------------------
+## ------------------------------------------------------------------------
 option.1 <- function(t) {
   car <- create_trajectory() %>%
     seize("pump", amount=function() {
@@ -132,7 +131,7 @@ option.1 <- function(t) {
   env %>% run(until=t)
 }
 
-## ----example2-part3------------------------------------------------------
+## ------------------------------------------------------------------------
 option.2 <- function(t) {
   vehicle <- create_trajectory() %>%
     branch(function() sample(c(1, 2), 1, prob=c(p, 1-p)), c(F, F), 
@@ -154,7 +153,7 @@ option.2 <- function(t) {
   env %>% run(until=t)
 }
 
-## ----example2-part4------------------------------------------------------
+## ------------------------------------------------------------------------
 option.3 <- function(t) {
   vehicle <- create_trajectory("car") %>%
     set_attribute("vehicle", function() sample(c(1, 2), 1, prob=c(p, 1-p))) %>%
@@ -172,7 +171,7 @@ option.3 <- function(t) {
   env %>% run(until=t)
 }
 
-## ----example2-part5------------------------------------------------------
+## ------------------------------------------------------------------------
 option.4 <- function(t) {
   vehicle <- create_trajectory() %>%
     branch(function() sample(c(1, 2), 1, prob=c(p, 1-p)), c(F, F), 
@@ -191,7 +190,7 @@ option.4 <- function(t) {
     run(until=t)
 }
 
-## ----example2-part6------------------------------------------------------
+## ------------------------------------------------------------------------
 option.5 <- function(t) {
   car <- create_trajectory() %>%
     seize("pump", amount=3) %>%
@@ -210,14 +209,14 @@ option.5 <- function(t) {
     run(until=t)
 }
 
-## ----example2-part7------------------------------------------------------
+## ------------------------------------------------------------------------
 gas.station <- option.1(5000)
 
 # Evolution + theoretical value
 graph <- plot_resource_usage(gas.station, "pump", items="system")
 graph + geom_hline(yintercept=N_average_theor)
 
-## ----example2-part8------------------------------------------------------
+## ------------------------------------------------------------------------
 gas.station <- option.5(5000)
 
 limits <- data.frame(item = c("system"), value = c(2))
@@ -237,7 +236,7 @@ graph <- gas.station %>% get_mon_resources() %>%
   geom_hline(aes(yintercept=value, color=item), limits, lty=2)
 graph + geom_hline(yintercept=N_average_theor)
 
-## ----example2-part9, eval=FALSE------------------------------------------
+## ---- eval=FALSE---------------------------------------------------------
 #  library(microbenchmark)
 #  
 #  t <- 1000/lambda

@@ -4,7 +4,7 @@
 \alias{seize}
 \title{Add a seize activity}
 \usage{
-seize(traj, resource, amount = 1, priority = 0, preemptible = 0,
+seize(traj, resource, amount = 1, priority = 0, preemptible = priority,
   restart = FALSE)
 }
 \arguments{
@@ -12,15 +12,16 @@ seize(traj, resource, amount = 1, priority = 0, preemptible = 0,
 
 \item{resource}{the name of the resource.}
 
-\item{amount}{the amount to seize.}
+\item{amount}{the amount to seize, accepts either a callable object (a function) or a numeric value.}
 
 \item{priority}{the priority of the seize (a higher integer equals higher 
 priority; defaults to the minimum priority, which is 0).}
 
 \item{preemptible}{if the seize occurs in a preemptive resource, this parameter 
 establishes the minimum incoming priority that can preempt this arrival (a seize 
-with a priority equal to `preemptible` or more gains the resource; by default, 
-any seize may cause preemption in a preemptive resource).}
+with a priority greater than `preemptible` gains the resource). In any case,
+`preemptible` must be equal or greater than `priority`, and thus only higher
+priority seizes can trigger the preemption.}
 
 \item{restart}{whether the activity must be restarted after being preempted.}
 }
@@ -32,8 +33,9 @@ Adds a new activity capable of seizing a resource to the tail of a trajectory.
 }
 \seealso{
 Other methods for dealing with trajectories:
-\link{create_trajectory}, \link{get_head},
-\link{get_tail}, \link{get_n_activities}, \link{release}, \link{timeout}, 
-\link{set_attribute}, \link{branch}, \link{rollback}.
+\link{create_trajectory}, \link{get_head}, \link{get_tail}, 
+\link{get_n_activities}, \link{join}, \link{release},
+\link{set_attribute}, \link{timeout}, \link{branch}, \link{rollback}, \link{leave}, 
+\link{seize_selected}, \link{release_selected}, \link{select}.
 }
 
