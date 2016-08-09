@@ -60,14 +60,18 @@ void run_(SEXP sim_, SEXP until_) {
 }
 
 //[[Rcpp::export]]
-bool add_generator_(SEXP sim_, SEXP name_prefix_, SEXP first_activity_, SEXP dist_, SEXP mon_) {
+bool add_generator_(SEXP sim_, SEXP name_prefix_, SEXP first_activity_, SEXP dist_, SEXP mon_,
+                    SEXP priority_, SEXP preemptible_, SEXP restart_) {
   XPtr<Simulator> sim(sim_);
   std::string name_prefix = as<std::string>(name_prefix_);
   XPtr<Activity> first_activity(first_activity_);
   Function dist(dist_);
   int mon = as<int>(mon_);
+  int priority = as<int>(priority_);
+  int preemptible = as<int>(preemptible_);
+  bool restart = as<bool>(restart_);
   
-  return sim->add_generator(name_prefix, first_activity, dist, mon);
+  return sim->add_generator(name_prefix, first_activity, dist, mon, priority, preemptible, restart);
 }
 
 //[[Rcpp::export]]
@@ -99,94 +103,45 @@ bool add_resource_manager_(SEXP sim_, SEXP name_, SEXP param_,
 }
 
 //[[Rcpp::export]]
-SEXP get_mon_arrivals_(SEXP sim_, SEXP name_) {
+SEXP get_mon_arrivals_(SEXP sim_) {
   XPtr<Simulator> sim(sim_);
-  std::string name = as<std::string>(name_);
   
-  StatsMap* stats = sim->get_generator(name)->get_traj_observations();
-  
-  return Rcpp::List::create(
-    Rcpp::Named("name")           = stats->get<std::string>("name"),
-    Rcpp::Named("start_time")     = stats->get<double>("start_time"),
-    Rcpp::Named("end_time")       = stats->get<double>("end_time"),
-    Rcpp::Named("activity_time")  = stats->get<double>("activity_time"),
-    Rcpp::Named("finished")       = stats->get<bool>("finished")
-  );
+  return sim->get_arr_traj_stats();
 }
 
 //[[Rcpp::export]]
-SEXP get_mon_arrivals_per_resource_(SEXP sim_, SEXP name_) {
+SEXP get_mon_arrivals_per_resource_(SEXP sim_) {
   XPtr<Simulator> sim(sim_);
-  std::string name = as<std::string>(name_);
-  
-  StatsMap* stats = sim->get_generator(name)->get_res_observations();
-  
-  return Rcpp::List::create(
-    Rcpp::Named("name")           = stats->get<std::string>("name"),
-    Rcpp::Named("start_time")     = stats->get<double>("start_time"),
-    Rcpp::Named("end_time")       = stats->get<double>("end_time"),
-    Rcpp::Named("activity_time")  = stats->get<double>("activity_time"),
-    Rcpp::Named("resource")       = stats->get<std::string>("resource")
-  );
+
+  return sim->get_arr_res_stats();
 }
 
 //[[Rcpp::export]]
-SEXP get_mon_attributes_(SEXP sim_, SEXP name_) {
+SEXP get_mon_attributes_(SEXP sim_) {
   XPtr<Simulator> sim(sim_);
-  std::string name = as<std::string>(name_);
   
-  StatsMap* stats = sim->get_generator(name)->get_attr_observations();
-  
-  return Rcpp::List::create(
-    Rcpp::Named("time")   = stats->get<double>("time"),
-    Rcpp::Named("name")   = stats->get<std::string>("name"),
-    Rcpp::Named("key")    = stats->get<std::string>("key"),
-    Rcpp::Named("value")  = stats->get<double>("value")
-  );
+  return sim->get_attr_stats();
 }
 
 //[[Rcpp::export]]
-SEXP get_mon_resource_(SEXP sim_, SEXP name_) {
+SEXP get_mon_resource_(SEXP sim_) {
   XPtr<Simulator> sim(sim_);
-  std::string name = as<std::string>(name_);
   
-  StatsMap* stats = sim->get_resource(name)->get_observations();
-  
-  return Rcpp::List::create(
-    Rcpp::Named("time")       = stats->get<double>("time"),
-    Rcpp::Named("server")     = stats->get<int>("server"),
-    Rcpp::Named("queue")      = stats->get<int>("queue"),
-    Rcpp::Named("capacity")   = stats->get<int>("capacity"),
-    Rcpp::Named("queue_size") = stats->get<int>("queue_size")
-  );
+  return sim->get_res_stats();
 }
 
 //[[Rcpp::export]]
-SEXP get_mon_resource_counts_(SEXP sim_, SEXP name_) {
+SEXP get_mon_resource_counts_(SEXP sim_) {
   XPtr<Simulator> sim(sim_);
-  std::string name = as<std::string>(name_);
   
-  StatsMap* stats = sim->get_resource(name)->get_observations();
-  
-  return Rcpp::List::create(
-    Rcpp::Named("time")   = stats->get<double>("time"),
-    Rcpp::Named("server") = stats->get<int>("server"),
-    Rcpp::Named("queue")  = stats->get<int>("queue")
-  );
+  return sim->get_res_stats_counts();
 }
 
 //[[Rcpp::export]]
-SEXP get_mon_resource_limits_(SEXP sim_, SEXP name_) {
+SEXP get_mon_resource_limits_(SEXP sim_) {
   XPtr<Simulator> sim(sim_);
-  std::string name = as<std::string>(name_);
-  
-  StatsMap* stats = sim->get_resource(name)->get_observations();
-  
-  return Rcpp::List::create(
-    Rcpp::Named("time")   = stats->get<double>("time"),
-    Rcpp::Named("server") = stats->get<int>("capacity"),
-    Rcpp::Named("queue")  = stats->get<int>("queue_size")
-  );
+
+  return sim->get_res_stats_limits();
 }
 
 //[[Rcpp::export]]
@@ -249,65 +204,59 @@ int get_queue_count_(SEXP sim_, SEXP name_){
 }
 
 //[[Rcpp::export]]
-SEXP Seize__new(SEXP verbose_, SEXP resource_, SEXP amount_, 
-                SEXP priority_, SEXP preemptible_, SEXP restart_) {
+SEXP Seize__new(SEXP verbose_, SEXP resource_, SEXP amount_, SEXP cont_, SEXP trj_, SEXP mask_) {
   bool verbose = as<bool>(verbose_);
   std::string resource = as<std::string>(resource_);
   int amount = as<int>(amount_);
-  int priority = as<int>(priority_);
-  int preemptible = as<int>(preemptible_);
-  bool restart = as<bool>(restart_);
+  VEC<bool> cont = as<VEC<bool> >(cont_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  unsigned short mask = as<unsigned short>(mask_);
 
-  XPtr<Seize<int> > ptr(new Seize<int>(verbose, resource, amount, 0, 
-                                       priority, preemptible, restart), false);
+  XPtr<Seize<int> > ptr(new Seize<int>(verbose, resource, amount, 0, cont, trj, mask), false);
   return ptr;
 }
 
 //[[Rcpp::export]]
 SEXP Seize__new_func(SEXP verbose_, SEXP resource_, Function amount, SEXP provide_attrs_, 
-                     SEXP priority_, SEXP preemptible_, SEXP restart_) {
+                     SEXP cont_, SEXP trj_, SEXP mask_) {
   bool verbose = as<bool>(verbose_);
   std::string resource = as<std::string>(resource_);
   bool provide_attrs = as<bool>(provide_attrs_);
-  int priority = as<int>(priority_);
-  int preemptible = as<int>(preemptible_);
-  bool restart = as<bool>(restart_);
+  VEC<bool> cont = as<VEC<bool> >(cont_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  unsigned short mask = as<unsigned short>(mask_);
   
   XPtr<Seize<Function> > 
-    ptr(new Seize<Function>(verbose, resource, amount, provide_attrs, 
-                            priority, preemptible, restart), false);
+    ptr(new Seize<Function>(verbose, resource, amount, provide_attrs, cont, trj, mask), false);
   return ptr;
 }
 
 //[[Rcpp::export]]
-SEXP SeizeSelected__new(SEXP verbose_, SEXP id_, SEXP amount_, 
-                        SEXP priority_, SEXP preemptible_, SEXP restart_) {
+SEXP SeizeSelected__new(SEXP verbose_, SEXP id_, SEXP amount_, SEXP cont_, SEXP trj_, SEXP mask_) {
   bool verbose = as<bool>(verbose_);
   int id = as<int>(id_);
   int amount = as<int>(amount_);
-  int priority = as<int>(priority_);
-  int preemptible = as<int>(preemptible_);
-  bool restart = as<bool>(restart_);
+  VEC<bool> cont = as<VEC<bool> >(cont_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  unsigned short mask = as<unsigned short>(mask_);
   
   XPtr<SeizeSelected<int> > 
-    ptr(new SeizeSelected<int>(verbose, id, amount, 0, 
-                               priority, preemptible, restart), false);
+    ptr(new SeizeSelected<int>(verbose, id, amount, 0, cont, trj, mask), false);
   return ptr;
 }
 
 //[[Rcpp::export]]
 SEXP SeizeSelected__new_func(SEXP verbose_, SEXP id_, Function amount, SEXP provide_attrs_, 
-                             SEXP priority_, SEXP preemptible_, SEXP restart_) {
+                             SEXP cont_, SEXP trj_, SEXP mask_) {
   bool verbose = as<bool>(verbose_);
   int id = as<int>(id_);
   bool provide_attrs = as<bool>(provide_attrs_);
-  int priority = as<int>(priority_);
-  int preemptible = as<int>(preemptible_);
-  bool restart = as<bool>(restart_);
+  VEC<bool> cont = as<VEC<bool> >(cont_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  unsigned short mask = as<unsigned short>(mask_);
   
   XPtr<SeizeSelected<Function> > 
-    ptr(new SeizeSelected<Function>(verbose, id, amount, provide_attrs, 
-                                    priority, preemptible, restart), false);
+    ptr(new SeizeSelected<Function>(verbose, id, amount, provide_attrs, cont, trj, mask), false);
   return ptr;
 }
 
@@ -357,7 +306,6 @@ SEXP Select__new(SEXP verbose_, SEXP resources_, SEXP policy_, SEXP id_) {
   bool verbose = as<bool>(verbose_);
   VEC<std::string> resources = as<VEC<std::string> >(resources_);
   std::string policy = as<std::string>(policy_);
-  if (resources.size() == 1) policy = "none";
   int id = as<int>(id_);
   
   XPtr<Select<VEC<std::string> > > 
@@ -398,6 +346,24 @@ SEXP SetAttribute__new_func(SEXP verbose_, SEXP key_, Function value, SEXP provi
 }
 
 //[[Rcpp::export]]
+SEXP SetPrior__new(SEXP verbose_, SEXP values_) {
+  bool verbose = as<bool>(verbose_);
+  VEC<int> values = as<VEC<int> >(values_);
+  
+  XPtr<SetPrior<VEC<int> > > ptr(new SetPrior<VEC<int> >(verbose, values, 0), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP SetPrior__new_func(SEXP verbose_, Function values, SEXP provide_attrs_) {
+  bool verbose = as<bool>(verbose_);
+  bool provide_attrs = as<bool>(provide_attrs_);
+  
+  XPtr<SetPrior<Function> > ptr(new SetPrior<Function>(verbose, values, provide_attrs), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
 SEXP Timeout__new(SEXP verbose_, SEXP delay_) {
   bool verbose = as<bool>(verbose_);
   double delay = as<double>(delay_);
@@ -432,7 +398,7 @@ SEXP Rollback__new(SEXP verbose_, SEXP amount_, SEXP times_) {
   int amount = as<int>(amount_);
   int times = as<int>(times_);
   
-  XPtr<Rollback<int> > ptr(new Rollback<int>(verbose, amount, times, 0), false);
+  XPtr<Rollback> ptr(new Rollback(verbose, amount, times), false);
   return ptr;
 }
 
@@ -442,7 +408,7 @@ SEXP Rollback__new_func(SEXP verbose_, SEXP amount_, Function check, SEXP provid
   int amount = as<int>(amount_);
   bool provide_attrs = as<bool>(provide_attrs_);
   
-  XPtr<Rollback<Function> > ptr(new Rollback<Function>(verbose, amount, check, provide_attrs), false);
+  XPtr<Rollback> ptr(new Rollback(verbose, amount, 0, check, provide_attrs), false);
   return ptr;
 }
 
@@ -461,6 +427,98 @@ SEXP Leave__new_func(SEXP verbose_, Function prob, SEXP provide_attrs_) {
   bool provide_attrs = as<bool>(provide_attrs_);
   
   XPtr<Leave<Function> > ptr(new Leave<Function>(verbose, prob, provide_attrs), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP RenegeIn__new(SEXP verbose_, SEXP t_, SEXP trj_) {
+  bool verbose = as<bool>(verbose_);
+  double t = as<double>(t_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  
+  XPtr<RenegeIn<double> > ptr(new RenegeIn<double>(verbose, t, 0, trj), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP RenegeIn__new_func(SEXP verbose_, Function t, SEXP provide_attrs_, SEXP trj_) {
+  bool verbose = as<bool>(verbose_);
+  bool provide_attrs = as<bool>(provide_attrs_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  
+  XPtr<RenegeIn<Function> > ptr(new RenegeIn<Function>(verbose, t, provide_attrs, trj), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP RenegeAbort__new(SEXP verbose_) {
+  bool verbose = as<bool>(verbose_);
+  
+  XPtr<RenegeAbort> ptr(new RenegeAbort(verbose), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP Clone__new(SEXP verbose_, SEXP n_, SEXP trj_) {
+  bool verbose = as<bool>(verbose_);
+  int n = as<int>(n_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  
+  XPtr<Clone<int> > ptr(new Clone<int>(verbose, n, 0, trj), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP Clone__new_func(SEXP verbose_, Function n, SEXP provide_attrs_, SEXP trj_) {
+  bool verbose = as<bool>(verbose_);
+  bool provide_attrs = as<bool>(provide_attrs_);
+  VEC<Environment> trj = as<VEC<Environment> >(trj_);
+  
+  XPtr<Clone<Function> > ptr(new Clone<Function>(verbose, n, provide_attrs, trj), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP Synchronize__new(SEXP verbose_, SEXP wait_, SEXP terminate_) {
+  bool verbose = as<bool>(verbose_);
+  bool wait = as<bool>(wait_);
+  bool terminate = as<bool>(terminate_);
+
+  XPtr<Synchronize> ptr(new Synchronize(verbose, wait, terminate), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP Batch__new(SEXP verbose_, SEXP n_, SEXP timeout_, SEXP permanent_, SEXP name_) {
+  bool verbose = as<bool>(verbose_);
+  int n = as<int>(n_);
+  double timeout = as<double>(timeout_);
+  bool permanent = as<bool>(permanent_);
+  std::string name = as<std::string>(name_);
+  
+  XPtr<Batch> ptr(new Batch(verbose, n, timeout, permanent, name), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP Batch__new_func(SEXP verbose_, SEXP n_, SEXP timeout_, SEXP permanent_, SEXP name_,
+                     Function rule, SEXP provide_attrs_) {
+  bool verbose = as<bool>(verbose_);
+  int n = as<int>(n_);
+  double timeout = as<double>(timeout_);
+  bool permanent = as<bool>(permanent_);
+  std::string name = as<std::string>(name_);
+  bool provide_attrs = as<bool>(provide_attrs_);
+  
+  XPtr<Batch> ptr(new Batch(verbose, n, timeout, permanent, name, rule, provide_attrs), false);
+  return ptr;
+}
+
+//[[Rcpp::export]]
+SEXP Separate__new(SEXP verbose_) {
+  bool verbose = as<bool>(verbose_);
+  
+  XPtr<Separate> ptr(new Separate(verbose), false);
   return ptr;
 }
 

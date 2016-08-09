@@ -14,16 +14,12 @@ peek(env, steps = 1, verbose = FALSE)
 \item{verbose}{show additional information (i.e., the name of the process) about future events.}
 }
 \value{
-Returns numeric values if `verbose=F` and a data frame otherwise.
+Returns numeric values if \code{verbose=F} and a data frame otherwise.
 }
 \description{
-Looks for future events in the event queue.
+Look for future events in the event queue and (optionally) obtain info about them.
 }
 \seealso{
-Other methods for dealing with a simulation environment:
-\link{simmer}, \link{reset}, \link{now}, \link{onestep}, \link{run}, 
-\link{add_resource}, \link{add_generator}, \link{get_mon_arrivals}, \link{get_mon_attributes},
-\link{get_mon_resources}, \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
-\link{set_capacity}, \link{set_queue_size}, \link{get_server_count}, \link{get_queue_count}.
+\code{\link{now}}.
 }
 

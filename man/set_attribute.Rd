@@ -9,22 +9,15 @@ set_attribute(traj, key, value)
 \arguments{
 \item{traj}{the trajectory object.}
 
-\item{key}{the attribute key (is coerced to a string).}
+\item{key}{the attribute key (coerced to a string).}
 
 \item{value}{the value to set, accepts either a numeric or a callable object 
-(a function) which returns a numeric.}
+(a function) which must return a numeric.}
 }
 \value{
 The trajectory object.
 }
 \description{
-Adds a new key/value attribute. The value should be numeric.
-}
-\seealso{
-Other methods for dealing with trajectories:
-\link{create_trajectory}, \link{get_head}, \link{get_tail}, 
-\link{get_n_activities}, \link{join}, \link{seize}, \link{release}, 
-\link{timeout}, \link{branch}, \link{rollback}, \link{leave}, 
-\link{seize_selected}, \link{release_selected}, \link{select}.
+Modify an attribute in the form of a key/value pair.
 }
 

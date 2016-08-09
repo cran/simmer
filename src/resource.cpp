@@ -1,5 +1,5 @@
-#include "resource.h"
 #include "simulator.h"
+#include "resource.h"
 
 void Resource::set_capacity(int value) {
   if (capacity == value) return;
@@ -13,43 +13,46 @@ void Resource::set_capacity(int value) {
     while (server_count > capacity) 
       if (!try_free_server(sim->verbose, sim->now())) break;
   }
-  if (is_monitored()) observe(sim->now());
+  if (is_monitored())
+    sim->record_resource(name, server_count, queue_count, capacity, queue_size);
 }
 
 void Resource::set_queue_size(int value) {
   if (queue_size == value) return;
   queue_size = value;
-  if (is_monitored()) observe(sim->now());
+  if (is_monitored()) 
+    sim->record_resource(name, server_count, queue_count, capacity, queue_size);
 }
 
-int Resource::seize(Arrival* arrival, int amount, int priority, int preemptible, bool restart) {
+int Resource::seize(Arrival* arrival, int amount) {
   int status;
   // serve now
-  if (room_in_server(amount, priority)) {
+  if (room_in_server(amount, arrival->order.get_priority())) {
     if (arrival->is_monitored()) {
       arrival->set_start(this->name, sim->now());
       arrival->set_activity(this->name, sim->now());
     }
-    insert_in_server(sim->verbose, sim->now(), arrival, amount, priority, preemptible, restart);
+    insert_in_server(sim->verbose, sim->now(), arrival, amount);
     status = SUCCESS;
   }
   // enqueue
-  else if (room_in_queue(amount, priority)) {
+  else if (room_in_queue(amount, arrival->order.get_priority())) {
     if (arrival->is_monitored()) {
       arrival->set_start(this->name, sim->now());
       arrival->set_activity(this->name, 0);
     }
-    insert_in_queue(sim->verbose, sim->now(), arrival, amount, priority, preemptible, restart);
+    insert_in_queue(sim->verbose, sim->now(), arrival, amount);
     status = ENQUEUED;
   }
   // reject
   else {
     if (sim->verbose) verbose_print(sim->now(), arrival->name, "REJECT");
-    arrival->terminate(sim->now(), false);
     return REJECTED;
   }
   
-  if (is_monitored()) observe(sim->now());
+  arrival->register_entity(this);
+  if (is_monitored()) 
+    sim->record_resource(name, server_count, queue_count, capacity, queue_size);
   return status;
 }
 
@@ -58,13 +61,13 @@ int Resource::release(Arrival* arrival, int amount) {
   if (arrival->is_monitored()) {
     double last = arrival->get_activity(this->name);
     arrival->set_activity(this->name, sim->now() - last);
-    arrival->leave(this->name, sim->now());
+    arrival->leave(this->name);
   }
   remove_from_server(sim->verbose, sim->now(), arrival, amount);
+  arrival->unregister_entity(this);
   
   // serve another
-  DelayedTask* task = new DelayedTask(sim, "Post-Release", 
-                                      boost::bind(&Resource::post_release, this));
+  Task* task = new Task(sim, "Post-Release", boost::bind(&Resource::post_release, this));
   sim->schedule(0, task, PRIORITY_RELEASE_POST);
   
   return SUCCESS;
@@ -75,6 +78,17 @@ int Resource::post_release() {
   while (queue_count) 
     if (!try_serve_from_queue(sim->verbose, sim->now())) break;
     
-  if (is_monitored()) observe(sim->now());
+  if (is_monitored())
+    sim->record_resource(name, server_count, queue_count, capacity, queue_size);
   return SUCCESS;
+}
+
+bool Resource::erase(Arrival* arrival) {
+  bool ret = remove_from_queue(sim->verbose, sim->now(), arrival);
+  if (!ret) release(arrival, -1);
+  else arrival->unregister_entity(this);
+  
+  if (ret && is_monitored())
+    sim->record_resource(name, server_count, queue_count, capacity, queue_size);
+  return ret;
 }

@@ -7,32 +7,27 @@ theme_set(theme_bw())
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)
 library(ggplot2)
-library(dplyr)
 
 ## ------------------------------------------------------------------------
-patient_traj<-
-  create_trajectory(name = "patient_trajectory") %>%
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   seize(resource = "doctor", amount = 1) %>%
-  timeout(3) %>%
+  timeout(task = 3) %>%
   release(resource = "doctor", amount = 1)
 
 ## ------------------------------------------------------------------------
-patient_traj<-
-  create_trajectory(name = "patient_trajectory") %>%
-  set_attribute("my_key", 123) %>%
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  set_attribute(key = "my_key", value = 123) %>%
   timeout(5) %>%
-  set_attribute("my_key", 456)
+  set_attribute(key = "my_key", value = 456)
 
-env<-
-  simmer() %>%
+env <- simmer() %>%
   add_generator("patient", patient_traj, at(0), mon = 2) %>%
   run()
 
 get_mon_attributes(env)
 
 ## ------------------------------------------------------------------------
-patient_traj<-
-  create_trajectory(name = "patient_trajectory") %>%
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   set_attribute("my_key", 123) %>%
   timeout(5) %>%
   set_attribute("my_key", function(attrs) attrs[["my_key"]] + 1) %>%
@@ -41,22 +36,44 @@ patient_traj<-
   timeout(5) %>%
   set_attribute("independent_key", function() runif(1))
 
-env<-
-  simmer() %>%
+env<- simmer() %>%
   add_generator("patient", patient_traj, at(0), mon = 2) %>%
   run()
 
 get_mon_attributes(env)
 
 ## ------------------------------------------------------------------------
-patient_traj<-
-  create_trajectory(name = "patient_trajectory") %>%
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  timeout(task = 3)
+
+env <- simmer() %>%
+  add_generator("patient", patient_traj, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  set_attribute("health", function() sample(20:80, 1)) %>%
+  # distribution-based timeout
+  timeout(function() rexp(1, 10)) %>%
+  # attribute-dependent timeout
+  timeout(function(attrs) (100 - attrs[["health"]]) * 2)
+
+env <- simmer() %>%
+  add_generator("patient", patient_traj, at(0), mon = 2) %>%
+  run()
+
+get_mon_arrivals(env)
+get_mon_attributes(env)
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   seize(resource = "doctor", amount = 1) %>%
   timeout(3) %>%
   release(resource = "doctor", amount = 1)
 
-env<-
-  simmer() %>%
+env <- simmer() %>%
   add_resource("doctor", capacity=1, mon = 1) %>%
   add_generator("patient", patient_traj, at(0)) %>%
   run()
@@ -64,57 +81,145 @@ env<-
 get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
-patient_traj<-
-  create_trajectory(name = "patient_trajectory") %>%
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   set_attribute("health", function() sample(20:80, 1)) %>%
   set_attribute("docs_to_seize", function(attrs) ifelse(attrs[["health"]]<50, 1, 2)) %>%
   seize("doctor", function(attrs) attrs[["docs_to_seize"]]) %>%
   timeout(3) %>%
   release("doctor", function(attrs) attrs[["docs_to_seize"]])
 
-env<-
-  simmer() %>%
-  add_resource("doctor", capacity=2, mon = 1) %>%
-  add_generator("patient", patient_traj, at(0), mon=2) %>%
+env <- simmer() %>%
+  add_resource("doctor", capacity = 2, mon = 1) %>%
+  add_generator("patient", patient_traj, at(0), mon = 2) %>%
   run()
 
 get_mon_resources(env)
 get_mon_attributes(env)
 
 ## ------------------------------------------------------------------------
-patient_traj<-
-  create_trajectory(name = "patient_trajectory") %>%
-  timeout(3)
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  seize("doctor", 1) %>%
+  # the second patient won't reach this point
+  timeout(5) %>%
+  release("doctor", 1)
 
-env<-
-  simmer() %>%
-  add_resource("doctor", capacity=2, mon = 1) %>%
-  add_generator("patient", patient_traj, at(0), mon=2) %>%
+env <- simmer() %>%
+  add_resource("doctor", capacity = 1, queue_size = 0) %>%
+  add_generator("patient", patient_traj, at(0, 1)) %>%
   run()
 
 get_mon_arrivals(env)
+get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
-patient_traj<-
-  create_trajectory(name = "patient_trajectory") %>%
-  set_attribute("health", function() sample(20:80, 1)) %>%
-  # distribution-based timeout
-  timeout(function() rpois(1, 10)) %>%
-  # attribute-dependent timeout
-  timeout(function(attrs) (100 - attrs[["health"]]) * 2)
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  seize("doctor", 1, continue = FALSE,
+        reject = create_trajectory("rejected patient") %>%
+          seize("nurse", 1) %>%
+          timeout(2) %>%
+          release("nurse", 1)) %>%
+  # the second patient won't reach this point
+  timeout(5) %>%
+  release("doctor", 1)
 
-env<-
-  simmer() %>%
-  add_generator("patient", patient_traj, at(0), mon=2) %>%
+env <- simmer() %>%
+  add_resource("doctor", capacity = 1, queue_size = 0) %>%
+  add_resource("nurse", capacity = 10, queue_size = 0) %>%
+  add_generator("patient", patient_traj, at(0, 1)) %>%
   run()
 
 get_mon_arrivals(env)
+get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  seize("doctor", 1, continue = FALSE,
+        reject = create_trajectory("rejected patient") %>%
+          # go for a walk and try again
+          timeout(2) %>%
+          rollback(amount = 2, times = Inf)) %>%
+  # the second patient will reach this point after a couple of walks
+  timeout(5) %>%
+  release("doctor", 1)
+
+env <- simmer() %>%
+  add_resource("doctor", capacity = 1, queue_size = 0) %>%
+  add_generator("patient", patient_traj, at(0, 1)) %>%
+  run()
+
+get_mon_arrivals(env)
+get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  seize("doctor", 1, continue = c(TRUE, TRUE),
+        post.seize = create_trajectory("admitted patient") %>%
+          timeout(5) %>%
+          release("doctor", 1),
+        reject = create_trajectory("rejected patient") %>%
+          seize("nurse", 1) %>%
+          timeout(2) %>%
+          release("nurse", 1)) %>%
+  # both patients will reach this point, as continue = c(TRUE, TRUE)
+  timeout(10)
+
+env <- simmer() %>%
+  add_resource("doctor", capacity = 1, queue_size = 0) %>%
+  add_resource("nurse", capacity = 10, queue_size = 0) %>%
+  add_generator("patient", patient_traj, at(0, 1)) %>%
+  run()
+
+get_mon_arrivals(env)
+get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  select(resources = c("doctor1", "doctor2", "doctor3"), policy = "round-robin") %>%
+  seize_selected(amount = 1) %>%
+  timeout(5) %>%
+  release_selected(amount = 1)
+
+env <- simmer() %>%
+  add_resource("doctor1", capacity = 1) %>%
+  add_resource("doctor2", capacity = 1) %>%
+  add_resource("doctor3", capacity = 1) %>%
+  add_generator("patient", patient_traj, at(0, 1, 2)) %>%
+  run()
+
+get_mon_arrivals(env)
+get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  set_attribute("resource", function() sample(1:3, 1)) %>%
+  select(resources = function(attrs) paste0("doctor", attrs["resource"])) %>%
+  seize_selected(amount = 1) %>%
+  timeout(5) %>%
+  release_selected(amount = 1)
+
+env <- simmer() %>%
+  add_resource("doctor1", capacity = 1) %>%
+  add_resource("doctor2", capacity = 1) %>%
+  add_resource("doctor3", capacity = 1) %>%
+  add_generator("patient", patient_traj, at(0, 1, 2), mon = 2) %>%
+  run()
+
 get_mon_attributes(env)
+get_mon_arrivals(env)
+get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  set_attribute("priority", 3) %>%
+  # static values
+  set_prioritization(values = c(3, 7, TRUE)) %>%
+  # dynamically with a function
+  set_prioritization(values = function(attrs) c(attrs["priority"], 7, TRUE))
 
 ## ------------------------------------------------------------------------
 t1 <- create_trajectory("trajectory with a branch") %>%
   seize("server", 1) %>%
-  branch(function() sample(1:2, 1), continue=c(T, F), 
+  branch(option = function() sample(1:2, 1), continue = c(T, F), 
          create_trajectory("branch1") %>%
            timeout(function() 1),
          create_trajectory("branch2") %>%
@@ -125,7 +230,7 @@ t1 <- create_trajectory("trajectory with a branch") %>%
 
 ## ---- message = FALSE----------------------------------------------------
 t0 <- create_trajectory() %>%
-  branch(function() sample(c(1, 2), 1), c(T, T),
+  branch(function() sample(c(1, 2), 1), continue = c(T, T),
          create_trajectory() %>%
            seize("branch1", 1) %>%
            # do stuff here
@@ -147,25 +252,23 @@ env <- simmer() %>%
 arrivals <- get_mon_arrivals(env, per_resource = T)
 
 # Times that each branch was entered
-arrivals %>% count(resource)
+table(arrivals$resource)
 
 # The `activity_time` is the total time inside each branch for each arrival
 # Let's see the distributions
 ggplot(arrivals) + geom_histogram(aes(x=activity_time)) + facet_wrap(~resource)
 
 ## ------------------------------------------------------------------------
-t0<-create_trajectory() %>%
-  timeout(function(){
-    print("Hello!")
-    0}) %>%
-  rollback(amount=1, times=3)
+t0 <- create_trajectory() %>%
+  timeout(function() { print("Hello!"); return(0) }) %>%
+  rollback(amount = 1, times = 3)
 
 simmer() %>%
   add_generator("hello_sayer", t0, at(0)) %>% 
   run()
 
 ## ------------------------------------------------------------------------
-t0<-create_trajectory() %>%
+t0 <- create_trajectory() %>%
   set_attribute("happiness", 0) %>%
   # the timeout function is used simply to print something and returns 0,
   # hence it is a dummy timeout
@@ -179,11 +282,257 @@ t0<-create_trajectory() %>%
     return(0)
   }) %>%
   set_attribute("happiness", function(attrs) attrs[["happiness"]] + 25) %>%
-  rollback(amount=2, check=function(attrs) attrs[["happiness"]] < 100)
+  rollback(amount = 2, check = function(attrs) attrs[["happiness"]] < 100)
 
 simmer() %>%
   add_generator("mood_swinger", t0, at(0)) %>% 
   run()
+
+## ------------------------------------------------------------------------
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  seize("nurse", 1) %>%
+  timeout(3) %>%
+  release("nurse", 1) %>%
+  leave(prob = 1) %>%
+  # patients will never seize the doctor
+  seize("doctor", 1) %>%
+  timeout(3) %>%
+  release("doctor", 1)
+
+env <- simmer() %>%
+  add_resource("nurse", capacity=1) %>%
+  add_resource("doctor", capacity=1) %>%
+  add_generator("patient", patient_traj, at(0)) %>%
+  run()
+
+get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+set.seed(1234)
+
+patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  seize("nurse", 1) %>%
+  timeout(3) %>%
+  release("nurse", 1) %>%
+  leave(prob = function() runif(1) < 0.5) %>%
+  # some patients will seize the doctor
+  seize("doctor", 1) %>%
+  timeout(3) %>%
+  release("doctor", 1)
+
+env <- simmer() %>%
+  add_resource("nurse", capacity=1) %>%
+  add_resource("doctor", capacity=1) %>%
+  add_generator("patient", patient_traj, at(0, 1)) %>%
+  run()
+
+get_mon_arrivals(env)
+get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+t <- create_trajectory(name = "bank") %>%
+  timeout(function() { print("Here I am"); 0 } ) %>%
+  # renege in 5 minutes
+  renege_in(5, 
+            out = create_trajectory() %>%
+              timeout(function() { print("Lost my patience. Reneging..."); 0 } )) %>%
+  seize("clerk", 1) %>%
+  # stay if I'm being attended within 5 minutes
+  renege_abort() %>%
+  timeout(function() { print("I'm being attended"); 0 } ) %>%
+  timeout(10) %>%
+  release("clerk", 1) %>%
+  timeout(function() { print("Finished"); 0 } )
+
+env <- simmer(verbose = TRUE) %>%
+  add_resource("clerk", 1) %>%
+  add_generator("customer", t, at(0, 1)) %>%
+  run()
+
+## ------------------------------------------------------------------------
+t <- create_trajectory() %>%
+  clone(n = 3,
+        create_trajectory("original") %>%
+          timeout(1),
+        create_trajectory("clone 1") %>%
+          timeout(2),
+        create_trajectory("clone 2") %>%
+          timeout(3)) %>%
+  synchronize(wait = TRUE) %>%
+  timeout(0.5)
+
+env <- simmer(verbose = TRUE) %>%
+  add_generator("arrival", t, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
+
+## ------------------------------------------------------------------------
+t <- create_trajectory() %>%
+  clone(n = 3,
+        create_trajectory("original") %>%
+          timeout(1),
+        create_trajectory("clone 1") %>%
+          timeout(2)) %>%
+  synchronize(wait = TRUE) %>%
+  timeout(0.5)
+
+env <- simmer(verbose = TRUE) %>%
+  add_generator("arrival", t, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
+
+## ------------------------------------------------------------------------
+t <- create_trajectory() %>%
+  clone(n = 3,
+        create_trajectory("original") %>%
+          timeout(1),
+        create_trajectory("clone 1") %>%
+          timeout(2),
+        create_trajectory("clone 2") %>%
+          timeout(3)) %>%
+  synchronize(wait = FALSE) %>%
+  timeout(0.5)
+
+env <- simmer(verbose = TRUE) %>%
+  add_generator("arrival", t, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
+
+## ------------------------------------------------------------------------
+t <- create_trajectory() %>%
+  clone(n = 3,
+        create_trajectory("original") %>%
+          timeout(1),
+        create_trajectory("clone 1") %>%
+          timeout(2),
+        create_trajectory("clone 2") %>%
+          timeout(3)) %>%
+  synchronize(wait = FALSE, mon_all = TRUE) %>%
+  timeout(0.5)
+
+env <- simmer(verbose = TRUE) %>%
+  add_generator("arrival", t, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
+
+## ------------------------------------------------------------------------
+set.seed(1234)
+
+t <- create_trajectory() %>%
+  batch(10, timeout = 5, permanent = FALSE) %>%
+  seize("rollercoaster", 1) %>%
+  timeout(5) %>%
+  release("rollercoaster", 1) %>%
+  separate()
+
+env <- simmer() %>%
+  # capacity and queue_size are defined in batches of 10
+  add_resource("rollercoaster", capacity = 1, queue_size = 2) %>%
+  add_generator("person", t, function() rexp(1, 2)) %>%
+  run(15)
+
+get_mon_arrivals(env, per_resource = TRUE)
+
+## ------------------------------------------------------------------------
+t_batch <- create_trajectory() %>%
+  batch(10, timeout = 5, permanent = FALSE, rule = function() FALSE) %>%
+  seize("rollercoaster", 1) %>%
+  timeout(5) %>%
+  release("rollercoaster", 1) %>%
+  separate()
+
+t_nobatch <- create_trajectory() %>%
+  seize("rollercoaster", 1) %>%
+  timeout(5) %>%
+  release("rollercoaster", 1)
+
+set.seed(1234)
+
+env_batch <- simmer() %>%
+  # capacity and queue_size are defined in batches of 10
+  add_resource("rollercoaster", capacity = 1, queue_size = 2) %>%
+  add_generator("person", t_batch, function() rexp(1, 2)) %>%
+  run(15)
+
+set.seed(1234)
+
+env_nobatch <- simmer() %>%
+  # capacity and queue_size are defined in batches of 10
+  add_resource("rollercoaster", capacity = 1, queue_size = 2) %>%
+  add_generator("person", t_nobatch, function() rexp(1, 2)) %>%
+  run(15)
+
+get_mon_arrivals(env_batch, per_resource = TRUE)
+get_mon_arrivals(env_nobatch, per_resource = TRUE)
+
+## ------------------------------------------------------------------------
+t0 <- create_trajectory() %>%
+  batch(2) %>%
+  timeout(2) %>%
+  separate()
+
+t1 <- create_trajectory() %>%
+  timeout(1) %>%
+  join(t0)
+
+env <- simmer(verbose = TRUE) %>%
+  add_generator("t0_", t0, at(0)) %>%
+  add_generator("t1_", t1, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
+
+## ------------------------------------------------------------------------
+t0 <- create_trajectory() %>%
+  batch(2) %>%
+  timeout(2) %>%
+  separate()
+
+t1 <- create_trajectory() %>%
+  timeout(1) %>%
+  batch(2) %>%
+  timeout(2) %>%
+  separate()
+
+## ------------------------------------------------------------------------
+t0 <- create_trajectory() %>%
+  batch(2, name = "mybatch") %>%
+  timeout(2) %>%
+  separate()
+
+t1 <- create_trajectory() %>%
+  timeout(1) %>%
+  batch(2, name = "mybatch") %>%
+  timeout(2) %>%
+  separate()
+
+env <- simmer(verbose = TRUE) %>%
+  add_generator("t0_", t0, at(0)) %>%
+  add_generator("t1_", t1, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
+
+## ------------------------------------------------------------------------
+t0 <- create_trajectory() %>%
+  batch(2, name = "mybatch") %>%
+  timeout(2) %>%
+  separate()
+
+t1 <- create_trajectory() %>%
+  timeout(1) %>%
+  join(t0)
+
+env <- simmer(verbose = TRUE) %>%
+  add_generator("t0_", t0, at(0)) %>%
+  add_generator("t1_", t1, at(0)) %>%
+  run()
+
+get_mon_arrivals(env)
 
 ## ------------------------------------------------------------------------
 t1 <- create_trajectory() %>% seize("dummy", 1)

@@ -4,31 +4,43 @@
 \alias{add_generator}
 \title{Add a generator}
 \usage{
-add_generator(env, name_prefix, trajectory, dist, mon = 1)
+add_generator(env, name_prefix, trajectory, dist, mon = 1, priority = 0,
+  preemptible = priority, restart = FALSE)
 }
 \arguments{
 \item{env}{the simulation environment.}
 
 \item{name_prefix}{the name prefix of the generated arrivals.}
 
-\item{trajectory}{the trajectory that the generated arrivals will follow (see \link{create_trajectory}).}
+\item{trajectory}{the trajectory that the generated arrivals will follow (see
+\code{\link{create_trajectory}}).}
 
-\item{dist}{a function modelling the interarrival times (returning a negative value stops the generator).}
+\item{dist}{a function modelling the interarrival times (returning a negative 
+value stops the generator).}
 
-\item{mon}{whether the simulator must monitor the generated arrivals or not (0=no monitoring, 1=simple arrival monitoring, 2=level 1 + arrival attribute montoring)}
+\item{mon}{whether the simulator must monitor the generated arrivals or not 
+(0 = no monitoring, 1 = simple arrival monitoring, 2 = level 1 + arrival 
+attribute montoring)}
+
+\item{priority}{the priority of each arrival (a higher integer equals higher 
+priority; defaults to the minimum priority, which is 0).}
+
+\item{preemptible}{if a seize occurs in a preemptive resource, this parameter 
+establishes the minimum incoming priority that can preempt these arrivals (an 
+arrival with a priority greater than \code{preemptible} gains the resource). In 
+any case, \code{preemptible} must be equal or greater than \code{priority}, and 
+thus only higher priority arrivals can trigger preemption.}
+
+\item{restart}{whether the activity must be restarted after being preempted.}
 }
 \value{
 Returns the simulation environment.
 }
 \description{
-Adds a generator to a simulation environment.
+Define a new generator of arrivals in a simulation environment.
 }
 \seealso{
-Convenience functions: \link{at}, \link{from}, 
-\link{to}, \link{from_to}. Other methods for dealing with a simulation environment:
-\link{simmer}, \link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
-\link{add_resource}, \link{get_mon_arrivals}, \link{get_mon_attributes},
-\link{get_mon_resources}, \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
-\link{set_capacity}, \link{set_queue_size}, \link{get_server_count}, \link{get_queue_count}.
+Convenience functions: \code{\link{at}}, \code{\link{from}}, 
+\code{\link{to}}, \code{\link{from_to}}.
 }
 

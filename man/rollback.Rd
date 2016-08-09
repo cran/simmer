@@ -13,7 +13,7 @@ rollback(traj, amount, times = 1, check)
 
 \item{times}{the number of repetitions until an arrival may continue.}
 
-\item{check}{a callable object (a function) that must return a boolean. If
+\item{check}{a callable object (a function) which must return a boolean. If
 present, the \code{times} parameter is ignored, and the activity uses this
 function to check whether the rollback must be done or not.}
 }
@@ -21,13 +21,6 @@ function to check whether the rollback must be done or not.}
 The trajectory object.
 }
 \description{
-Adds a new activity that goes backwards in the trajectory.
-}
-\seealso{
-Other methods for dealing with trajectories:
-\link{create_trajectory}, \link{get_head}, \link{get_tail}, 
-\link{get_n_activities}, \link{join}, \link{seize}, \link{release},
-\link{set_attribute}, \link{timeout}, \link{branch}, \link{leave}, 
-\link{seize_selected}, \link{release_selected}, \link{select}.
+Go backwards to a previous point in the trajectory. Useful to implement loops.
 }
 

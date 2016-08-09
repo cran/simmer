@@ -4,33 +4,25 @@
 \alias{branch}
 \title{Add a branch activity}
 \usage{
-branch(traj, option, continue, ..., merge = "_deprecated")
+branch(traj, option, continue, ...)
 }
 \arguments{
 \item{traj}{the trajectory object.}
 
-\item{option}{a callable object (a function) that must return an integer 
-between 1 and \code{n}; it will be used by the arrivals to select a path to follow.}
+\item{option}{a callable object (a function) which must return an integer between
+\code{0} and \code{N}. A return value equal to \code{0} skips the branch and
+continues to the next activity. A returning value between \code{1} to \code{N}
+makes the arrival to follow the corresponding sub-trajectory.}
 
-\item{continue}{a vector of \code{n} booleans that indicate whether the arrival must 
-continue executing activities after each path or not.}
+\item{continue}{a vector of \code{N} booleans that indicate whether the arrival must 
+continue to the main trajectory after each sub-trajectory or not.}
 
-\item{...}{\code{n} trajectory objects describing each path.}
-
-\item{merge}{(deprecated) same as \code{continue}, for compatibility reasons. Support
-for this argument will be dropped in upcoming versions.}
+\item{...}{\code{N} trajectory objects describing each sub-trajectory.}
 }
 \value{
 The trajectory object.
 }
 \description{
-Adds a new activity that defines n alternative paths to the tail of a trajectory.
-}
-\seealso{
-Other methods for dealing with trajectories:
-\link{create_trajectory}, \link{get_head}, \link{get_tail}, 
-\link{get_n_activities}, \link{join}, \link{seize}, \link{release}, 
-\link{set_attribute}, \link{timeout}, \link{rollback}, \link{leave}, 
-\link{seize_selected}, \link{release_selected}, \link{select}.
+Define a fork with \code{N} alternative sub-trajectories.
 }
 

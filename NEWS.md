@@ -1,3 +1,21 @@
+# Changes in version 3.4.0
+
+## New features:
+
+* Prioritization (`priority`, `preemptible`, `restart`) has been moved from `seize` to `add_generator` (#69). This leads to a more natural interpretation of prioritization values as attributes of arrivals from the same generator, rather than attributes of a `seize`. Still, prioritization values can be redefined dynamically from inside a trajectory with the new activity `set_prioritization`.
+* New optional `post.seize` and `reject` subtrajectories in `seize` and `seize_selected` (#49). This feature allows us to fine-tune what happens to an arrival if it cannot seize a resource: instead of getting dropped, it may execute a given subtrajectory.
+* New `clone` and `synchronize` activities (#71). `clone` implements the workflow pattern in which an entity is processed in multiple parallel threads. The user can define a different sub-trajectory for each clone. With `synchronize`, multiple parallel clones converge and are synchronized: only one continues (the first or the last to arrive), and the others are removed.
+* New `batch` and `separate` activities (#45). They can be used to implement a rollercoaster process: `batch` collects a number of arrivals before they can continue processing as a block, and `separate` splits a previously established batch.
+* New `renege_in` and `renege_abort` activities (#58). They can be used to set or unset a timer after which the arrival will abandon.
+
+## Minor changes and fixes
+
+* If a `branch`'s `option` returns `0`, the arrival skips the `branch` and continues to the next activity instead of throwing an `index out of range` error (#70).
+* Throw errors on incorrect releases (#72).
+* Remove deprecated convenience function `every` (#65) and `branch`'s deprecated argument `merge` (#57).
+* New "The Bank Tutorial: Part I" vignette, by Duncan Garmonsway @nacnudus (#68).
+* Update "Advanced Trajectory Usage" vignette.
+
 # Changes in version 3.3.0
 
 ## New features:

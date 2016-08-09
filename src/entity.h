@@ -2,7 +2,6 @@
 #define ENTITY_H
 
 #include "simmer.h"
-#include "stats.h"
 
 #define SUCCESS 0
 #define ENQUEUED -1
@@ -16,13 +15,15 @@ class Simulator;
  */
 class Entity {
 public:
+  CLONEABLE(Entity)
+  
   Simulator* sim;
   std::string name;
   
   Entity(Simulator* sim, std::string name, int mon): 
     sim(sim), name(name), mon(std::abs(mon)) {}
-  virtual ~Entity() { reset(); }
-  virtual void reset() {}
+  virtual ~Entity() {}
+  virtual void reset() {};
   int is_monitored() { return mon; }
   
 private:

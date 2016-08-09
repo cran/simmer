@@ -24,8 +24,8 @@ on seize priorities.}
 
 \item{preempt_order}{if the resource is preemptive and preemption occurs with 
 more than one arrival in the server, this parameter defines which arrival should 
-be preempted first. It must be `fifo` (First In First Out: older preemptible 
-tasks are preempted first) or `lifo` (Last In First Out: newer preemptible tasks 
+be preempted first. It must be \code{fifo} (First In First Out: older preemptible 
+tasks are preempted first) or \code{lifo} (Last In First Out: newer preemptible tasks 
 are preempted first).}
 
 \item{queue_size_strict}{if the resource is preemptive and preemption occurs,
@@ -38,14 +38,9 @@ queue, and the maximum \code{queue_size} is guaranteed (rejection may occur).}
 Returns the simulation environment.
 }
 \description{
-Adds a resource to a simulation environment.
+Define a new resource in a simulation environment.
 }
 \seealso{
-Convenience functions: \link{schedule}.
-Other methods for dealing with a simulation environment:
-\link{simmer}, \link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
-\link{add_generator}, \link{get_mon_arrivals}, \link{get_mon_attributes},
-\link{get_mon_resources}, \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
-\link{set_capacity}, \link{set_queue_size}, \link{get_server_count}, \link{get_queue_count}.
+Convenience functions: \code{\link{schedule}}.
 }
 

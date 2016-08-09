@@ -15,13 +15,6 @@ leave(traj, prob)
 The trajectory object.
 }
 \description{
-Adds a new activity that terminates the trajectory with some probability.
-}
-\seealso{
-Other methods for dealing with trajectories:
-\link{create_trajectory}, \link{get_head}, \link{get_tail}, 
-\link{get_n_activities}, \link{join}, \link{seize}, \link{release}, 
-\link{set_attribute}, \link{timeout}, \link{branch}, \link{rollback},
-\link{seize_selected}, \link{release_selected}, \link{select}.
+Leave the trajectory with some probability.
 }
 

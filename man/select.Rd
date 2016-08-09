@@ -23,13 +23,9 @@ it is ignored.}
 The trajectory object.
 }
 \description{
-Selects a resource for a subsequent seize/release.
+Resource selector for a subsequent seize/release.
 }
 \seealso{
-\link{seize_selected}, \link{release_selected}. 
-Other methods for dealing with trajectories:
-\link{create_trajectory}, \link{get_head}, \link{get_tail}, 
-\link{get_n_activities}, \link{join}, \link{seize}, \link{release}, 
-\link{set_attribute}, \link{timeout}, \link{branch}, \link{rollback}, \link{leave}.
+\code{\link{seize_selected}}, \code{\link{release_selected}}.
 }
 

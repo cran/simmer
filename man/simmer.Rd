@@ -15,7 +15,7 @@ simmer(name = "anonymous", verbose = FALSE)
 Returns a simulation environment.
 }
 \description{
-This function initialises a simulation environment.
+This method initialises a simulation environment.
 }
 \examples{
 t0 <- create_trajectory("my trajectory") \%>\%
@@ -43,10 +43,11 @@ env \%>\% run(until=80)
 plot_resource_usage(env, "doctor")
 }
 \seealso{
-Other methods for dealing with a simulation environment:
-\link{reset}, \link{now}, \link{peek}, \link{onestep}, \link{run}, 
-\link{add_resource}, \link{add_generator}, \link{get_mon_arrivals}, \link{get_mon_attributes},
-\link{get_mon_resources}, \link{get_n_generated}, \link{get_capacity}, \link{get_queue_size},
-\link{set_capacity}, \link{set_queue_size}, \link{get_server_count}, \link{get_queue_count}.
+Methods for dealing with a simulation environment:
+\code{\link{reset}}, \code{\link{now}}, \code{\link{peek}}, \code{\link{onestep}}, \code{\link{run}}, 
+\code{\link{add_resource}}, \code{\link{add_generator}}, \code{\link{get_mon_arrivals}}, 
+\code{\link{get_mon_attributes}}, \code{\link{get_mon_resources}}, \code{\link{get_n_generated}}, 
+\code{\link{get_capacity}}, \code{\link{get_queue_size}}, \code{\link{set_capacity}}, 
+\code{\link{set_queue_size}}, \code{\link{get_server_count}}, \code{\link{get_queue_count}}.
 }
 

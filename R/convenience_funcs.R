@@ -5,8 +5,7 @@
 #' @param ... a vector or multiple parameters of times at which to initiate an arrival.
 #'
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{from}, 
-#' \link{to}, \link{from_to}.
+#' @seealso \code{\link{add_generator}}.
 #' @export
 #'
 #' @examples
@@ -18,23 +17,6 @@ at <- function(...) {
   time_vec <- c(...)
   time_diffs <- c(time_vec[1], diff(time_vec))
   function() return(c(time_diffs, -1))
-}
-
-#' [Deprecated] Arrivals every specific interval
-#' 
-#' Generator convenience function to generate arrivals every specific interval.
-#' When the generator reaches the last interval, it starts again from the first one.
-#'
-#' @param ... a vector or multiple parameters of intervals between arrivals.
-#'
-#' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{at}, \link{from}, 
-#' \link{to}, \link{from_to}.
-#' @export
-every <- function(...) {
-  .Deprecated("function() c(...)")  # nocov
-  time_diffs <- c(...)              # nocov
-  function() return(time_diffs)     # nocov
 }
 
 #' Generate arrivals starting at a specified time
@@ -50,8 +32,7 @@ every <- function(...) {
 #' \code{start_time}).
 #' 
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{at},  
-#' \link{to}, \link{from_to}.
+#' @seealso \code{\link{add_generator}}.
 #' @export
 #'
 #' @examples
@@ -80,11 +61,10 @@ from <- function(start_time, dist, arrive=TRUE) {
 #' Generator convenience function to generate inter-arrivals with a specified stop time.
 #'
 #' @param stop_time the time at which to stop the generator.
-#' @param dist a function modelling the interarrival times.
+#' @inheritParams from
 #'
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{at}, \link{from}, 
-#' \link{from_to}.
+#' @seealso \code{\link{add_generator}}.
 #' @export
 #'
 #' @examples
@@ -108,18 +88,11 @@ to <- function(stop_time, dist) {
 #' 
 #' Generator convenience function to generate inter-arrivals with specified start and stop times.
 #'
-#' @param start_time the time at which to launch the initial arrival.
-#' @param stop_time the time at which to stop the generator.
-#' @param dist a function modelling the interarrival times.
-#' @param arrive if set to \code{TRUE} (default) the first arrival will be 
-#' generated at \code{start_time} and will follow \code{dist} from then on. 
-#' If set to \code{FALSE}, will initiate \code{dist} at \code{start_time} 
-#' (and the first arrival will most likely start at a time later than 
-#' \code{start_time}).
+#' @inheritParams from
+#' @inheritParams to
 #' 
 #' @return Returns a generator function.
-#' @seealso \link{add_generator}, \link{at}, \link{from}, 
-#' \link{to}.
+#' @seealso \code{\link{add_generator}}.
 #' @export
 #'
 #' @examples
@@ -224,7 +197,7 @@ simmer.schedule <- R6Class("simmer.schedule",
 #' @param period period of repetition.
 #' 
 #' @return Returns a Schedule object.
-#' @seealso \link{add_resource}.
+#' @seealso \code{\link{add_resource}}.
 #' @export
 #' 
 #' @examples

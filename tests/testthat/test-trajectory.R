@@ -6,9 +6,16 @@ t0 <- create_trajectory(verbose=TRUE) %>%
   seize_selected(1) %>%
   timeout(function() rnorm(1, 15)) %>%
   leave(0) %>%
-  branch(function() 1, T, create_trajectory(verbose=TRUE)%>%timeout(function() 1)) %>%
+  branch(function() 1, T, create_trajectory(verbose=TRUE) %>% timeout(function() 1)) %>%
   set_attribute("dummy", 1) %>%
+  set_prioritization(c(0, 0, FALSE)) %>%
   rollback(1) %>%
+  clone(function() 2, create_trajectory(verbose=TRUE) %>% timeout(1)) %>%
+  synchronize() %>%
+  batch(1) %>%
+  separate() %>%
+  renege_in(function() 1, create_trajectory(verbose=TRUE) %>% timeout(1)) %>%
+  renege_abort() %>%
   release_selected(1) %>%
   release("nurse", 1)
 
@@ -19,15 +26,24 @@ trajs <- c(create_trajectory(verbose=TRUE) %>% seize("nurse", 1),
            create_trajectory(verbose=TRUE) %>% leave(0),
            create_trajectory(verbose=TRUE) %>% branch(function() 1, T, create_trajectory(verbose=TRUE)%>%timeout(function() 1)),
            create_trajectory(verbose=TRUE) %>% set_attribute("dummy", 1),
+           create_trajectory(verbose=TRUE) %>% set_prioritization(c(0, 0, FALSE)),
            create_trajectory(verbose=TRUE) %>% rollback(1),
+           create_trajectory(verbose=TRUE) %>% clone(function() 2, create_trajectory(verbose=TRUE) %>% timeout(1)),
+           create_trajectory(verbose=TRUE) %>% synchronize(),
+           create_trajectory(verbose=TRUE) %>% batch(1),
+           create_trajectory(verbose=TRUE) %>% separate(),
+           create_trajectory(verbose=TRUE) %>% renege_in(function() 1, create_trajectory(verbose=TRUE) %>% timeout(1)),
+           create_trajectory(verbose=TRUE) %>% renege_abort(),
            create_trajectory(verbose=TRUE) %>% release_selected(1),
            create_trajectory(verbose=TRUE) %>% release("nurse", 1))
 
+N <- 16
+
 test_that("the activity chain grows as expected", {
   head <- t0%>%get_head()
-  for (i in 1:9) head <- get_next_activity(head)
+  for (i in 1:N) head <- get_next_activity(head)
   tail <- t0%>%get_tail()
-  for (i in 1:9) tail <- get_prev_activity(tail)
+  for (i in 1:N) tail <- get_prev_activity(tail)
   
   expect_output(print_activity(head), "Release")
   expect_output(print_activity(t0%>%get_tail()), "Release")
@@ -41,9 +57,9 @@ test_that("the activity chain grows as expected using join", {
   t <- join(trajs)
   
   head <- t%>%get_head()
-  for (i in 1:9) head <- get_next_activity(head)
+  for (i in 1:N) head <- get_next_activity(head)
   tail <- t%>%get_tail()
-  for (i in 1:9) tail <- get_prev_activity(tail)
+  for (i in 1:N) tail <- get_prev_activity(tail)
   
   expect_output(print_activity(head), "Release")
   expect_output(print_activity(t%>%get_tail()), "Release")
@@ -99,22 +115,22 @@ test_that("the trajectory stores the right number of activities", {
   output <- paste0(".*(",
     "15 activities", 
     ".*Seize.*nurse.*1", 
-    ".*Timeout.*function", 
+    ".*Timeout.*0x", 
     ".*Release.*nurse.*1", 
     ".*Branch.*1", 
       ".*7 activities", 
-      ".*Seize.*doctor.*function", 
-      ".*Timeout.*function", 
-      ".*Release.*doctor.*function", 
+      ".*Seize.*doctor.*0x", 
+      ".*Timeout.*0x", 
+      ".*Release.*doctor.*0x", 
       ".*Branch.*1", 
         ".*3 activities", 
         ".*Seize.*administration.*1", 
         ".*Timeout.*1", 
         ".*Release.*administration.*1", 
     ".*Rollback.*1.*Branch.*1", 
-    ".*Rollback.*1.*Rollback.*function", 
+    ".*Rollback.*1.*Rollback.*0x", 
     ".*SetAttribute.*1", 
-    ".*SetAttribute.*function", 
+    ".*SetAttribute.*0x", 
   ").*")
   
   expect_output(print(t0), output)

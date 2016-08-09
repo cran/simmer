@@ -1,6 +1,6 @@
 Package: simmer
 Type: Package
-Version: 3.3.0
+Version: 3.4.0
 Title: Discrete-Event Simulation for R
 Description: A process-oriented and trajectory-based Discrete-Event Simulation
     (DES) package for R. Designed to be a generic framework like SimPy or 
@@ -23,9 +23,9 @@ License: MIT + file LICENSE
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2016-06-27 22:56:49 UTC; inaki
+Packaged: 2016-08-08 21:33:46 UTC; inaki
 Author: Bart Smeets [aut],
   Iñaki Ucar [aut, cre]
 Maintainer: Iñaki Ucar <i.ucar86@gmail.com>
 Repository: CRAN
-Date/Publication: 2016-06-28 07:50:46
+Date/Publication: 2016-08-09 01:09:06

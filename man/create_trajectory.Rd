@@ -15,8 +15,8 @@ create_trajectory(name = "anonymous", verbose = FALSE)
 Returns an environment that represents the trajectory.
 }
 \description{
-This function initialises a trajectory, which is a chain of activities followed 
-by arrivals of the same type.
+This method initialises a trajectory object, which comprises a chain of 
+activities that can be attached to a generator.
 }
 \examples{
 t0 <- create_trajectory("my trajectory") \%>\%
@@ -52,10 +52,12 @@ t1 <- create_trajectory("trajectory with a branch") \%>\%
 t1
 }
 \seealso{
-Other methods for dealing with trajectories:
-\link{get_head}, \link{get_tail}, \link{get_n_activities}, 
-\link{join}, \link{seize}, \link{release}, 
-\link{set_attribute}, \link{timeout}, \link{branch}, \link{rollback}, \link{leave}, 
-\link{seize_selected}, \link{release_selected}, \link{select}.
+Methods for dealing with trajectories:
+\code{\link{get_head}}, \code{\link{get_tail}}, \code{\link{get_n_activities}}, \code{\link{join}},
+\code{\link{seize}}, \code{\link{release}}, \code{\link{seize_selected}}, \code{\link{release_selected}}, 
+\code{\link{select}}, \code{\link{set_prioritization}}, \code{\link{set_attribute}}, 
+\code{\link{timeout}}, \code{\link{branch}}, \code{\link{rollback}}, \code{\link{leave}}, 
+\code{\link{renege_in}}, \code{\link{renege_abort}},\code{\link{clone}}, \code{\link{synchronize}}, 
+\code{\link{batch}}, \code{\link{separate}}.
 }
 

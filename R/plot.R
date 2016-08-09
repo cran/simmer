@@ -8,8 +8,8 @@
 #' @param steps adds the changes in the resource usage.
 #' 
 #' @return a ggplot2 object.
-#' @seealso \link{plot_resource_utilization},
-#' \link{plot_evolution_arrival_times}, \link{plot_attributes}.
+#' @seealso \code{\link{plot_resource_utilization}},
+#' \code{\link{plot_evolution_arrival_times}}, \code{\link{plot_attributes}}.
 #' @export
 plot_resource_usage <- function(envs, resource_name, items=c("system", "queue", "server"), steps = FALSE) {
   checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))
@@ -58,12 +58,12 @@ plot_resource_usage <- function(envs, resource_name, items=c("system", "queue", 
 #' 
 #' Plot the utilization of specified resources in the simulation.
 #' 
-#' @param envs a single simmer environment or a list of environments representing several replications.
+#' @inheritParams plot_resource_usage
 #' @param resources a character vector with at least one resource specified - e.g. "c('res1','res2')".
 #' 
 #' @return a ggplot2 object.
-#' @seealso \link{plot_resource_usage}, 
-#' \link{plot_evolution_arrival_times}, \link{plot_attributes}.
+#' @seealso \code{\link{plot_resource_usage}}, 
+#' \code{\link{plot_evolution_arrival_times}}, \code{\link{plot_attributes}}.
 #' @export
 plot_resource_utilization <- function(envs, resources) {
   checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))
@@ -107,12 +107,12 @@ plot_resource_utilization <- function(envs, resources) {
 #' 
 #' Plot the evolution of arrival related times (flow, activity and waiting time).
 #' 
-#' @param envs a single simmer environment or a list of environments representing several replications.
+#' @inheritParams plot_resource_usage
 #' @param type one of \code{c("activity_time", "waiting_time", "flow_time")}.
 #' 
 #' @return a ggplot2 object.
-#' @seealso \link{plot_resource_usage}, \link{plot_resource_utilization},
-#' \link{plot_attributes}.
+#' @seealso \code{\link{plot_resource_usage}}, \code{\link{plot_resource_utilization}},
+#' \code{\link{plot_attributes}}.
 #' @export
 plot_evolution_arrival_times <- function(envs, type=c("activity_time", "waiting_time", "flow_time")){
   checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))
@@ -160,12 +160,12 @@ plot_evolution_arrival_times <- function(envs, type=c("activity_time", "waiting_
 #' 
 #' Plot the evolution of user-supplied attribute data.
 #' 
-#' @param envs a single simmer environment or a list of environments representing several replications.
+#' @inheritParams plot_resource_usage
 #' @param keys the keys of attributes you want to plot (if left empty, all attributes are shown).
 #'
 #' @return a ggplot2 object.
-#' @seealso \link{plot_resource_usage}, \link{plot_resource_utilization},
-#' \link{plot_evolution_arrival_times}.
+#' @seealso \code{\link{plot_resource_usage}}, \code{\link{plot_resource_utilization}},
+#' \code{\link{plot_evolution_arrival_times}}.
 #' @export
 plot_attributes <- function(envs, keys=c()) {
   checkInstall(c("dplyr", "tidyr", "ggplot2", "scales"))

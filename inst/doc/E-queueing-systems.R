@@ -45,22 +45,33 @@ mm1.t_system <- mm1.arrivals$end_time - mm1.arrivals$start_time
 mm1.T <- mm1.N / lambda
 mm1.T ; mean(mm1.t_system)
 
-## ------------------------------------------------------------------------
-envs <- mclapply(1:1000, function(i) {
-  simmer() %>%
-    add_resource("resource", capacity=1, queue_size=Inf) %>%
-    add_generator("arrival", mm1.trajectory, function() rexp(100, lambda)) %>%
-    run(1000/lambda) %>%
-    wrap()
-})
+## ---- eval=FALSE---------------------------------------------------------
+#  envs <- mclapply(1:100, function(i) {
+#    simmer() %>%
+#      add_resource("resource", capacity=1, queue_size=Inf) %>%
+#      add_generator("arrival", mm1.trajectory, function() rexp(100, lambda)) %>%
+#      run(1000/lambda) %>%
+#      wrap()
+#  }, mc.set.seed=FALSE)
 
-## ------------------------------------------------------------------------
-t_system <- get_mon_arrivals(envs) %>%
-  mutate(t_system = end_time - start_time) %>%
-  group_by(replication) %>%
-  summarise(mean = mean(t_system))
-
-t.test(t_system$mean)
+## ---- eval=FALSE---------------------------------------------------------
+#  t_system <- get_mon_arrivals(envs) %>%
+#    mutate(t_system = end_time - start_time) %>%
+#    group_by(replication) %>%
+#    summarise(mean = mean(t_system))
+#  
+#  t.test(t_system$mean)
+#  #>
+#  #> 	One Sample t-test
+#  #>
+#  #> data:  t_system$mean
+#  #> t = 112.35, df = 99, p-value < 2.2e-16
+#  #> alternative hypothesis: true mean is not equal to 0
+#  #> 95 percent confidence interval:
+#  #>  0.4883420 0.5059016
+#  #> sample estimates:
+#  #> mean of x
+#  #> 0.4971218
 
 ## ------------------------------------------------------------------------
 lambda; 1/mean(diff(subset(mm1.arrivals, finished==TRUE)$start_time))
