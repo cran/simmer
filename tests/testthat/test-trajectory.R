@@ -8,7 +8,7 @@ t0 <- create_trajectory(verbose=TRUE) %>%
   leave(0) %>%
   branch(function() 1, T, create_trajectory(verbose=TRUE) %>% timeout(function() 1)) %>%
   set_attribute("dummy", 1) %>%
-  set_prioritization(c(0, 0, FALSE)) %>%
+  set_prioritization(function() c(0, 0, FALSE)) %>%
   rollback(1) %>%
   clone(function() 2, create_trajectory(verbose=TRUE) %>% timeout(1)) %>%
   synchronize() %>%
@@ -26,7 +26,7 @@ trajs <- c(create_trajectory(verbose=TRUE) %>% seize("nurse", 1),
            create_trajectory(verbose=TRUE) %>% leave(0),
            create_trajectory(verbose=TRUE) %>% branch(function() 1, T, create_trajectory(verbose=TRUE)%>%timeout(function() 1)),
            create_trajectory(verbose=TRUE) %>% set_attribute("dummy", 1),
-           create_trajectory(verbose=TRUE) %>% set_prioritization(c(0, 0, FALSE)),
+           create_trajectory(verbose=TRUE) %>% set_prioritization(function() c(0, 0, FALSE)),
            create_trajectory(verbose=TRUE) %>% rollback(1),
            create_trajectory(verbose=TRUE) %>% clone(function() 2, create_trajectory(verbose=TRUE) %>% timeout(1)),
            create_trajectory(verbose=TRUE) %>% synchronize(),
@@ -157,13 +157,4 @@ test_that("the head/tail pointers are correctly placed", {
 test_that("we can force some errors (just to complete coverage)", {
   expect_error(create_trajectory() %>% get_next_activity())
   expect_error(create_trajectory() %>% get_prev_activity())
-  
-  t0 <- create_trajectory() %>% timeout(function() {})
-  t0$.__enclos_env__$private$head <- NULL
-  expect_error(t0 %>% capture.output)
-  expect_error(t0$.__enclos_env__$private$add_activity(NULL))
-  
-  t0 <- create_trajectory() %>% timeout(function() {})
-  t0$.__enclos_env__$private$tail <- NULL
-  expect_error(t0 %>% timeout(function() {}))
 })

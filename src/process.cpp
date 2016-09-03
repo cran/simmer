@@ -11,18 +11,22 @@ void Generator::run() {
   double delay = 0;
   
   for(int i = 0; i < n; ++i) {
-    if (delays[i] < 0) return;
+    if (delays[i] < 0)
+      return;
     delay += delays[i];
     
     // format the name and create the next arrival
     std::string arr_name = name + boost::lexical_cast<std::string>(count++);
     Arrival* arrival = new Arrival(sim, arr_name, is_monitored(), order, first_activity);
     
-    if (sim->verbose) Rcpp::Rcout << 
-      FMT(10, right) << sim->now() << " |" << FMT(12, right) << "generator: " << FMT(15, left) << name << "|" << 
-      FMT(12, right) << "new: " << FMT(15, left) << arr_name << "| " << (sim->now() + delay) << std::endl;
+    if (sim->verbose)Rcpp::Rcout << 
+      FMT(10, right) << sim->now() << " |" << 
+      FMT(12, right) << "generator: " << FMT(15, left) << name << "|" << 
+      FMT(12, right) << "new: " << FMT(15, left) << arr_name << "| " << 
+      (sim->now() + delay) << std::endl;
     
     // schedule the arrival
+    sim->register_arrival(arrival);
     sim->schedule(delay, arrival, count);
   }
   // schedule the generator
@@ -30,15 +34,19 @@ void Generator::run() {
 }
 
 void Manager::run() {
-  if (!sim->now() && duration[index]) goto finish;
+  if (!sim->now() && duration[index])
+    goto finish;
   if (sim->verbose) Rcpp::Rcout <<
-    FMT(10, right) << sim->now() << " |" << FMT(12, right) << "manager: " << FMT(15, left) << name << "|" << 
-    FMT(12, right) << "parameter: " << FMT(15, left) << param << "| " << value[index] << std::endl;
+    FMT(10, right) << sim->now() << " |" << 
+    FMT(12, right) << "manager: " << FMT(15, left) << name << "|" << 
+    FMT(12, right) << "parameter: " << FMT(15, left) << param << "| " << 
+    value[index] << std::endl;
   
   set(value[index]);
   index++;
   if (index == duration.size()) {
-    if (period < 0) goto end;
+    if (period < 0)
+      goto end;
     index = 1;
   }
   
@@ -50,18 +58,28 @@ end:
 
 void Task::run() {
   if (sim->verbose) Rcpp::Rcout <<
-    FMT(10, right) << sim->now() << " |" << FMT(12, right) << "task: " << FMT(15, left) << name << "|" << 
+    FMT(10, right) << sim->now() << " |" << 
+    FMT(12, right) << "task: " << FMT(15, left) << name << "|" << 
     FMT(12, right) << " " << FMT(15, left) << " " << "| " << std::endl;
   
   task();
   delete this;
 }
 
+void Arrival::reset() {
+  cancel_timeout();
+  if (!--(*clones))
+    delete clones;
+  sim->unregister_arrival(this);
+}
+
 void Arrival::run() {
   double delay;
   
-  if (!activity) goto finish;
-  if (lifetime.start < 0) lifetime.start = sim->now();
+  if (!activity)
+    goto finish;
+  if (lifetime.start < 0)
+    lifetime.start = sim->now();
   
   if (sim->verbose) {
     Rcpp::Rcout <<
@@ -72,9 +90,11 @@ void Arrival::run() {
   }
   
   delay = activity->run(this);
-  if (delay == REJECTED) goto end;
+  if (delay == REJECTED)
+    goto end;
   activity = activity->get_next();
-  if (delay == ENQUEUED) goto end;
+  if (delay == ENQUEUED)
+    goto end;
   
   lifetime.busy_until = sim->now() + delay;
   lifetime.activity += delay;
@@ -125,13 +145,15 @@ void Arrival::renege(Activity* next) {
   bool ret = false;
   timer = NULL;
   if (batch) {
-    if (batch->is_permanent()) return;
+    if (batch->is_permanent())
+      return;
     ret = true;
     batch->erase(this);
   }
   while (resources.begin() != resources.end())
     ret |= (*resources.begin())->erase(this);
-  if (!ret) Process::deactivate();
+  if (!ret)
+    Process::deactivate();
   lifetime.remaining = lifetime.busy_until - sim->now();
   if (next) {
     activity = next;
@@ -144,6 +166,16 @@ int Arrival::set_attribute(std::string key, double value) {
   if (is_monitored() >= 2) 
     sim->record_attribute(name, key, value);
   return 0;
+}
+
+double Arrival::get_start(std::string name) {
+  double start = restime[name].start;
+  if (batch) {
+    double up = batch->get_start(name);
+    if (up >= 0 && (start < 0 || up < start))
+      start = up;
+  }
+  return start;
 }
 
 void Arrival::set_timeout(double timeout, Activity* next) {
@@ -194,7 +226,8 @@ void Batched::erase(Arrival* arrival) {
     bool ret = false;
     while (resources.begin() != resources.end())
       ret |= (*resources.begin())->erase(this);
-    if (!ret) Process::deactivate();
+    if (!ret)
+      Process::deactivate();
   } else batch->erase(this);
   arrivals.erase(std::remove(arrivals.begin(), arrivals.end(), arrival), arrivals.end());
   arrival->unregister_entity(this);
