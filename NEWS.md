@@ -1,10 +1,20 @@
+# Changes in version 3.4.3
+
+## Minor changes and fixes:
+
+* Remove warnings for unused arguments in `seize` and `seize_selected` (1c8c3bb).
+* Fix crash on arrival reneging in non-triggered batches (8713d95).
+* Fix crash on batches triggered before the timer expires (8713d95).
+* Fix crash on non-released preemptive resources when capacity decreases (#75).
+* Leaving without releasing a resource throws a warning (#76).
+
 # Changes in version 3.4.2
 
 ## New features:
 
 * Ongoing (unfinished) arrivals are reported with `get_mon_arrivals(ongoing = TRUE)` (#73).
 
-## Minor changes and fixes
+## Minor changes and fixes:
 
 * Simplify Rcpp glue: remove unnecessary `as<>()` calls (ec4e51a).
 * Simplify trajectory's head/tail management (06432a8).
@@ -14,7 +24,7 @@
 
 # Changes in version 3.4.1
 
-## Minor changes and fixes
+## Minor changes and fixes:
 
 * Fix memtest notes on CRAN (heap-use-after-free).
 * Fix memory leaks.
@@ -29,7 +39,7 @@
 * New `batch` and `separate` activities (#45). They can be used to implement a rollercoaster process: `batch` collects a number of arrivals before they can continue processing as a block, and `separate` splits a previously established batch.
 * New `renege_in` and `renege_abort` activities (#58). They can be used to set or unset a timer after which the arrival will abandon.
 
-## Minor changes and fixes
+## Minor changes and fixes:
 
 * If a `branch`'s `option` returns `0`, the arrival skips the `branch` and continues to the next activity instead of throwing an `index out of range` error (#70).
 * Throw errors on incorrect releases (#72).
