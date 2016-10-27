@@ -15,6 +15,16 @@ patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   release(resource = "doctor", amount = 1)
 
 ## ------------------------------------------------------------------------
+set.seed(1234)
+
+t <- create_trajectory() %>%
+  log_("hello world!")
+
+simmer() %>%
+  add_generator("dummy", t, function() rexp(1, 1)) %>%
+  run(5) %>% invisible
+
+## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   set_attribute(key = "my_key", value = 123) %>%
   timeout(5) %>%
@@ -98,8 +108,10 @@ get_mon_attributes(env)
 
 ## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  log_("arriving...") %>%
   seize("doctor", 1) %>%
   # the second patient won't reach this point
+  log_("doctor seized") %>%
   timeout(5) %>%
   release("doctor", 1)
 
@@ -113,12 +125,16 @@ get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  log_("arriving...") %>%
   seize("doctor", 1, continue = FALSE,
         reject = create_trajectory("rejected patient") %>%
+          log_("rejected!") %>%
           seize("nurse", 1) %>%
+          log_("nurse seized") %>%
           timeout(2) %>%
           release("nurse", 1)) %>%
   # the second patient won't reach this point
+  log_("doctor seized") %>%
   timeout(5) %>%
   release("doctor", 1)
 
@@ -133,14 +149,19 @@ get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  log_("arriving...") %>%
   seize("doctor", 1, continue = FALSE,
         reject = create_trajectory("rejected patient") %>%
+          log_("rejected!") %>%
           # go for a walk and try again
           timeout(2) %>%
-          rollback(amount = 2, times = Inf)) %>%
+          log_("retrying...") %>%
+          rollback(amount = 4, times = Inf)) %>%
   # the second patient will reach this point after a couple of walks
+  log_("doctor seized") %>%
   timeout(5) %>%
-  release("doctor", 1)
+  release("doctor", 1) %>%
+  log_("leaving")
 
 env <- simmer() %>%
   add_resource("doctor", capacity = 1, queue_size = 0) %>%
@@ -152,16 +173,20 @@ get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
+  log_("arriving...") %>%
   seize("doctor", 1, continue = c(TRUE, TRUE),
         post.seize = create_trajectory("admitted patient") %>%
+          log_("admitted") %>%
           timeout(5) %>%
           release("doctor", 1),
         reject = create_trajectory("rejected patient") %>%
+          log_("rejected!") %>%
           seize("nurse", 1) %>%
           timeout(2) %>%
           release("nurse", 1)) %>%
   # both patients will reach this point, as continue = c(TRUE, TRUE)
-  timeout(10)
+  timeout(10) %>%
+  log_("leaving...")
 
 env <- simmer() %>%
   add_resource("doctor", capacity = 1, queue_size = 0) %>%
@@ -173,16 +198,56 @@ get_mon_arrivals(env)
 get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
+set.seed(12345)
+env <- simmer()
+
+increment <- function(res) {
+  function() get_capacity(env, res) + 1
+}
+decrement <- function(res) {
+  function() {
+    n <- get_capacity(env, res) - 1
+    if (n < 0) 0
+    else n
+  }
+}
+
+t1 <- create_trajectory() %>%
+  seize("res1", 1) %>%
+  set_capacity(resource = "res1", value = increment("res1")) %>%
+  set_capacity(resource = "res2", value = decrement("res2")) %>%
+  timeout(function() rexp(1, 1)) %>%
+  release("res1", 1)
+
+t2 <- create_trajectory() %>%
+  seize("res2", 1) %>%
+  set_capacity(resource = "res2", value = increment("res2")) %>%
+  set_capacity(resource = "res1", value = decrement("res1")) %>%
+  timeout(function() rexp(1, 1)) %>%
+  release("res2", 1)
+
+env <- env %>%
+  add_resource("res1", capacity = 20, queue_size = Inf) %>%
+  add_resource("res2", capacity = 20, queue_size = Inf) %>%
+  add_generator("t1_", t1, function() rexp(1, 1)) %>%
+  add_generator("t2_", t2, function() rexp(1, 1)) %>%
+  run(100)
+
+plot_resource_usage(env, "res1", steps = TRUE)
+plot_resource_usage(env, "res2", steps = TRUE)
+
+## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   select(resources = c("doctor1", "doctor2", "doctor3"), policy = "round-robin") %>%
+  set_capacity_selected(1) %>%
   seize_selected(amount = 1) %>%
   timeout(5) %>%
   release_selected(amount = 1)
 
 env <- simmer() %>%
-  add_resource("doctor1", capacity = 1) %>%
-  add_resource("doctor2", capacity = 1) %>%
-  add_resource("doctor3", capacity = 1) %>%
+  add_resource("doctor1", capacity = 0) %>%
+  add_resource("doctor2", capacity = 0) %>%
+  add_resource("doctor3", capacity = 0) %>%
   add_generator("patient", patient_traj, at(0, 1, 2)) %>%
   run()
 
@@ -207,6 +272,31 @@ env <- simmer() %>%
 get_mon_attributes(env)
 get_mon_arrivals(env)
 get_mon_resources(env)
+
+## ------------------------------------------------------------------------
+t <- create_trajectory() %>%
+  deactivate(generator = "dummy") %>%
+  timeout(1) %>%
+  activate(generator = "dummy")
+
+simmer() %>%
+  add_generator("dummy", t, function() 1) %>%
+  run(10) %>%
+  get_mon_arrivals()
+
+## ------------------------------------------------------------------------
+t1 <- create_trajectory() %>%
+  timeout(1)
+
+t2 <- create_trajectory() %>%
+  set_distribution("dummy", function() 1) %>%
+  set_trajectory("dummy", t1) %>%
+  timeout(2)
+
+simmer() %>%
+  add_generator("dummy", trajectory = t2, distribution = function() 2) %>%
+  run(10) %>%
+  get_mon_arrivals()
 
 ## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
@@ -260,40 +350,39 @@ ggplot(arrivals) + geom_histogram(aes(x=activity_time)) + facet_wrap(~resource)
 
 ## ------------------------------------------------------------------------
 t0 <- create_trajectory() %>%
-  timeout(function() { print("Hello!"); return(0) }) %>%
-  rollback(amount = 1, times = 3)
+  log_("Hello!") %>%
+  timeout(1) %>%
+  rollback(amount = 2, times = 3)
 
 simmer() %>%
   add_generator("hello_sayer", t0, at(0)) %>% 
-  run()
+  run() %>% invisible
 
 ## ------------------------------------------------------------------------
 t0 <- create_trajectory() %>%
   set_attribute("happiness", 0) %>%
-  # the timeout function is used simply to print something and returns 0,
-  # hence it is a dummy timeout
-  timeout(function(attrs){
-    cat(">> Happiness level is at: ", attrs[["happiness"]], " -- ")
-    cat(ifelse(attrs[["happiness"]]<25,"PETE: I'm feeling crappy...",
-               ifelse(attrs[["happiness"]]<50,"PETE: Feelin' a bit moody",
-                      ifelse(attrs[["happiness"]]<75,"PETE: Just had a good espresso",
-                             "PETE: Let's do this! (and stop this loop...)")))
-        , "\n")
-    return(0)
+  log_(function(attrs) {
+    paste0(">> Happiness level is at: ", attrs[["happiness"]], " -- ", 
+           ifelse(attrs[["happiness"]]<25,"PETE: I'm feeling crappy...",
+                  ifelse(attrs[["happiness"]]<50,"PETE: Feelin' a bit moody",
+                         ifelse(attrs[["happiness"]]<75,"PETE: Just had a good espresso",
+                                "PETE: Let's do this! (and stop this loop...)"))))
   }) %>%
   set_attribute("happiness", function(attrs) attrs[["happiness"]] + 25) %>%
   rollback(amount = 2, check = function(attrs) attrs[["happiness"]] < 100)
 
 simmer() %>%
   add_generator("mood_swinger", t0, at(0)) %>% 
-  run()
+  run() %>% invisible
 
 ## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   seize("nurse", 1) %>%
   timeout(3) %>%
   release("nurse", 1) %>%
+  log_("before leave") %>%
   leave(prob = 1) %>%
+  log_("after leave") %>%
   # patients will never seize the doctor
   seize("doctor", 1) %>%
   timeout(3) %>%
@@ -314,7 +403,9 @@ patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   seize("nurse", 1) %>%
   timeout(3) %>%
   release("nurse", 1) %>%
+  log_("before leave") %>%
   leave(prob = function() runif(1) < 0.5) %>%
+  log_("after leave") %>%
   # some patients will seize the doctor
   seize("doctor", 1) %>%
   timeout(3) %>%
@@ -331,23 +422,24 @@ get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
 t <- create_trajectory(name = "bank") %>%
-  timeout(function() { print("Here I am"); 0 } ) %>%
+  log_("Here I am") %>%
   # renege in 5 minutes
   renege_in(5, 
             out = create_trajectory() %>%
-              timeout(function() { print("Lost my patience. Reneging..."); 0 } )) %>%
+              log_("Lost my patience. Reneging...")
+            ) %>%
   seize("clerk", 1) %>%
   # stay if I'm being attended within 5 minutes
   renege_abort() %>%
-  timeout(function() { print("I'm being attended"); 0 } ) %>%
+  log_("I'm being attended") %>%
   timeout(10) %>%
   release("clerk", 1) %>%
-  timeout(function() { print("Finished"); 0 } )
+  log_("Finished")
 
-env <- simmer(verbose = TRUE) %>%
+simmer() %>%
   add_resource("clerk", 1) %>%
   add_generator("customer", t, at(0, 1)) %>%
-  run()
+  run() %>% invisible
 
 ## ------------------------------------------------------------------------
 t <- create_trajectory() %>%
@@ -535,6 +627,94 @@ env <- simmer(verbose = TRUE) %>%
 get_mon_arrivals(env)
 
 ## ------------------------------------------------------------------------
+t <- create_trajectory() %>%
+  send(signals = c("signal1", "signal2"))
+
+simmer(verbose = TRUE) %>%
+  add_generator("signaler", t, at(0)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
+t <- create_trajectory() %>%
+  send(signals = c("signal1", "signal2"), delay = 3)
+
+simmer(verbose = TRUE) %>%
+  add_generator("signaler", t, at(0)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
+t_blocked <- create_trajectory() %>%
+  trap("you shall pass") %>%
+  log_("waiting...") %>%
+  wait() %>%
+  log_("continuing!")
+
+t_signaler <- create_trajectory() %>%
+  log_("you shall pass") %>%
+  send("you shall pass")
+
+simmer() %>%
+  add_generator("blocked", t_blocked, at(0)) %>%
+  add_generator("signaler", t_signaler, at(5)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
+t_blocked <- create_trajectory() %>%
+  trap("you shall pass") %>%
+  log_("waiting inside a batch...") %>%
+  batch(1) %>%
+  wait() %>%
+  log_("continuing!")
+
+t_signaler <- create_trajectory() %>%
+  log_("you shall pass") %>%
+  send("you shall pass")
+
+simmer() %>%
+  add_generator("blocked", t_blocked, at(0)) %>%
+  add_generator("signaler", t_signaler, at(5)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
+t_worker <- create_trajectory() %>%
+  trap("you are free to go", 
+       handler = create_trajectory() %>%
+         log_("ok, I'm packing...") %>%
+         timeout(1)) %>%
+  log_("performing a looong task...") %>%
+  timeout(100) %>%
+  log_("and I'm leaving!")
+
+t_signaler <- create_trajectory() %>%
+  log_("you are free to go") %>%
+  send("you are free to go")
+
+simmer() %>%
+  add_generator("worker", t_worker, at(0)) %>%
+  add_generator("signaler", t_signaler, at(5)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
+t_worker <- create_trajectory() %>%
+  trap("you are free to go", 
+       handler = create_trajectory() %>%
+         log_("ok, I'm packing...") %>%
+         timeout(1)) %>%
+  log_("performing a looong task...") %>%
+  untrap("you are free to go") %>%
+  timeout(100) %>%
+  log_("and I'm leaving!")
+
+t_signaler <- create_trajectory() %>%
+  log_("you are free to go") %>%
+  send("you are free to go")
+
+simmer() %>%
+  add_generator("worker", t_worker, at(0)) %>%
+  add_generator("signaler", t_signaler, at(5)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
 t1 <- create_trajectory() %>% seize("dummy", 1)
 t2 <- create_trajectory() %>% timeout(1)
 t3 <- create_trajectory() %>% release("dummy", 1)
@@ -566,7 +746,7 @@ t <- create_trajectory() %>%
 env <- simmer() %>%
   add_generator("dummy", t, function() 1)
 
-env %>% run(4)
+env %>% run(4) %>% invisible
 
 ## ------------------------------------------------------------------------
 # First, instantiate the environment
@@ -579,5 +759,5 @@ t <- create_trajectory() %>%
 # And finally, run it
 env %>%
   add_generator("dummy", t, function() 1) %>%
-  run(4)
+  run(4) %>% invisible
 

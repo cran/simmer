@@ -7,18 +7,18 @@
 \alias{seize_selected}
 \title{Add a seize/release activity}
 \usage{
-seize(traj, resource, amount = 1, continue = NULL, post.seize = NULL,
+seize(.trj, resource, amount = 1, continue = NULL, post.seize = NULL,
   reject = NULL)
 
-seize_selected(traj, amount = 1, id = 0, continue = NULL,
+seize_selected(.trj, amount = 1, id = 0, continue = NULL,
   post.seize = NULL, reject = NULL)
 
-release(traj, resource, amount = 1)
+release(.trj, resource, amount = 1)
 
-release_selected(traj, amount = 1, id = 0)
+release_selected(.trj, amount = 1, id = 0)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{resource}{the name of the resource.}
 
@@ -36,12 +36,13 @@ should continue to the next activity in the main trajectory.}
 \item{id}{selection identifier for nested usage.}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 Activities for seizing/releasing a resource, by name or a previously selected one.
 }
 \seealso{
-\code{\link{select}}.
+\code{\link{select}}, \code{\link{set_capacity}}, \code{\link{set_queue_size}},
+\code{\link{set_capacity_selected}}, \code{\link{set_queue_size_selected}}.
 }
 

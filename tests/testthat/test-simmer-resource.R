@@ -1,7 +1,7 @@
 context("resource")
 
 test_that("resources are correctly created", {
-  env <- simmer() %>%
+  env <- simmer(verbose = TRUE) %>%
     add_resource("dummy", 5, Inf)
 
   expect_warning(env %>% add_resource("dummy"))
@@ -15,27 +15,8 @@ test_that("resources are correctly created", {
   expect_equal(env %>% get_queue_count("dummy"), 0)
 })
 
-test_that("capacity and queue size change", {
-  env <- simmer() %>%
-    add_resource("dummy", 5, Inf)
-
-  expect_equal(env %>% get_capacity("dummy"), 5)
-  expect_equal(env %>% get_queue_size("dummy"), Inf)
-
-  env %>%
-    set_capacity("dummy", Inf) %>%
-    set_queue_size("dummy", Inf) %>%
-    set_queue_size("dummy", 5) %>%
-    add_generator("asdf", create_trajectory() %>% seize("dummy", 1), at(rep(0, 10))) %>%
-    run()
-
-  expect_equal(env %>% get_capacity("dummy"), Inf)
-  expect_equal(env %>% get_queue_size("dummy"), 5)
-  expect_equal(env %>% get_server_count("dummy"), 10)
-})
-
 test_that("a negative capacity or queue_size is converted to positive", {
-  env <- simmer() %>%
+  env <- simmer(verbose = TRUE) %>%
     add_resource("dummy", -4, -1)
 
   expect_equal(env %>% get_capacity("dummy"), 4)
@@ -47,7 +28,7 @@ test_that("a non-existent resource fails", {
     seize("dummy", 1) %>%
     release("dummy", 1)
 
-  env <- simmer() %>%
+  env <- simmer(verbose = TRUE) %>%
     add_generator("customer", t0, function() 1)
 
   expect_error(env %>% run())
@@ -80,7 +61,7 @@ test_that("resources are correctly monitored", {
     seize("dummy", 1) %>%
     release("dummy", 1)
 
-  env <- simmer() %>%
+  env <- simmer(verbose = TRUE) %>%
     add_resource("dummy", 2) %>%
     add_generator("customer", t0, at(0)) %>%
     run()
@@ -101,7 +82,7 @@ test_that("a big departure triggers more than one small seize from the queue", {
     timeout(10) %>%
     release("dummy", 1)
 
-  env <- simmer() %>%
+  env <- simmer(verbose = TRUE) %>%
     add_resource("dummy", 2) %>%
     add_generator("a", t0, at(0)) %>%
     add_generator("b", t1, at(1, 2)) %>%

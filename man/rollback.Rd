@@ -4,10 +4,10 @@
 \alias{rollback}
 \title{Add a rollback activity}
 \usage{
-rollback(traj, amount, times = 1, check)
+rollback(.trj, amount, times = 1, check)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{amount}{the amount of activities (of the same or parent trajectories) to roll back.}
 
@@ -18,7 +18,7 @@ present, the \code{times} parameter is ignored, and the activity uses this
 function to check whether the rollback must be done or not.}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 Go backwards to a previous point in the trajectory. Useful to implement loops.

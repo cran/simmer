@@ -4,10 +4,10 @@
 \alias{set_prioritization}
 \title{Add a set prioritization activity}
 \usage{
-set_prioritization(traj, values)
+set_prioritization(.trj, values)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{values}{expects either a vector/list or a callable object (a function)
 returning a vector/list of three values \code{c(priority, preemptible, restart)}.
@@ -15,7 +15,7 @@ A negative value leaves the corresponding parameter unchanged.
 See \code{\link{add_generator}} for more information about these parameters.}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 Modify the arrival's prioritization values.

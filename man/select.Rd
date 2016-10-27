@@ -4,11 +4,11 @@
 \alias{select}
 \title{Select a resource}
 \usage{
-select(traj, resources, policy = c("shortest-queue", "round-robin",
+select(.trj, resources, policy = c("shortest-queue", "round-robin",
   "first-available", "random"), id = 0)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{resources}{one or more resource names, or a callable object (a function) which
 must return a resource name to select.}
@@ -20,12 +20,13 @@ it is ignored.}
 \item{id}{selection identifier for nested usage.}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 Resource selector for a subsequent seize/release.
 }
 \seealso{
-\code{\link{seize_selected}}, \code{\link{release_selected}}.
+\code{\link{seize_selected}}, \code{\link{release_selected}},
+\code{\link{set_capacity_selected}}, \code{\link{set_queue_size_selected}}.
 }
 

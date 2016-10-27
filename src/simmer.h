@@ -9,6 +9,16 @@
 #include <boost/unordered_map.hpp>
 
 #define VEC std::vector
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
+  out << "[";
+  if (!v.empty())
+    std::copy(v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
+  out << "\b\b]";
+  return out;
+}
+
 #define MSET boost::container::multiset
 #define USET boost::unordered_set
 #define UMAP boost::unordered_map
@@ -38,6 +48,13 @@
 #define PRIORITY_RELEASE_POST   -2
 #define PRIORITY_GENERATOR      -1
 #define PRIORITY_MIN            std::numeric_limits<int>::max()
+
+#define SUCCESS    0
+#define ENQUEUE   -1
+#define REJECT    -2
+#define BLOCK     std::numeric_limits<double>::infinity()
+
+#define COMMA ,
 
 #define BASE_CLONEABLE(Type) \
   virtual Type* clone() const = 0;

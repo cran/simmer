@@ -5,12 +5,12 @@
 \alias{separate}
 \title{Add a batch/separate activity}
 \usage{
-batch(traj, n, timeout = 0, permanent = FALSE, name = "", rule = NULL)
+batch(.trj, n, timeout = 0, permanent = FALSE, name = "", rule = NULL)
 
-separate(traj)
+separate(.trj)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{n}{batch size, accepts a numeric.}
 
@@ -27,7 +27,7 @@ same batch, you need to specify a common name across all your \code{batch} activ
 every arrival to determine whether it should be included into the batch, thus}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 Collect a number of arrivals before they can continue processing

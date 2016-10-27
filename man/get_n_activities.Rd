@@ -4,13 +4,13 @@
 \alias{get_n_activities}
 \title{Get the number of activities}
 \usage{
-get_n_activities(traj)
+get_n_activities(.trj)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 }
 \value{
-The number of activities in the trajectory.
+Returns the number of activities in the trajectory.
 }
 \description{
 Trajectory getter for obtaining the total number of activities defined inside it.

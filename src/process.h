@@ -14,10 +14,16 @@ class Resource;
  */
 class Process : public Entity {
 public:
-  Process(Simulator* sim, std::string name, int mon) : Entity(sim, name, mon) {}
+  Process(Simulator* sim, std::string name, int mon, int priority = 0)
+    : Entity(sim, name, mon), active(true), priority(priority) {}
   virtual void run() = 0;
-  virtual void activate() {}
-  virtual void deactivate();
+  virtual bool activate(double delay = 0);
+  virtual bool deactivate();
+  bool is_active() { return active; }
+
+protected:
+  bool active;
+  int priority;
 };
 
 class Manager : public Process {
@@ -26,11 +32,12 @@ class Manager : public Process {
 public:
   Manager(Simulator* sim, std::string name, std::string param,
           VEC<double> duration, VEC<int> value, int period, Setter set)
-    : Process(sim, name, false), param(param), duration(duration),
-      value(value), period(period), set(set), index(0) {}
+    : Process(sim, name, false, PRIORITY_MANAGER), param(param),
+      duration(duration), value(value), period(period), set(set), index(0) {}
 
   void reset() { index = 0; }
   void run();
+  bool activate(double delay = 0) { return Process::activate(duration[index]); }
 
 private:
   std::string param;
@@ -45,8 +52,8 @@ class Task : public Process {
   typedef boost::function<void ()> Bind;
 
 public:
-  Task(Simulator* sim, std::string name, Bind task)
-    : Process(sim, name, false), task(task) {}
+  Task(Simulator* sim, std::string name, Bind task, int priority = 0)
+    : Process(sim, name, false, priority), task(task) {}
   ~Task() { reset(); }
 
   void reset() {}
@@ -101,14 +108,14 @@ public:
    * @param sim             a pointer to the simulator
    * @param name            the name
    * @param mon             int that indicates whether this entity must be monitored
-   * @param first_activity  the first activity of a user-defined R trajectory
-   * @param dist            an user-defined R function that provides random numbers
+   * @param trj             a user-defined R trajectory
+   * @param dist            a user-defined R function that provides random numbers
    * @param order           priority, preemptible, restart
    */
   Generator(Simulator* sim, std::string name_prefix, int mon,
-            Activity* first_activity, Rcpp::Function dist, Order order)
-    : Process(sim, name_prefix, mon), count(0), first_activity(first_activity),
-      dist(dist), order(order) {}
+            Rcpp::Environment trj, Rcpp::Function dist, Order order)
+    : Process(sim, name_prefix, mon, PRIORITY_GENERATOR), count(0), trj(trj),
+      dist(dist), order(order), first_activity(NULL) { set_first_activity(); }
 
   /**
    * Reset the generator: counter, trajectory
@@ -124,25 +131,38 @@ public:
   void run();
 
   int get_n_generated() { return count; }
+  void set_trajectory(Rcpp::Environment new_trj) {
+    trj = new_trj;
+    set_first_activity();
+  }
+  void set_distribution(Rcpp::Function new_dist) { dist = new_dist; }
 
 private:
   int count;                /**< number of arrivals generated */
-  Activity* first_activity;
+  Rcpp::Environment trj;
   Rcpp::Function dist;
   Order order;
+  Activity* first_activity;
+
+  void set_first_activity();
 };
 
 /**
  *  Arrival process.
  */
 class Arrival : public Process {
+  friend class Batched;
+
 public:
   struct ArrTime {
     double start;
     double activity;
+    ArrTime() : start(-1), activity(0) {}
+  };
+  struct ArrStatus {
     double busy_until;
     double remaining;
-    ArrTime() : start(-1), activity(0), busy_until(-1), remaining(0) {}
+    ArrStatus() : busy_until(-1), remaining(0) {}
   };
   typedef UMAP<std::string, ArrTime> ResTime;
   typedef UMAP<int, Resource*> SelMap;
@@ -160,8 +180,9 @@ public:
   * @param order           priority, preemptible, restart
   * @param first_activity  the first activity of a user-defined R trajectory
   */
-  Arrival(Simulator* sim, std::string name, int mon, Order order, Activity* first_activity)
-    : Process(sim, name, mon), clones(new int(1)), order(order),
+  Arrival(Simulator* sim, std::string name, int mon, Order order,
+          Activity* first_activity, int priority = 0)
+    : Process(sim, name, mon, priority), clones(new int(1)), order(order),
       activity(first_activity), timer(NULL), batch(NULL) {}
 
   Arrival(const Arrival& o)
@@ -171,32 +192,36 @@ public:
 
   void reset();
   void run();
-  void activate();
-  void deactivate();
-  virtual void leave(std::string resource);
-  virtual void leave(std::string resource, double start, double activity);
+  void restart();
+  void pause();
+  void stop();
   virtual void terminate(bool finished);
   void renege(Activity* next);
   virtual int set_attribute(std::string key, double value);
   double get_start(std::string name);
 
   Attr* get_attributes() { return &attributes; }
-  double get_remaining() { return lifetime.remaining; }
+  double get_remaining() { return status.remaining; }
   void set_start(std::string name, double value) { restime[name].start = value; }
   void set_activity(Activity* ptr) { activity = ptr; }
-  void set_activity(double value) { lifetime.activity = value; }
-  void set_activity(std::string name, double value) { restime[name].activity = value; }
   double get_start() { return lifetime.start; }
-  double get_activity() { return lifetime.activity - lifetime.remaining; }
-  double get_activity(std::string name) { return restime[name].activity; }
+  Activity* get_activity() { return activity; }
 
   void set_selected(int id, Resource* res) { selected[id] = res; }
   Resource* get_selected(int id) { return selected[id]; }
-  void register_entity(Resource* ptr) { resources.insert(ptr); }
+  void register_entity(Resource* ptr);
   void register_entity(Batched* ptr) { batch = ptr; }
-  void unregister_entity(Resource* ptr) { resources.erase(resources.find(ptr)); }
+  void unregister_entity(Resource* ptr);
   void unregister_entity(Batched* ptr) { batch = NULL; }
-  void set_timeout(double timeout, Activity* next);
+
+  void set_timeout(double timeout, Activity* next) {
+    cancel_timeout();
+    timer = new Task(sim, "Renege-Timer",
+                     boost::bind(&Arrival::renege, this, next),
+                     PRIORITY_MIN);
+    timer->activate(timeout);
+  }
+
   void cancel_timeout() {
     if (!timer)
       return;
@@ -206,6 +231,7 @@ public:
   }
 
 protected:
+  ArrStatus status;     /**< arrival timing status */
   ArrTime lifetime;     /**< time spent in the whole trajectory */
   ResTime restime;      /**< time spent in resources */
   Activity* activity;   /**< current activity from an R trajectory */
@@ -214,6 +240,36 @@ protected:
   Task* timer;          /**< timer that triggers reneging */
   Batched* batch;       /**< batch that contains this arrival */
   ResMSet resources;    /**< resources that contain this arrival */
+
+  virtual void report(std::string resource);
+  virtual void report(std::string resource, double start, double activity);
+  bool leave_resources(bool flag = false);
+
+  virtual void update_activity(double value) {
+    lifetime.activity += value;
+    if (is_monitored()) {
+      foreach_ (ResTime::value_type& itr, restime)
+      itr.second.activity += value;
+    }
+  }
+
+  virtual void set_remaining(double value) {
+    status.remaining = value;
+  }
+
+  virtual void set_busy(double value) {
+    status.busy_until = value;
+  }
+
+  void unset_remaining() {
+    update_activity(-status.remaining);
+    set_remaining(0);
+  }
+
+  void unset_busy(double now) {
+    set_remaining(status.busy_until - now);
+    set_busy(0);
+  }
 };
 
 /**
@@ -223,8 +279,8 @@ class Batched : public Arrival {
 public:
   CLONEABLE_COUNT_DERIVED(Batched)
 
-  Batched(Simulator* sim, std::string name, bool permanent)
-    : Arrival(sim, name, true, Order(), NULL), permanent(permanent) {}
+  Batched(Simulator* sim, std::string name, bool permanent, int priority = 0)
+    : Arrival(sim, name, true, Order(), NULL, priority), permanent(permanent) {}
 
   Batched(const Batched& o) : Arrival(o), arrivals(o.arrivals), permanent(o.permanent) {
     for (unsigned int i=0; i<arrivals.size(); i++) {
@@ -236,42 +292,71 @@ public:
   ~Batched() { reset(); }
 
   void reset() {
-    foreach_ (VEC<Arrival*>::value_type& itr, arrivals)
-      delete itr;
+    foreach_ (Arrival* arrival, arrivals)
+      delete arrival;
     arrivals.clear();
   }
 
-  void leave(std::string resource) {
-    foreach_ (VEC<Arrival*>::value_type& itr, arrivals) {
-      if (itr->is_monitored())
-        itr->leave(resource, restime[resource].start, restime[resource].activity);
-    }
-  }
-
-  void leave(std::string resource, double start, double activity) {
-    foreach_ (VEC<Arrival*>::value_type& itr, arrivals) {
-      if (itr->is_monitored())
-        itr->leave(resource, start, activity);
-    }
-  }
-
   void terminate(bool finished);
-  void pop_all(Activity* next);
+
+  void pop_all(Activity* next) {
+    foreach_ (Arrival* arrival, arrivals) {
+      arrival->set_activity(next);
+      arrival->unregister_entity(this);
+      arrival->activate();
+    }
+    arrivals.clear();
+  }
+
   int set_attribute(std::string key, double value);
 
   bool is_permanent() { return permanent; }
   size_t size() { return arrivals.size(); }
 
   void insert(Arrival* arrival) {
+    arrival->set_activity(NULL);
     arrivals.push_back(arrival);
     arrival->register_entity(this);
   }
   void erase(Arrival* arrival);
-  void report(Arrival* arrival);
 
 protected:
   VEC<Arrival*> arrivals;
   bool permanent;
+
+  void report(std::string resource) {
+    foreach_ (Arrival* arrival, arrivals) {
+      if (arrival->is_monitored())
+        arrival->report(resource, restime[resource].start, restime[resource].activity);
+    }
+  }
+
+  void report(std::string resource, double start, double activity) {
+    foreach_ (Arrival* arrival, arrivals) {
+      if (arrival->is_monitored())
+        arrival->report(resource, start, activity);
+    }
+  }
+
+  void report(Arrival* arrival);
+
+  void update_activity(double value) {
+    Arrival::update_activity(value);
+    foreach_ (Arrival* arrival, arrivals)
+      arrival->update_activity(value);
+  }
+
+  void set_remaining(double value) {
+    Arrival::set_remaining(value);
+    foreach_ (Arrival* arrival, arrivals)
+      arrival->set_remaining(value);
+  }
+
+  void set_busy(double value) {
+    Arrival::set_busy(value);
+    foreach_ (Arrival* arrival, arrivals)
+      arrival->set_busy(value);
+  }
 };
 
 #endif

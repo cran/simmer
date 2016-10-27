@@ -5,12 +5,12 @@
 \alias{synchronize}
 \title{Add a clone/synchronize activity}
 \usage{
-clone(traj, n, ...)
+clone(.trj, n, ...)
 
-synchronize(traj, wait = TRUE, mon_all = FALSE)
+synchronize(.trj, wait = TRUE, mon_all = FALSE)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{n}{number of clones, accepts either a numeric or a callable object
 (a function) which must return a numeric.}
@@ -25,7 +25,7 @@ if \code{TRUE} (default), all clones but the last to arrive are removed.}
 line per clone.}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 A \code{clone} activity replicates an arrival \code{n} times (the original

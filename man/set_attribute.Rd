@@ -4,10 +4,10 @@
 \alias{set_attribute}
 \title{Add a set attribute activity}
 \usage{
-set_attribute(traj, key, value)
+set_attribute(.trj, key, value)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{key}{the attribute key (coerced to a string).}
 
@@ -15,7 +15,7 @@ set_attribute(traj, key, value)
 (a function) which must return a numeric.}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 Modify an attribute in the form of a key/value pair.

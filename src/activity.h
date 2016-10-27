@@ -14,7 +14,7 @@ public:
 
   std::string name;
   bool verbose;
-  bool provide_attrs;
+  VEC<bool> provide_attrs;
   int n;
   int priority;
 
@@ -25,7 +25,8 @@ public:
    * @param provide_attrs whether the activity should expose the arrival's attributes
    * @param priority      simulation priority
    */
-  Activity(std::string name, bool verbose, bool provide_attrs = 0, int priority = 0)
+  Activity(std::string name, bool verbose,
+           VEC<bool> provide_attrs = VEC<bool>(0), int priority = 0)
     : name(name), verbose(verbose), provide_attrs(provide_attrs), n(1),
       priority(priority), next(NULL), prev(NULL) {}
 
@@ -70,11 +71,11 @@ protected:
   Activity* prev;
 
   template <typename T>
-  T get(T var, Arrival* arrival) { return var; }
+  T get(T var, int index, Arrival* arrival) { return var; }
 
   template <typename T>
-  T get(Rcpp::Function call, Arrival* arrival) {
-    if (provide_attrs)
+  T get(Rcpp::Function call, int index, Arrival* arrival) {
+    if (provide_attrs[index])
       return Rcpp::as<T>(call(Rcpp::wrap(*arrival->get_attributes())));
     return Rcpp::as<T>(call());
   }
@@ -84,7 +85,7 @@ protected:
 class Fork : public Activity {
 public:
   Fork(std::string name, bool verbose, VEC<bool> cont, VEC<Rcpp::Environment> trj,
-       bool provide_attrs = 0, int priority = 0)
+       VEC<bool> provide_attrs = VEC<bool>(0), int priority = 0)
     : Activity(name, verbose, provide_attrs, priority),
       cont(cont), trj(trj), selected(NULL)
   {
@@ -154,18 +155,33 @@ protected:
   VEC<Activity*> tails;
 };
 
+// abstract class for resource retrieval
+class ResGetter {
+public:
+  BASE_CLONEABLE(ResGetter)
+
+  ResGetter(std::string resource) : resource(resource) {}
+
+protected:
+  std::string resource;
+
+  virtual Resource* get_resource(Arrival* arrival) {
+    return arrival->sim->get_resource(resource);
+  }
+};
+
 /**
  * Seize a resource.
  */
 template <typename T>
-class Seize : public Fork {
+class Seize : public Fork, public ResGetter {
 public:
   CLONEABLE(Seize<T>)
 
   Seize(bool verbose, std::string resource, T amount, bool provide_attrs,
         VEC<bool> cont, VEC<Rcpp::Environment> trj, unsigned short mask)
-    : Fork("Seize", verbose, cont, trj, provide_attrs),
-      resource(resource), amount(amount), mask(mask) {}
+    : Fork("Seize", verbose, cont, trj, VEC<bool>(1, provide_attrs)),
+      ResGetter(resource), amount(amount), mask(mask) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
@@ -176,22 +192,17 @@ public:
   }
 
   double run(Arrival* arrival) {
-    int value = std::abs(get<int>(amount, arrival));
+    int value = std::abs(get<int>(amount, 0, arrival));
     return select_path(arrival, get_resource(arrival)->seize(arrival, value));
   }
 
 protected:
-  std::string resource;
   T amount;
   unsigned short mask;
 
-  virtual Resource* get_resource(Arrival* arrival) {
-    return arrival->sim->get_resource(resource);
-  }
-
   int select_path(Arrival* arrival, int ret) {
     switch (ret) {
-    case REJECTED:
+    case REJECT:
       if (mask & 2) {
         ret = SUCCESS;
         if (mask & 1)
@@ -233,13 +244,13 @@ protected:
  * Release a resource.
  */
 template <typename T>
-class Release : public Activity {
+class Release : public Activity, public ResGetter {
 public:
   CLONEABLE(Release<T>)
 
   Release(bool verbose, std::string resource, T amount, bool provide_attrs)
-    : Activity("Release", verbose, provide_attrs, PRIORITY_RELEASE),
-      resource(resource), amount(amount) {}
+    : Activity("Release", verbose, VEC<bool>(1, provide_attrs), PRIORITY_RELEASE),
+      ResGetter(resource), amount(amount) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
@@ -249,17 +260,12 @@ public:
   }
 
   double run(Arrival* arrival) {
-    int value = std::abs(get<int>(amount, arrival));
+    int value = std::abs(get<int>(amount, 0, arrival));
     return get_resource(arrival)->release(arrival, value);
   }
 
 protected:
-  std::string resource;
   T amount;
-
-  virtual Resource* get_resource(Arrival* arrival) {
-    return arrival->sim->get_resource(resource);
-  }
 };
 
 /**
@@ -282,6 +288,104 @@ protected:
 };
 
 /**
+ * Set a resource's capacity.
+ */
+template <typename T>
+class SetCapacity : public Activity, public ResGetter {
+public:
+  CLONEABLE(SetCapacity<T>)
+
+  SetCapacity(bool verbose, std::string resource, T value, bool provide_attrs)
+    : Activity("SetCapacity", verbose, VEC<bool>(1, provide_attrs)),
+      ResGetter(resource), value(value) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "resource: " << resource << ", value: " << value << " }" << std::endl;
+    else Rcpp::Rcout << resource << ", " << value << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    double ret = std::abs(get<double>(value, 0, arrival));
+    if (ret == R_PosInf) ret = -1;
+    get_resource(arrival)->set_capacity((int)ret);
+    return 0;
+  }
+
+protected:
+  T value;
+};
+
+/**
+* Set a selected resource's capacity.
+*/
+template <typename T>
+class SetCapacitySelected : public SetCapacity<T> {
+public:
+  CLONEABLE(SetCapacitySelected<T>)
+
+  SetCapacitySelected(bool verbose, int id, T value, bool provide_attrs)
+    : SetCapacity<T>(verbose, "[]", value, provide_attrs), id(id) {}
+
+protected:
+  int id;
+
+  Resource* get_resource(Arrival* arrival) {
+    return arrival->get_selected(id);
+  }
+};
+
+/**
+* Set a resource's queue size.
+*/
+template <typename T>
+class SetQueue : public Activity, public ResGetter {
+public:
+  CLONEABLE(SetQueue<T>)
+
+  SetQueue(bool verbose, std::string resource, T value, bool provide_attrs)
+    : Activity("SetQueue", verbose, VEC<bool>(1, provide_attrs)),
+      ResGetter(resource), value(value) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "resource: " << resource << ", value: " << value << " }" << std::endl;
+    else Rcpp::Rcout << resource << ", " << value << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    double ret = std::abs(get<double>(value, 0, arrival));
+    if (ret == R_PosInf) ret = -1;
+    get_resource(arrival)->set_queue_size((int)ret);
+    return 0;
+  }
+
+protected:
+  T value;
+};
+
+/**
+* Set a selected resource's queue size.
+*/
+template <typename T>
+class SetQueueSelected : public SetQueue<T> {
+public:
+  CLONEABLE(SetQueueSelected<T>)
+
+  SetQueueSelected(bool verbose, int id, T value, bool provide_attrs)
+    : SetQueue<T>(verbose, "[]", value, provide_attrs), id(id) {}
+
+protected:
+  int id;
+
+  Resource* get_resource(Arrival* arrival) {
+    return arrival->get_selected(id);
+  }
+};
+
+/**
  * Select a resource based on some policy.
  */
 template <typename T>
@@ -290,15 +394,20 @@ public:
   CLONEABLE(Select<T>)
 
   Select(bool verbose, T resources, bool provide_attrs, std::string policy, int id)
-    : Activity("Select", verbose, provide_attrs), resources(resources),
+    : Activity("Select", verbose, VEC<bool>(1, provide_attrs)), resources(resources),
       policy(policy), id(id), dispatcher(Policy(resources, policy)) {}
 
-  void print(int indent = 0, bool brief = false);
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "resources: " << resources << ", policy: " << policy << " }" << std::endl;
+    else Rcpp::Rcout << resources << ", " << policy << std::endl;
+  }
 
   double run(Arrival* arrival) {
     Resource* selected;
     if (typeid(T) == typeid(Rcpp::Function)) {
-      VEC<std::string> res = get<VEC<std::string> >(resources, arrival);
+      VEC<std::string> res = get<VEC<std::string> >(resources, 0, arrival);
       selected = arrival->sim->get_resource(res[0]);
     } else selected = dispatcher.dispatch(arrival->sim);
     arrival->set_selected(id, selected);
@@ -321,23 +430,142 @@ public:
   CLONEABLE(SetAttribute<T>)
 
   SetAttribute(bool verbose, std::string key, T value, bool provide_attrs)
-    : Activity("SetAttribute", verbose, provide_attrs), key(key), value(value) {}
+    : Activity("SetAttribute", verbose, VEC<bool>(1, provide_attrs)),
+      key(key), value(value) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
     if (!brief) Rcpp::Rcout <<
       "key: " << key << ", value: " << value << " }" << std::endl;
-    else Rcpp::Rcout << key << ": " << value << std::endl;
+    else Rcpp::Rcout << key << ", " << value << std::endl;
   }
 
   double run(Arrival* arrival) {
-    double ret = get<double>(value, arrival);
+    double ret = get<double>(value, 0, arrival);
     return arrival->set_attribute(key, ret);
   }
 
 protected:
   std::string key;
   T value;
+};
+
+/**
+ * Activate a generator.
+ */
+template <typename T>
+class Activate : public Activity {
+public:
+  CLONEABLE(Activate<T>)
+
+  Activate(bool verbose, T generator, bool provide_attrs)
+    : Activity("Activate", verbose, VEC<bool>(1, provide_attrs), PRIORITY_MAX),
+      generator(generator) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "generator: " << generator << " }" << std::endl;
+    else Rcpp::Rcout << generator << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    std::string ret = get<std::string>(generator, 0, arrival);
+    arrival->sim->get_generator(ret)->activate();
+    return 0;
+  }
+
+protected:
+  T generator;
+};
+
+/**
+ * Deactivate a generator.
+ */
+template <typename T>
+class Deactivate : public Activity {
+public:
+  CLONEABLE(Deactivate<T>)
+
+  Deactivate(bool verbose, T generator, bool provide_attrs)
+    : Activity("Deactivate", verbose, VEC<bool>(1, provide_attrs), PRIORITY_MAX),
+      generator(generator) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "generator: " << generator << " }" << std::endl;
+    else Rcpp::Rcout << generator << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    std::string ret = get<std::string>(generator, 0, arrival);
+    arrival->sim->get_generator(ret)->deactivate();
+    return 0;
+  }
+
+protected:
+  T generator;
+};
+
+/**
+ * Set a generator's trajectory.
+ */
+template <typename T>
+class SetTraj : public Activity {
+public:
+  CLONEABLE(SetTraj<T>)
+
+  SetTraj(bool verbose, T generator, bool provide_attrs, Rcpp::Environment trj)
+    : Activity("SetTraj", verbose, VEC<bool>(1, provide_attrs), PRIORITY_MAX),
+      generator(generator), trj(trj) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "generator: " << generator << ", trajectory: " << trj << " }" << std::endl;
+    else Rcpp::Rcout << generator << ", " << trj << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    std::string ret = get<std::string>(generator, 0, arrival);
+    arrival->sim->get_generator(ret)->set_trajectory(trj);
+    return 0;
+  }
+
+protected:
+  T generator;
+  Rcpp::Environment trj;
+};
+
+/**
+ * Set a generator's distribution.
+ */
+template <typename T>
+class SetDist : public Activity {
+public:
+  CLONEABLE(SetDist<T>)
+
+  SetDist(bool verbose, T generator, bool provide_attrs, Rcpp::Function dist)
+    : Activity("SetDist", verbose, VEC<bool>(1, provide_attrs), PRIORITY_MAX),
+      generator(generator), dist(dist) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "generator: " << generator << ", distribution: " << dist << " }" << std::endl;
+    else Rcpp::Rcout << generator << ", " << dist << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    std::string ret = get<std::string>(generator, 0, arrival);
+    arrival->sim->get_generator(ret)->set_distribution(dist);
+    return 0;
+  }
+
+protected:
+  T generator;
+  Rcpp::Function dist;
 };
 
 /**
@@ -349,12 +577,17 @@ public:
   CLONEABLE(SetPrior<T>)
 
   SetPrior(bool verbose, T values, bool provide_attrs)
-    : Activity("SetPrior", verbose, provide_attrs), values(values) {}
+    : Activity("SetPrior", verbose, VEC<bool>(1, provide_attrs)), values(values) {}
 
-  void print(int indent = 0, bool brief = false);
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "values: " << values << " }" << std::endl;
+    else Rcpp::Rcout << values << std::endl;
+  }
 
   double run(Arrival* arrival) {
-    VEC<int> ret = get<VEC<int> >(values, arrival);
+    VEC<int> ret = get<VEC<int> >(values, 0, arrival);
     if (ret.size() != 3)
       Rcpp::stop("%s: 3 values needed", name);
     if (ret[0] >= 0) arrival->order.set_priority(ret[0]);
@@ -376,7 +609,7 @@ public:
   CLONEABLE(Timeout<T>)
 
   Timeout(bool verbose, T delay, bool provide_attrs)
-    : Activity("Timeout", verbose, provide_attrs), delay(delay) {}
+    : Activity("Timeout", verbose, VEC<bool>(1, provide_attrs)), delay(delay) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
@@ -385,7 +618,7 @@ public:
   }
 
   double run(Arrival* arrival) {
-    double value = get<double>(delay, arrival);
+    double value = get<double>(delay, 0, arrival);
     return std::abs(value);
   }
 
@@ -403,7 +636,7 @@ public:
 
   Branch(bool verbose, Rcpp::Function option, bool provide_attrs,
          VEC<bool> cont, VEC<Rcpp::Environment> trj)
-    : Fork("Branch", verbose, cont, trj, provide_attrs), option(option) {}
+    : Fork("Branch", verbose, cont, trj, VEC<bool>(1, provide_attrs)), option(option) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
@@ -414,7 +647,7 @@ public:
   }
 
   double run(Arrival* arrival) {
-    int ret = get<int>(option, arrival);
+    int ret = get<int>(option, 0, arrival);
     if (ret < 0 || ret > (int)heads.size())
       Rcpp::stop("%s: index out of range", name);
     if (ret) selected = heads[ret-1];
@@ -434,7 +667,7 @@ public:
 
   Rollback(bool verbose, int amount, int times,
            OPT<Rcpp::Function> check = NONE, bool provide_attrs = false)
-    : Activity("Rollback", verbose, provide_attrs), amount(std::abs(amount)),
+    : Activity("Rollback", verbose, VEC<bool>(1, provide_attrs)), amount(std::abs(amount)),
       times(times), check(check), cached(NULL), selected(NULL) {}
 
   Rollback(const Rollback& o)
@@ -460,7 +693,7 @@ public:
 
   double run(Arrival* arrival) {
     if (check) {
-      if (!get<bool>(*check, arrival))
+      if (!get<bool>(*check, 0, arrival))
         return 0;
     } else if (times >= 0) {
       if (pending.find(arrival) == pending.end())
@@ -510,7 +743,7 @@ public:
   CLONEABLE(Leave<T>)
 
   Leave(bool verbose, T prob, bool provide_attrs)
-    : Activity("Leave", verbose, provide_attrs), prob(prob) {}
+    : Activity("Leave", verbose, VEC<bool>(1, provide_attrs)), prob(prob) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
@@ -520,10 +753,10 @@ public:
   }
 
   double run(Arrival* arrival) {
-    if (Rcpp::runif(1)[0] > get<double>(prob, arrival))
+    if (Rcpp::runif(1)[0] > get<double>(prob, 0, arrival))
       return 0;
     arrival->terminate(false);
-    return REJECTED;
+    return REJECT;
   }
 
 protected:
@@ -539,8 +772,8 @@ public:
   CLONEABLE(Clone<T>)
 
   Clone(bool verbose, T n, bool provide_attrs, VEC<Rcpp::Environment> trj)
-    : Fork("Clone", verbose, VEC<bool>(trj.size(), true), trj, provide_attrs),
-      n(n) {}
+    : Fork("Clone", verbose, VEC<bool>(trj.size(), true),
+      trj, VEC<bool>(1, provide_attrs)), n(n) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
@@ -551,13 +784,13 @@ public:
   }
 
   double run(Arrival* arrival) {
-    int value = std::abs(get<int>(n, arrival));
+    int value = std::abs(get<int>(n, 0, arrival));
     for (int i = 1; i < value; i++) {
       if (i < (int)heads.size())
         selected = heads[i];
       Arrival* new_arrival = arrival->clone();
       new_arrival->set_activity(this->get_next());
-      arrival->sim->schedule(0, new_arrival);
+      new_arrival->activate();
     }
     if (heads.size())
       selected = heads[0];
@@ -610,7 +843,7 @@ public:
       delete arrival;
     else
       arrival->terminate(true);
-    return REJECTED;
+    return REJECT;
   }
 
 protected:
@@ -628,7 +861,7 @@ public:
 
   Batch(bool verbose, int n, double timeout, bool permanent, std::string id = "",
         OPT<Rcpp::Function> rule = NONE, bool provide_attrs = false)
-    : Activity("Batch", verbose, provide_attrs), n(n),
+    : Activity("Batch", verbose, VEC<bool>(1, provide_attrs)), n(n),
       timeout(std::abs(timeout)), permanent(permanent), id(id), rule(rule) {}
 
   void print(int indent = 0, bool brief = false) {
@@ -640,7 +873,7 @@ public:
   }
 
   double run(Arrival* arrival) {
-    if (rule && !get<bool>(*rule, arrival))
+    if (rule && !get<bool>(*rule, 0, arrival))
       return 0;
     Batched** ptr = arrival->sim->get_batch(this, id);
     if (!(*ptr))
@@ -648,7 +881,7 @@ public:
     (*ptr)->insert(arrival);
     if ((int)(*ptr)->size() == n)
       trigger(arrival->sim, *ptr);
-    return REJECTED;
+    return REJECT;
   }
 
 protected:
@@ -660,14 +893,20 @@ protected:
 
   Batched* init(Simulator* sim) {
     std::string str;
-    if (id.size())
+    Batched* ptr = NULL;
+    if (id.size()) {
       str = "batch_" + id;
-    else
-      str= "batch" + boost::lexical_cast<std::string>(sim->get_batch_count());
-    Batched* ptr = new Batched(sim, str, permanent);
+      ptr = new Batched(sim, str, permanent);
+    } else {
+      int count = sim->get_batch_count();
+      str= "batch" + boost::lexical_cast<std::string>(count);
+      ptr = new Batched(sim, str, permanent, count);
+    }
     if (timeout) {
-      Task* task = new Task(sim, "Batch-Timer", boost::bind(&Batch::trigger, this, sim, ptr));
-      sim->schedule(timeout, task, PRIORITY_MIN);
+      Task* task = new Task(sim, "Batch-Timer",
+                            boost::bind(&Batch::trigger, this, sim, ptr),
+                            PRIORITY_MIN);
+      task->activate(timeout);
     }
     return ptr;
   }
@@ -678,7 +917,7 @@ protected:
       return;
     if ((*ptr)->size()) {
       (*ptr)->set_activity(this->get_next());
-      (*ptr)->sim->schedule(0, (*ptr));
+      (*ptr)->activate();
       *ptr = init((*ptr)->sim);
     } else {
       delete *ptr;
@@ -708,7 +947,7 @@ public:
       return 0;
     batched->pop_all(this->get_next());
     delete batched;
-    return REJECTED;
+    return REJECT;
   }
 };
 
@@ -721,8 +960,8 @@ public:
   CLONEABLE(RenegeIn<T>)
 
   RenegeIn(bool verbose, T t, bool provide_attrs, VEC<Rcpp::Environment> trj)
-    : Fork("RenegeIn", verbose, VEC<bool>(trj.size(), false), trj, provide_attrs),
-      t(t) {}
+    : Fork("RenegeIn", verbose, VEC<bool>(trj.size(), false),
+      trj, VEC<bool>(1, provide_attrs)), t(t) {}
 
   void print(int indent = 0, bool brief = false) {
     Activity::print(indent, brief);
@@ -733,7 +972,7 @@ public:
   }
 
   double run(Arrival* arrival) {
-    double ret = std::abs(get<double>(t, arrival));
+    double ret = std::abs(get<double>(t, 0, arrival));
     Activity* next = NULL;
     if (heads.size())
       next = heads[0];
@@ -764,6 +1003,154 @@ public:
     arrival->cancel_timeout();
     return 0;
   }
+};
+
+/**
+ * Send signals.
+ */
+template <typename T, typename U>
+class Send : public Activity {
+public:
+  CLONEABLE(Send<T COMMA U>)
+
+  Send(bool verbose, T signals, U delay, VEC<bool> provide_attrs)
+    : Activity("Send", verbose, provide_attrs), signals(signals), delay(delay) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "signals: " << signals << ", delay: " << delay << " }" << std::endl;
+    else Rcpp::Rcout << signals << ", " << delay << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    VEC<std::string> sigs = get<VEC<std::string> >(signals, 0, arrival);
+    double t = std::abs(get<double>(delay, 1, arrival));
+    Task* task =
+      new Task(arrival->sim, "Broadcast",
+               boost::bind(&Simulator::broadcast, arrival->sim, sigs),
+               PRIORITY_MIN);
+    task->activate(t);
+    return 0;
+  }
+
+protected:
+  T signals;
+  U delay;
+};
+
+/**
+ * Subscribe to signals and assign a handler.
+ */
+template <typename T>
+class Trap : public Fork {
+public:
+  CLONEABLE(Trap<T>)
+
+  Trap(bool verbose, T signals, bool provide_attrs, VEC<Rcpp::Environment> trj)
+    : Fork("Trap", verbose, VEC<bool>(trj.size(), false),
+      trj, VEC<bool>(1, provide_attrs)), signals(signals) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) {
+      Rcpp::Rcout << "signals: " << signals << " }" << std::endl;
+    } else Rcpp::Rcout << signals << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    VEC<std::string> sigs = get<VEC<std::string> >(signals, 0, arrival);
+    arrival->sim->subscribe(sigs, arrival,
+                            boost::bind(&Trap::launch_handler, this, arrival));
+    return 0;
+  }
+
+protected:
+  T signals;
+
+  void launch_handler(Arrival* arrival) {
+    if (!arrival->is_active())
+      return;
+    arrival->stop();
+    if (heads.size()) {
+      tails[0]->set_next(arrival->get_activity());
+      arrival->set_activity(heads[0]);
+    }
+    arrival->activate();
+  }
+};
+
+/**
+ * Unsubscribe to signals.
+ */
+template <typename T>
+class UnTrap : public Activity {
+public:
+  CLONEABLE(UnTrap<T>)
+
+  UnTrap(bool verbose, T signals, bool provide_attrs)
+    : Activity("UnTrap", verbose, VEC<bool>(1, provide_attrs)), signals(signals) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout <<
+      "signals: " << signals << " }" << std::endl;
+    else Rcpp::Rcout << signals << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    VEC<std::string> sigs = get<VEC<std::string> >(signals, 0, arrival);
+    arrival->sim->unsubscribe(sigs, arrival);
+    return 0;
+  }
+
+protected:
+  T signals;
+};
+
+/**
+ * Block until a signal is received.
+ */
+class Wait : public Activity {
+public:
+  CLONEABLE(Wait)
+
+  Wait(bool verbose) : Activity("Wait", verbose) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout << " }" << std::endl;
+    else Rcpp::Rcout << std::endl;
+  }
+
+  double run(Arrival* arrival) { return BLOCK; }
+};
+
+/**
+ * Print a message.
+ */
+template <typename T>
+class Log : public Activity {
+public:
+  CLONEABLE(Log<T>)
+
+  Log(bool verbose, T message, bool provide_attrs)
+    : Activity("Log", verbose, VEC<bool>(1, provide_attrs)), message(message) {}
+
+  void print(int indent = 0, bool brief = false) {
+    Activity::print(indent, brief);
+    if (!brief) Rcpp::Rcout << "message }" << std::endl;
+    else Rcpp::Rcout << "message" << std::endl;
+  }
+
+  double run(Arrival* arrival) {
+    Rcpp::Rcout << arrival->sim->now() << ": " << arrival->name << ": " <<
+      get<std::string>(message, 0, arrival) << std::endl;
+    return 0;
+  }
+
+protected:
+  T message;
 };
 
 #endif

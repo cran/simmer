@@ -4,17 +4,17 @@
 \alias{timeout}
 \title{Add a timeout activity}
 \usage{
-timeout(traj, task)
+timeout(.trj, task)
 }
 \arguments{
-\item{traj}{the trajectory object.}
+\item{.trj}{the trajectory object.}
 
 \item{task}{the timeout duration supplied by either passing a numeric or a
 callable object (a function) which must return a numeric (negative values are
 automatically coerced to positive).}
 }
 \value{
-The trajectory object.
+Returns the trajectory object.
 }
 \description{
 Insert delays and execute user-defined tasks.

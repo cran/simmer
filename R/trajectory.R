@@ -76,6 +76,36 @@ simmer.trajectory <- R6Class("simmer.trajectory",
       }
     },
 
+    set_capacity = function(resource, value, id=0) {
+      resource <- evaluate_value(resource)
+      value <- evaluate_value(value)
+      id <- evaluate_value(id)
+      if (is.na(resource)) {
+        if (is.function(value))
+          private$add_activity(SetCapacitySelected__new_func(private$verbose, id, value, needs_attrs(value)))
+        else private$add_activity(SetCapacitySelected__new(private$verbose, id, value))
+      } else {
+        if (is.function(value))
+          private$add_activity(SetCapacity__new_func(private$verbose, resource, value, needs_attrs(value)))
+        else private$add_activity(SetCapacity__new(private$verbose, resource, value))
+      }
+    },
+
+    set_queue_size = function(resource, value, id=0) {
+      resource <- evaluate_value(resource)
+      value <- evaluate_value(value)
+      id <- evaluate_value(id)
+      if (is.na(resource)) {
+        if (is.function(value))
+          private$add_activity(SetQueueSelected__new_func(private$verbose, id, value, needs_attrs(value)))
+        else private$add_activity(SetQueueSelected__new(private$verbose, id, value))
+      } else {
+        if (is.function(value))
+          private$add_activity(SetQueue__new_func(private$verbose, resource, value, needs_attrs(value)))
+        else private$add_activity(SetQueue__new(private$verbose, resource, value))
+      }
+    },
+
     select = function(resources, policy=c("shortest-queue", "round-robin",
                                           "first-available", "random"), id=0) {
       resources <- evaluate_value(resources)
@@ -99,6 +129,37 @@ simmer.trajectory <- R6Class("simmer.trajectory",
       if (is.function(value))
         private$add_activity(SetAttribute__new_func(private$verbose, key, value, needs_attrs(value)))
       else private$add_activity(SetAttribute__new(private$verbose, key, value))
+    },
+
+    activate = function(generator) {
+      generator <- evaluate_value(generator)
+      if (is.function(generator))
+        private$add_activity(Activate__new_func(private$verbose, generator, needs_attrs(generator)))
+      else private$add_activity(Activate__new(private$verbose, generator))
+    },
+
+    deactivate = function(generator) {
+      generator <- evaluate_value(generator)
+      if (is.function(generator))
+        private$add_activity(Deactivate__new_func(private$verbose, generator, needs_attrs(generator)))
+      else private$add_activity(Deactivate__new(private$verbose, generator))
+    },
+
+    set_trajectory = function(generator, trajectory) {
+      if (!inherits(trajectory, "simmer.trajectory"))
+        stop("not a trajectory")
+      generator <- evaluate_value(generator)
+      if (is.function(generator))
+        private$add_activity(SetTraj__new_func(private$verbose, generator, needs_attrs(generator), trajectory))
+      else private$add_activity(SetTraj__new(private$verbose, generator, trajectory))
+    },
+
+    set_distribution = function(generator, distribution) {
+      generator <- evaluate_value(generator)
+      distribution <- make_resetable(distribution)
+      if (is.function(generator))
+        private$add_activity(SetDist__new_func(private$verbose, generator, needs_attrs(generator), distribution))
+      else private$add_activity(SetDist__new(private$verbose, generator, distribution))
     },
 
     set_prioritization = function(values) {
@@ -175,17 +236,58 @@ simmer.trajectory <- R6Class("simmer.trajectory",
 
     separate = function() { private$add_activity(Separate__new(private$verbose)) },
 
-    join = function(traj) {
-      if (!inherits(traj, "simmer.trajectory"))
+    send = function(signals, delay=0) {
+      signals <- evaluate_value(signals)
+      delay <- evaluate_value(delay)
+      if (is.function(signals) && is.function(delay))
+        private$add_activity(Send__new_func4(private$verbose, signals, delay,
+                                             c(needs_attrs(signals), needs_attrs(delay))))
+      else if (is.function(delay))
+        private$add_activity(Send__new_func2(private$verbose, signals, delay, needs_attrs(delay)))
+      else if (is.function(signals))
+        private$add_activity(Send__new_func1(private$verbose, signals, delay, needs_attrs(signals)))
+      else private$add_activity(Send__new(private$verbose, signals, delay))
+    },
+
+    trap = function(signals, handler=NULL) {
+      signals <- evaluate_value(signals)
+      traj <- list()
+      if (!is.null(handler)) {
+        if (!inherits(handler, "simmer.trajectory")) stop("not a trajectory")
+        traj <- c(traj, handler)
+      }
+      if (is.function(signals))
+        private$add_activity(Trap__new_func(private$verbose, signals, needs_attrs(signals), traj))
+      else private$add_activity(Trap__new(private$verbose, signals, traj))
+    },
+
+    untrap = function(signals) {
+      signals <- evaluate_value(signals)
+      if (is.function(signals))
+        private$add_activity(UnTrap__new_func(private$verbose, signals, needs_attrs(signals)))
+      else private$add_activity(UnTrap__new(private$verbose, signals))
+    },
+
+    wait = function() { private$add_activity(Wait__new(private$verbose)) },
+
+    log = function(message) {
+      message <- evaluate_value(message)
+      if (is.function(message))
+        private$add_activity(Log__new_func(private$verbose, message, needs_attrs(message)))
+      else private$add_activity(Log__new(private$verbose, message))
+    },
+
+    join = function(trajectory) {
+      if (!inherits(trajectory, "simmer.trajectory"))
         stop("not a trajectory")
       new <- self$clone(deep = TRUE)
-      traj <- traj$clone(deep = TRUE)
-      if (!is.null(traj$get_head()) && !is.null(new$get_tail()))
-          activity_chain_(new$get_tail(), traj$get_head())
+      trajectory <- trajectory$clone(deep = TRUE)
+      if (!is.null(trajectory$get_head()) && !is.null(new$get_tail()))
+          activity_chain_(new$get_tail(), trajectory$get_head())
       new$.__enclos_env__$private$ptrs <-
-        c(new$.__enclos_env__$private$ptrs, traj$.__enclos_env__$private$ptrs)
+        c(new$.__enclos_env__$private$ptrs, trajectory$.__enclos_env__$private$ptrs)
       new$.__enclos_env__$private$n_activities <-
-        new$.__enclos_env__$private$n_activities + traj$get_n_activities()
+        new$.__enclos_env__$private$n_activities + trajectory$get_n_activities()
       new
     }
   ),
@@ -237,10 +339,13 @@ simmer.trajectory$public_methods$clone <- simmer.trajectory$private_methods$copy
 #' @seealso Methods for dealing with trajectories:
 #' \code{\link{get_head}}, \code{\link{get_tail}}, \code{\link{get_n_activities}}, \code{\link{join}},
 #' \code{\link{seize}}, \code{\link{release}}, \code{\link{seize_selected}}, \code{\link{release_selected}},
-#' \code{\link{select}}, \code{\link{set_prioritization}}, \code{\link{set_attribute}},
-#' \code{\link{timeout}}, \code{\link{branch}}, \code{\link{rollback}}, \code{\link{leave}},
-#' \code{\link{renege_in}}, \code{\link{renege_abort}},\code{\link{clone}}, \code{\link{synchronize}},
-#' \code{\link{batch}}, \code{\link{separate}}.
+#' \code{\link{select}}, \code{\link{set_capacity}}, \code{\link{set_queue_size}},
+#' \code{\link{set_capacity_selected}}, \code{\link{set_queue_size_selected}}, \code{\link{set_prioritization}},
+#' \code{\link{activate}}, \code{\link{deactivate}}, \code{\link{set_trajectory}},
+#' \code{\link{set_distribution}}, \code{\link{set_attribute}}, \code{\link{timeout}}, \code{\link{branch}},
+#' \code{\link{rollback}}, \code{\link{leave}}, \code{\link{renege_in}}, \code{\link{renege_abort}},
+#' \code{\link{clone}}, \code{\link{synchronize}}, \code{\link{batch}}, \code{\link{separate}},
+#' \code{\link{send}}, \code{\link{trap}}, \code{\link{untrap}}, \code{\link{wait}}, \code{\link{log_}}.
 #' @export
 #'
 #' @examples
@@ -281,16 +386,16 @@ create_trajectory <- function(name="anonymous", verbose=FALSE) simmer.trajectory
 #'
 #' Trajectory getters for obtaining the pointer to its first/last activity.
 #'
-#' @param traj the trajectory object.
+#' @param .trj the trajectory object.
 #'
-#' @return An external pointer to an activity object.
+#' @return Returns an external pointer to an activity object.
 #' @seealso \code{\link{get_n_activities}}, \code{\link{join}}.
 #' @export
-get_head <- function(traj) traj$get_head()
+get_head <- function(.trj) .trj$get_head()
 
 #' @rdname get_head
 #' @export
-get_tail <- function(traj) traj$get_tail()
+get_tail <- function(.trj) .trj$get_tail()
 
 #' Get the number of activities
 #'
@@ -298,10 +403,10 @@ get_tail <- function(traj) traj$get_tail()
 #'
 #' @inheritParams get_head
 #'
-#' @return The number of activities in the trajectory.
+#' @return Returns the number of activities in the trajectory.
 #' @seealso \code{\link{get_head}}, \code{\link{get_tail}}, \code{\link{join}}.
 #' @export
-get_n_activities <- function(traj) traj$get_n_activities()
+get_n_activities <- function(.trj) .trj$get_n_activities()
 
 #' Join trajectories
 #'
@@ -309,7 +414,7 @@ get_n_activities <- function(traj) traj$get_n_activities()
 #'
 #' @param ... trajectory objects.
 #'
-#' @return A new trajectory object.
+#' @return Returns a new trajectory object.
 #' @seealso \code{\link{get_head}}, \code{\link{get_tail}}, \code{\link{get_n_activities}}.
 #' @export
 #'
@@ -345,24 +450,52 @@ join <- function(...) {
 #' @param post.seize an optional trajectory object which will be followed after a successful seize.
 #' @param reject an optional trajectory object which will be followed if the arrival is rejected.
 #'
-#' @return The trajectory object.
-#' @seealso \code{\link{select}}.
+#' @return Returns the trajectory object.
+#' @seealso \code{\link{select}}, \code{\link{set_capacity}}, \code{\link{set_queue_size}},
+#' \code{\link{set_capacity_selected}}, \code{\link{set_queue_size_selected}}.
 #' @export
-seize <- function(traj, resource, amount=1, continue=NULL, post.seize=NULL, reject=NULL)
-  traj$seize(resource, amount, 0, continue, post.seize, reject)
+seize <- function(.trj, resource, amount=1, continue=NULL, post.seize=NULL, reject=NULL)
+  .trj$seize(resource, amount, 0, continue, post.seize, reject)
 
 #' @rdname seize
 #' @export
-seize_selected <- function(traj, amount=1, id=0, continue=NULL, post.seize=NULL, reject=NULL)
-  traj$seize(NA, amount, id, continue, post.seize, reject)
+seize_selected <- function(.trj, amount=1, id=0, continue=NULL, post.seize=NULL, reject=NULL)
+  .trj$seize(NA, amount, id, continue, post.seize, reject)
 
 #' @rdname seize
 #' @export
-release <- function(traj, resource, amount=1) traj$release(resource, amount)
+release <- function(.trj, resource, amount=1) .trj$release(resource, amount)
 
 #' @rdname seize
 #' @export
-release_selected <- function(traj, amount=1, id=0) traj$release(NA, amount, id)
+release_selected <- function(.trj, amount=1, id=0) .trj$release(NA, amount, id)
+
+#' Add a set capacity/queue size activity
+#'
+#' Modify a resource's server capacity or queue size, by name or a previously selected one.
+#'
+#' @inheritParams get_head
+#' @inheritParams select
+#' @param resource the name of the resource.
+#' @param value new value to set.
+#'
+#' @return Returns the trajectory object.
+#' @seealso \code{\link{select}}, \code{\link{seize}}, \code{\link{release}},
+#' \code{\link{seize_selected}}, \code{\link{release_selected}}.
+#' @export
+set_capacity <- function(.trj, resource, value) .trj$set_capacity(resource, value)
+
+#' @rdname set_capacity
+#' @export
+set_capacity_selected <- function(.trj, value, id=0) .trj$set_capacity(NA, value, id)
+
+#' @rdname set_capacity
+#' @export
+set_queue_size <- function(.trj, resource, value) .trj$set_queue_size(resource, value)
+
+#' @rdname set_capacity
+#' @export
+set_queue_size_selected <- function(.trj, value, id=0) .trj$set_queue_size(NA, value, id)
 
 #' Select a resource
 #'
@@ -376,12 +509,13 @@ release_selected <- function(traj, amount=1, id=0) traj$release(NA, amount, id)
 #' it is ignored.
 #' @param id selection identifier for nested usage.
 #'
-#' @return The trajectory object.
-#' @seealso \code{\link{seize_selected}}, \code{\link{release_selected}}.
+#' @return Returns the trajectory object.
+#' @seealso \code{\link{seize_selected}}, \code{\link{release_selected}},
+#' \code{\link{set_capacity_selected}}, \code{\link{set_queue_size_selected}}.
 #' @export
-select <- function(traj, resources, policy=c("shortest-queue", "round-robin",
+select <- function(.trj, resources, policy=c("shortest-queue", "round-robin",
                                              "first-available", "random"), id=0)
-  traj$select(resources, policy, id)
+  .trj$select(resources, policy, id)
 
 #' Add a timeout activity
 #'
@@ -392,9 +526,9 @@ select <- function(traj, resources, policy=c("shortest-queue", "round-robin",
 #' callable object (a function) which must return a numeric (negative values are
 #' automatically coerced to positive).
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-timeout <- function(traj, task) traj$timeout(task)
+timeout <- function(.trj, task) .trj$timeout(task)
 
 #' Add a set attribute activity
 #'
@@ -405,9 +539,44 @@ timeout <- function(traj, task) traj$timeout(task)
 #' @param value the value to set, accepts either a numeric or a callable object
 #' (a function) which must return a numeric.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-set_attribute <- function(traj, key, value) traj$set_attribute(key, value)
+set_attribute <- function(.trj, key, value) .trj$set_attribute(key, value)
+
+#' Add a activate/deactivate activity
+#'
+#' Activate or deactivate the generation of arrivals by name.
+#'
+#' @inheritParams get_head
+#' @param generator the name of the generator or a function returning a name.
+#'
+#' @return Returns the trajectory object.
+#' @seealso \code{\link{set_trajectory}}, \code{\link{set_distribution}}.
+#' @export
+activate <- function(.trj, generator) .trj$activate(generator)
+
+#' @rdname activate
+#' @export
+deactivate <- function(.trj, generator) .trj$deactivate(generator)
+
+#' Add a set trajectory/distribution activity
+#'
+#' Modify a generator's trajectory or distribution by name.
+#'
+#' @inheritParams get_head
+#' @inheritParams activate
+#' @param trajectory the trajectory that the generated arrivals will follow.
+#'
+#' @return Returns the trajectory object.
+#' @seealso \code{\link{activate}}, \code{\link{deactivate}}.
+#' @export
+set_trajectory <- function(.trj, generator, trajectory) .trj$set_trajectory(generator, trajectory)
+
+#' @rdname set_trajectory
+#' @param distribution a function modelling the interarrival times (returning a
+#' negative value stops the generator).
+#' @export
+set_distribution <- function(.trj, generator, distribution) .trj$set_distribution(generator, distribution)
 
 #' Add a set prioritization activity
 #'
@@ -419,9 +588,9 @@ set_attribute <- function(traj, key, value) traj$set_attribute(key, value)
 #' A negative value leaves the corresponding parameter unchanged.
 #' See \code{\link{add_generator}} for more information about these parameters.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-set_prioritization <- function(traj, values) traj$set_prioritization(values)
+set_prioritization <- function(.trj, values) .trj$set_prioritization(values)
 
 #' Add a branch activity
 #'
@@ -436,9 +605,9 @@ set_prioritization <- function(traj, values) traj$set_prioritization(values)
 #' continue to the main trajectory after each sub-trajectory or not.
 #' @param ... \code{N} trajectory objects describing each sub-trajectory.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-branch <- function(traj, option, continue, ...) traj$branch(option, continue, ...)
+branch <- function(.trj, option, continue, ...) .trj$branch(option, continue, ...)
 
 #' Add a rollback activity
 #'
@@ -451,9 +620,9 @@ branch <- function(traj, option, continue, ...) traj$branch(option, continue, ..
 #' present, the \code{times} parameter is ignored, and the activity uses this
 #' function to check whether the rollback must be done or not.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-rollback <- function(traj, amount, times=1, check) traj$rollback(amount, times, check)
+rollback <- function(.trj, amount, times=1, check) .trj$rollback(amount, times, check)
 
 #' Add a leave activity
 #'
@@ -462,9 +631,9 @@ rollback <- function(traj, amount, times=1, check) traj$rollback(amount, times, 
 #' @inheritParams get_head
 #' @param prob a probability or a function returning a probability.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-leave <- function(traj, prob) traj$leave(prob)
+leave <- function(.trj, prob) .trj$leave(prob)
 
 #' Add a renege activity
 #'
@@ -475,15 +644,15 @@ leave <- function(traj, prob) traj$leave(prob)
 #' (a function) which must return a numeric.
 #' @param out optional sub-trajectory in case of reneging.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-renege_in <- function(traj, t, out=NULL) traj$renege_in(t, out)
+renege_in <- function(.trj, t, out=NULL) .trj$renege_in(t, out)
 
 #' @inheritParams get_head
 #'
 #' @rdname renege_in
 #' @export
-renege_abort <- function(traj) traj$renege_abort()
+renege_abort <- function(.trj) .trj$renege_abort()
 
 #' Add a clone/synchronize activity
 #'
@@ -496,9 +665,9 @@ renege_abort <- function(traj) traj$renege_abort()
 #' @param ... optional parallel sub-trajectories. Each clone will follow
 #' a different sub-trajectory if available.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-clone <- function(traj, n, ...) traj$replicate(n, ...)
+clone <- function(.trj, n, ...) .trj$replicate(n, ...)
 
 #' @inheritParams get_head
 #' @param wait if \code{FALSE}, all clones but the first to arrive are removed.
@@ -508,7 +677,7 @@ clone <- function(traj, n, ...) traj$replicate(n, ...)
 #'
 #' @rdname clone
 #' @export
-synchronize <- function(traj, wait=TRUE, mon_all=FALSE) traj$synchronize(wait, mon_all)
+synchronize <- function(.trj, wait=TRUE, mon_all=FALSE) .trj$synchronize(wait, mon_all)
 
 #' Add a batch/separate activity
 #'
@@ -527,13 +696,59 @@ synchronize <- function(traj, wait=TRUE, mon_all=FALSE) traj$synchronize(wait, m
 #' every arrival to determine whether it should be included into the batch, thus
 #  it must return a boolean.
 #'
-#' @return The trajectory object.
+#' @return Returns the trajectory object.
 #' @export
-batch <- function(traj, n, timeout=0, permanent=FALSE, name="", rule=NULL)
-  traj$batch(n, timeout, permanent, name, rule)
+batch <- function(.trj, n, timeout=0, permanent=FALSE, name="", rule=NULL)
+  .trj$batch(n, timeout, permanent, name, rule)
 
 #' @inheritParams get_head
 #'
 #' @rdname batch
 #' @export
-separate <- function(traj) traj$separate()
+separate <- function(.trj) .trj$separate()
+
+#' Add an inter-arrival communication activity
+#'
+#' These activities enable asynchronous programming. \code{send()} broadcasts a signal or a list
+#' of signals. Arrivals can subscribe to signals and (optionally) assign a handler with
+#' \code{trap()}. Note that, while inside a batch, all the signals subscribed before entering
+#' the batch are ignored. Upon a signal reception, the arrival stops the current activity and
+#' executes the handler (if provided). Then, the execution returns to the activity following the
+#' point of the interruption. \code{untrap()} can be used to unsubscribe from signals.
+#' \code{wait()} blocks until a signal is received.
+#'
+#' @inheritParams get_head
+#' @param signals signal or list of signals, accepts either a string, a list of strings or a
+#' callable object (a function) which must return a string or a list of strings.
+#' @param delay optional timeout to trigger the signals, accepts either a numeric or a callable
+#' object (a function) which must return a numeric.
+#'
+#' @return Returns the trajectory object.
+#' @export
+send <- function(.trj, signals, delay=0) .trj$send(signals, delay)
+
+#' @param handler optional trajectory object to handle a signal received.
+#'
+#' @rdname send
+#' @export
+trap <- function(.trj, signals, handler=NULL) .trj$trap(signals, handler)
+
+#' @rdname send
+#' @export
+untrap <- function(.trj, signals) .trj$untrap(signals)
+
+#' @rdname send
+#' @export
+wait <- function(.trj) .trj$wait()
+
+#' Add a logging activity
+#'
+#' Display a message preceded by the simulation time and the name of the arrival.
+#'
+#' @inheritParams get_head
+#' @param message the message to display, accepts either a string or a callable object
+#' (a function) which must return a string.
+#'
+#' @return Returns the trajectory object.
+#' @export
+log_ <- function(.trj, message) .trj$log(message)

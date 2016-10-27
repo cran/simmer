@@ -33,7 +33,7 @@ public:
   * @param   arrival  a pointer to the arrival trying to seize resources
   * @param   amount   the amount of resources needed
   *
-  * @return  SUCCESS, ENQUEUED, REJECTED
+  * @return  SUCCESS, ENQUEUE, REJECT
   */
   int seize(Arrival* arrival, int amount);
 
@@ -182,11 +182,7 @@ protected:
     RPQueue::iterator next = queue.begin();
     if (!room_in_server(next->amount, next->priority()))
       return false;
-    if (next->arrival->is_monitored()) {
-      double last = next->arrival->get_activity(this->name);
-      next->arrival->set_activity(this->name, time - last);
-    }
-    next->arrival->activate();
+    next->arrival->restart();
     insert_in_server(verbose, time, next->arrival, next->amount);
     queue_count -= next->amount;
     queue_map.erase(next->arrival);
@@ -299,12 +295,8 @@ protected:
     typename T::iterator first = this->server.begin();
     if (first == this->server.end())
       return false;
-    first->arrival->deactivate();
+    first->arrival->pause();
     if (verbose) this->verbose_print(time, first->arrival->name, "PREEMPT");
-    if (first->arrival->is_monitored()) {
-      double last = first->arrival->get_activity(this->name);
-      first->arrival->set_activity(this->name, time - last);
-    }
     this->server_count -= first->amount;
     this->server_map.erase(first->arrival);
     if (keep_queue) {
@@ -327,11 +319,7 @@ protected:
       return PriorityRes<T>::try_serve_from_queue(verbose, time);
     if (!room_in_server(next->amount, next->priority()))
       return false;
-    if (next->arrival->is_monitored()) {
-      double last = next->arrival->get_activity(this->name);
-      next->arrival->set_activity(this->name, time - last);
-    }
-    next->arrival->activate();
+    next->arrival->restart();
     this->insert_in_server(verbose, time, next->arrival, next->amount);
     this->queue_count -= next->amount;
     preempted_map.erase(next->arrival);

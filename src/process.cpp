@@ -2,7 +2,23 @@
 #include "simulator.h"
 #include "activity.h"
 
-void Process::deactivate() { sim->unschedule(this); }
+bool Process::activate(double delay) {
+  sim->schedule(delay, this, priority);
+  active = true;
+  return true;
+}
+
+bool Process::deactivate() {
+  if (!active) return false;
+  sim->unschedule(this);
+  active = false;
+  return true;
+}
+
+void Generator::set_first_activity() {
+  Rcpp::Function get_head(trj["get_head"]);
+  first_activity = Rcpp::as<Rcpp::XPtr<Activity> >(get_head());
+}
 
 void Generator::run() {
   // get the delay for the next (n) arrival(s)
@@ -11,13 +27,16 @@ void Generator::run() {
   double delay = 0;
 
   for(int i = 0; i < n; ++i) {
-    if (delays[i] < 0)
+    if (delays[i] < 0) {
+      active = false;
       return;
+    }
     delay += delays[i];
 
     // format the name and create the next arrival
     std::string arr_name = name + boost::lexical_cast<std::string>(count++);
-    Arrival* arrival = new Arrival(sim, arr_name, is_monitored(), order, first_activity);
+    Arrival* arrival = new Arrival(sim, arr_name, is_monitored(),
+                                   order, first_activity, count);
 
     if (sim->verbose)Rcpp::Rcout <<
       FMT(10, right) << sim->now() << " |" <<
@@ -27,15 +46,14 @@ void Generator::run() {
 
     // schedule the arrival
     sim->register_arrival(arrival);
-    sim->schedule(delay, arrival, count);
+    sim->schedule(delay, arrival,
+                  first_activity->priority ? first_activity->priority : count);
   }
   // schedule the generator
-  sim->schedule(delay, this, PRIORITY_GENERATOR);
+  activate(delay);
 }
 
 void Manager::run() {
-  if (!sim->now() && duration[index])
-    goto finish;
   if (sim->verbose) Rcpp::Rcout <<
     FMT(10, right) << sim->now() << " |" <<
     FMT(12, right) << "manager: " << FMT(15, left) << name << "|" <<
@@ -50,8 +68,7 @@ void Manager::run() {
     index = 1;
   }
 
-finish:
-  sim->schedule(duration[index], this, PRIORITY_MANAGER);
+  activate();
 end:
   return;
 }
@@ -89,16 +106,20 @@ void Arrival::run() {
     activity->print(0, true);
   }
 
+  active = false;
   delay = activity->run(this);
-  if (delay == REJECTED)
+  if (delay == REJECT)
     goto end;
   activity = activity->get_next();
-  if (delay == ENQUEUED)
+  if (delay == ENQUEUE)
     goto end;
+  active = true;
 
-  lifetime.busy_until = sim->now() + delay;
-  lifetime.activity += delay;
-  sim->schedule(delay, this, activity ? activity->priority : 0);
+  if (delay != BLOCK) {
+    set_busy(sim->now() + delay);
+    update_activity(delay);
+  }
+  sim->schedule(delay, this, activity ? activity->priority : priority);
   goto end;
 
 finish:
@@ -107,29 +128,27 @@ end:
   return;
 }
 
-void Arrival::activate() {
-  Process::activate();
-  lifetime.busy_until = sim->now() + lifetime.remaining;
-  sim->schedule(lifetime.remaining, this, 1);
-  lifetime.remaining = 0;
+void Arrival::restart() {
+  set_busy(sim->now() + status.remaining);
+  activate(status.remaining);
+  set_remaining(0);
 }
 
-void Arrival::deactivate() {
-  Process::deactivate();
-  lifetime.remaining = lifetime.busy_until - sim->now();
-  if (lifetime.remaining && order.get_restart()) {
-    lifetime.activity -= lifetime.remaining;
-    lifetime.remaining = 0;
+void Arrival::pause() {
+  deactivate();
+  unset_busy(sim->now());
+  if (status.remaining && order.get_restart()) {
+    unset_remaining();
     activity = activity->get_prev();
   }
 }
 
-void Arrival::leave(std::string resource) {
-  sim->record_release(name, restime[resource].start, restime[resource].activity, resource);
-}
-
-void Arrival::leave(std::string resource, double start, double activity) {
-  sim->record_release(name, start, activity, resource);
+void Arrival::stop() {
+  deactivate();
+  if (status.busy_until < sim->now())
+    return;
+  unset_busy(sim->now());
+  unset_remaining();
 }
 
 void Arrival::terminate(bool finished) {
@@ -137,29 +156,24 @@ void Arrival::terminate(bool finished) {
     Rcpp::warning("`%s`: leaving without releasing `%s`", name, itr->name);
     itr->erase(this, true);
   }
-  lifetime.activity -= lifetime.remaining;
-  if (is_monitored() >= 1)
+  unset_remaining();
+  if (is_monitored() >= 1 && !dynamic_cast<Batched*>(this))
     sim->record_end(name, lifetime.start, lifetime.activity, finished);
   delete this;
 }
 
 void Arrival::renege(Activity* next) {
-  bool ret = false;
   timer = NULL;
   if (batch) {
     if (batch->is_permanent())
       return;
-    ret = true;
     batch->erase(this);
   }
-  while (resources.begin() != resources.end())
-    ret |= (*resources.begin())->erase(this);
-  if (!ret)
-    Process::deactivate();
-  lifetime.remaining = lifetime.busy_until - sim->now();
+  if (!leave_resources() && !batch)
+    deactivate();
   if (next) {
     activity = next;
-    sim->schedule(0, this);
+    activate();
   } else terminate(false);
 }
 
@@ -180,40 +194,46 @@ double Arrival::get_start(std::string name) {
   return start;
 }
 
-void Arrival::set_timeout(double timeout, Activity* next) {
-  cancel_timeout();
-  timer = new Task(sim, "Renege-Timer", boost::bind(&Arrival::renege, this, next));
-  sim->schedule(timeout, timer, PRIORITY_MIN);
+void Arrival::register_entity(Resource* ptr) {
+  if (is_monitored())
+      restime[ptr->name].start = sim->now();
+  resources.insert(ptr);
+}
+
+void Arrival::unregister_entity(Resource* ptr) {
+  if (is_monitored())
+    report(ptr->name);
+  resources.erase(resources.find(ptr));
+}
+
+void Arrival::report(std::string resource) {
+  sim->record_release(name, restime[resource].start, restime[resource].activity, resource);
+}
+
+void Arrival::report(std::string resource, double start, double activity) {
+  sim->record_release(name, start, activity, resource);
+}
+
+bool Arrival::leave_resources(bool flag) {
+  if (status.busy_until > sim->now())
+    unset_busy(sim->now());
+  unset_remaining();
+  while (resources.begin() != resources.end())
+    flag |= (*resources.begin())->erase(this);
+  return flag;
 }
 
 void Batched::terminate(bool finished) {
-  foreach_ (ResMSet::value_type& itr, resources) {
-    Rcpp::warning("`%s`: leaving without releasing `%s`", name, itr->name);
-    itr->erase(this, true);
-  }
-  lifetime.activity -= lifetime.remaining;
-  foreach_ (VEC<Arrival*>::value_type& itr, arrivals) {
-    itr->set_activity(itr->get_activity() + lifetime.activity);
-    itr->terminate(finished);
-  }
+  foreach_ (Arrival* arrival, arrivals)
+    arrival->terminate(finished);
   arrivals.clear();
-  delete this;
-}
-
-void Batched::pop_all(Activity* next) {
-  foreach_ (VEC<Arrival*>::value_type& itr, arrivals) {
-    itr->set_activity(itr->get_activity() + lifetime.activity);
-    itr->set_activity(next);
-    itr->unregister_entity(this);
-    sim->schedule(0, itr);
-  }
-  arrivals.clear();
+  Arrival::terminate(finished);
 }
 
 int Batched::set_attribute(std::string key, double value) {
   attributes[key] = value;
-  foreach_ (VEC<Arrival*>::value_type& itr, arrivals)
-    itr->set_attribute(key, value);
+  foreach_ (Arrival* arrival, arrivals)
+    arrival->set_attribute(key, value);
   return 0;
 }
 
@@ -229,20 +249,20 @@ void Batched::erase(Arrival* arrival) {
       }
     }
   } else if (arrivals.size() == 1 && !batch) {
-    bool ret = !activity;
-    while (resources.begin() != resources.end())
-      ret |= (*resources.begin())->erase(this);
-    if (!ret)
-      Process::deactivate();
-  } else batch->erase(this);
+    if (!leave_resources(!activity))
+      deactivate();
+  } else {
+    del = true;
+    batch->erase(this);
+    leave_resources();
+  }
   arrivals.erase(std::remove(arrivals.begin(), arrivals.end(), arrival), arrivals.end());
   arrival->unregister_entity(this);
   if (del) delete this;
 }
 
 void Batched::report(Arrival* arrival) {
-  foreach_ (ResMSet::value_type& itr, resources) {
-    double last = get_activity(itr->name);
-    arrival->leave(itr->name, restime[itr->name].start, sim->now() - last);
-  }
+  foreach_ (ResTime::value_type& itr, restime)
+    arrival->report(itr.first, itr.second.start,
+                    itr.second.activity - status.busy_until + sim->now());
 }

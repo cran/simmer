@@ -32,26 +32,18 @@ int Resource::seize(Arrival* arrival, int amount) {
   int status;
   // serve now
   if (room_in_server(amount, arrival->order.get_priority())) {
-    if (arrival->is_monitored()) {
-      arrival->set_start(this->name, sim->now());
-      arrival->set_activity(this->name, sim->now());
-    }
     insert_in_server(sim->verbose, sim->now(), arrival, amount);
     status = SUCCESS;
   }
   // enqueue
   else if (room_in_queue(amount, arrival->order.get_priority())) {
-    if (arrival->is_monitored()) {
-      arrival->set_start(this->name, sim->now());
-      arrival->set_activity(this->name, 0);
-    }
     insert_in_queue(sim->verbose, sim->now(), arrival, amount);
-    status = ENQUEUED;
+    status = ENQUEUE;
   }
   // reject
   else {
     if (sim->verbose) verbose_print(sim->now(), arrival->name, "REJECT");
-    return REJECTED;
+    return REJECT;
   }
 
   arrival->register_entity(this);
@@ -61,18 +53,14 @@ int Resource::seize(Arrival* arrival, int amount) {
 }
 
 int Resource::release(Arrival* arrival, int amount) {
-  // departure
-  if (arrival->is_monitored()) {
-    double last = arrival->get_activity(this->name);
-    arrival->set_activity(this->name, sim->now() - last);
-    arrival->leave(this->name);
-  }
   remove_from_server(sim->verbose, sim->now(), arrival, amount);
   arrival->unregister_entity(this);
 
   // serve another
-  Task* task = new Task(sim, "Post-Release", boost::bind(&Resource::post_release, this));
-  sim->schedule(0, task, PRIORITY_RELEASE_POST);
+  Task* task = new Task(sim, "Post-Release",
+                        boost::bind(&Resource::post_release, this),
+                        PRIORITY_RELEASE_POST);
+  task->activate();
 
   return SUCCESS;
 }
