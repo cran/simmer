@@ -53,6 +53,34 @@ env<- simmer() %>%
 get_mon_attributes(env)
 
 ## ------------------------------------------------------------------------
+writer <- create_trajectory() %>%
+  set_attribute(key = "my_key", value = 123)
+
+reader <- create_trajectory() %>%
+  log_(function(attr) paste0(attr["my_key"]))
+
+env <- simmer() %>%
+  add_generator("writer", writer, at(0), mon = 2) %>%
+  add_generator("reader", reader, at(1), mon = 2) %>%
+  run()
+
+get_mon_attributes(env)
+
+## ------------------------------------------------------------------------
+writer <- create_trajectory() %>%
+  set_attribute(key = "my_key", value = 123, global = TRUE)
+
+reader <- create_trajectory() %>%
+  log_(function(attr, glb) paste0(attr["my_key"], ", ", glb["my_key"]))
+
+env <- simmer() %>%
+  add_generator("writer", writer, at(0), mon = 2) %>%
+  add_generator("reader", reader, at(1), mon = 2) %>%
+  run()
+
+get_mon_attributes(env)
+
+## ------------------------------------------------------------------------
 patient_traj <- create_trajectory(name = "patient_trajectory") %>%
   timeout(task = 3)
 
@@ -421,27 +449,6 @@ get_mon_arrivals(env)
 get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
-t <- create_trajectory(name = "bank") %>%
-  log_("Here I am") %>%
-  # renege in 5 minutes
-  renege_in(5, 
-            out = create_trajectory() %>%
-              log_("Lost my patience. Reneging...")
-            ) %>%
-  seize("clerk", 1) %>%
-  # stay if I'm being attended within 5 minutes
-  renege_abort() %>%
-  log_("I'm being attended") %>%
-  timeout(10) %>%
-  release("clerk", 1) %>%
-  log_("Finished")
-
-simmer() %>%
-  add_resource("clerk", 1) %>%
-  add_generator("customer", t, at(0, 1)) %>%
-  run() %>% invisible
-
-## ------------------------------------------------------------------------
 t <- create_trajectory() %>%
   clone(n = 3,
         create_trajectory("original") %>%
@@ -680,7 +687,8 @@ t_worker <- create_trajectory() %>%
   trap("you are free to go", 
        handler = create_trajectory() %>%
          log_("ok, I'm packing...") %>%
-         timeout(1)) %>%
+         timeout(1)
+  ) %>%
   log_("performing a looong task...") %>%
   timeout(100) %>%
   log_("and I'm leaving!")
@@ -699,7 +707,8 @@ t_worker <- create_trajectory() %>%
   trap("you are free to go", 
        handler = create_trajectory() %>%
          log_("ok, I'm packing...") %>%
-         timeout(1)) %>%
+         timeout(1)
+  ) %>%
   log_("performing a looong task...") %>%
   untrap("you are free to go") %>%
   timeout(100) %>%
@@ -712,6 +721,92 @@ t_signaler <- create_trajectory() %>%
 simmer() %>%
   add_generator("worker", t_worker, at(0)) %>%
   add_generator("signaler", t_signaler, at(5)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
+t_worker <- create_trajectory() %>%
+  trap("you are free to go", 
+       handler = create_trajectory() %>%
+         log_("ok, I'm packing...") %>%
+         timeout(1)
+  ) %>%
+  log_("performing a looong task...") %>%
+  timeout(100) %>%
+  log_("and I'm leaving!")
+
+t_signaler <- create_trajectory() %>%
+  log_("you are free to go") %>%
+  send("you are free to go")
+
+simmer() %>%
+  add_generator("worker", t_worker, at(0)) %>%
+  add_generator("signaler", t_signaler, from(5, function() 0.5)) %>%
+  run(10) %>% invisible
+
+## ------------------------------------------------------------------------
+t_worker <- create_trajectory() %>%
+  trap("you are free to go", 
+       handler = create_trajectory() %>%
+         log_("ok, I'm packing...") %>%
+         timeout(1),
+       interruptible = FALSE            # make it uninterruptible
+  ) %>%
+  log_("performing a looong task...") %>%
+  timeout(100) %>%
+  log_("and I'm leaving!")
+
+t_signaler <- create_trajectory() %>%
+  log_("you are free to go") %>%
+  send("you are free to go")
+
+simmer() %>%
+  add_generator("worker", t_worker, at(0)) %>%
+  add_generator("signaler", t_signaler, from(5, function() 0.5)) %>%
+  run(10) %>% invisible
+
+## ------------------------------------------------------------------------
+t <- create_trajectory(name = "bank") %>%
+  log_("Here I am") %>%
+  # renege in 5 minutes
+  renege_in(5, 
+            out = create_trajectory() %>%
+              log_("Lost my patience. Reneging...")
+  ) %>%
+  seize("clerk", 1) %>%
+  # stay if I'm being attended within 5 minutes
+  renege_abort() %>%
+  log_("I'm being attended") %>%
+  timeout(10) %>%
+  release("clerk", 1) %>%
+  log_("Finished")
+
+simmer() %>%
+  add_resource("clerk", 1) %>%
+  add_generator("customer", t, at(0, 1)) %>%
+  run() %>% invisible
+
+## ------------------------------------------------------------------------
+t <- create_trajectory(name = "bank") %>%
+  log_("Here I am") %>%
+  # renege when "renege now" is received
+  renege_if("renege now", 
+            out = create_trajectory() %>%
+              log_("Ok. Reneging...")
+  ) %>%
+  seize("clerk", 1) %>%
+  # stay if I'm being attended within 5 minutes
+  renege_abort() %>%
+  log_("I'm being attended") %>%
+  timeout(5) %>%
+  log_("I say: renege now") %>%
+  send("renege now") %>%
+  timeout(5) %>%
+  release("clerk", 1) %>%
+  log_("Finished")
+
+simmer() %>%
+  add_resource("clerk", 1) %>%
+  add_generator("customer", t, at(0, 1)) %>%
   run() %>% invisible
 
 ## ------------------------------------------------------------------------

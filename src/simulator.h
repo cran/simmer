@@ -37,7 +37,8 @@ class Simulator {
   typedef UMAP<std::string, Batched*> NamBMap;
   typedef UMAP<Activity*, Batched*> UnnBMap;
   typedef boost::function<void ()> Bind;
-  typedef UMAP<Arrival*, Bind> HandlerMap;
+  typedef std::pair<bool, Bind> Handler;
+  typedef UMAP<Arrival*, Handler> HandlerMap;
   typedef UMAP<std::string, HandlerMap> SigMap;
 
 public:
@@ -89,6 +90,7 @@ public:
     unnamedb_map.clear();
     b_count = 0;
     signal_map.clear();
+    attributes.clear();
     arr_traj_stats.clear();
     arr_res_stats.clear();
     attr_stats.clear();
@@ -183,16 +185,16 @@ public:
 
   /**
    * Add a resource to the simulator.
-   * @param   name          the name
-   * @param   capacity      server capacity (-1 means infinity)
-   * @param   queue_size    room in the queue (-1 means infinity)
-   * @param   mon           whether this entity must be monitored
-   * @param   preemptive    whether the resource is preemptive
-   * @param   preempt_order fifo or lifo
-   * @param   keep_queue    whether the queue size is a hard limit
+   * @param   name              the name
+   * @param   capacity          server capacity (-1 means infinity)
+   * @param   queue_size        room in the queue (-1 means infinity)
+   * @param   mon               whether this entity must be monitored
+   * @param   preemptive        whether the resource is preemptive
+   * @param   preempt_order     fifo or lifo
+   * @param   queue_size_strict whether the queue size is a hard limit
    */
   bool add_resource(std::string name, int capacity, int queue_size, bool mon,
-                    bool preemptive, std::string preempt_order, bool keep_queue)
+                    bool preemptive, std::string preempt_order, bool queue_size_strict)
   {
     if (resource_map.find(name) != resource_map.end()) {
       Rcpp::warning("resource " + name + " already defined");
@@ -200,12 +202,15 @@ public:
     }
     Resource* res;
     if (!preemptive) {
-      res = new PriorityRes<FIFO>(this, name, mon, capacity, queue_size);
+      res = new PriorityRes<FIFO>(this, name, mon, capacity,
+                                  queue_size, queue_size_strict);
     } else {
       if (preempt_order.compare("fifo") == 0)
-        res = new PreemptiveRes<FIFO>(this, name, mon, capacity, queue_size, keep_queue);
+        res = new PreemptiveRes<FIFO>(this, name, mon, capacity,
+                                      queue_size, queue_size_strict);
       else
-        res = new PreemptiveRes<LIFO>(this, name, mon, capacity, queue_size, keep_queue);
+        res = new PreemptiveRes<LIFO>(this, name, mon, capacity,
+                                      queue_size, queue_size_strict);
     }
     resource_map[name] = res;
     return true;
@@ -276,22 +281,44 @@ public:
 
   void broadcast(VEC<std::string> signals) {
     foreach_ (std::string signal, signals) {
-      foreach_ (HandlerMap::value_type& itr, signal_map[signal])
-        itr.second();
+      foreach_ (HandlerMap::value_type& itr, signal_map[signal]) {
+        if (!itr.second.first)
+          continue;
+        Task* task = new Task(this, "Handler", itr.second.second);
+        task->activate();
+      }
     }
+  }
+  void subscribe(std::string signal, Arrival* arrival, Bind handler) {
+    signal_map[signal][arrival] = std::make_pair(true, handler);
+    arrival_map[arrival].emplace(signal);
   }
   void subscribe(VEC<std::string> signals, Arrival* arrival, Bind handler) {
-    foreach_ (std::string signal, signals) {
-      signal_map[signal][arrival] = handler;
-      arrival_map[arrival].emplace(signal);
-    }
+    foreach_ (std::string signal, signals)
+      subscribe(signal, arrival, handler);
+  }
+  void subscribe(Arrival* arrival) {
+    foreach_ (std::string signal, arrival_map[arrival])
+      signal_map[signal][arrival].first = true;
+  }
+  void unsubscribe(std::string signal, Arrival* arrival) {
+    signal_map[signal].erase(arrival);
+    arrival_map[arrival].erase(signal);
   }
   void unsubscribe(VEC<std::string> signals, Arrival* arrival) {
-    foreach_ (std::string signal, signals) {
-      signal_map[signal].erase(arrival);
-      arrival_map[arrival].erase(signal);
-    }
+    foreach_ (std::string signal, signals)
+      unsubscribe(signal, arrival);
   }
+  void unsubscribe(Arrival* arrival) {
+    foreach_ (std::string signal, arrival_map[arrival])
+      signal_map[signal][arrival].first = false;
+  }
+
+  void set_attribute(std::string key, double value) {
+    attributes[key] = value;
+    record_attribute("", key, value);
+  }
+  Attr* get_attributes() { return &attributes; }
 
   void register_arrival(Arrival* arrival) { arrival_map[arrival]; }
   void unregister_arrival(Arrival* arrival) {
@@ -438,6 +465,7 @@ private:
   UnnBMap unnamedb_map;     /**< map of unnamed batches */
   unsigned int b_count;     /**< unnamed batch counter */
   SigMap signal_map;        /**< map of arrivals subscribed to signals */
+  Attr attributes;          /**< user-defined (key, value) pairs */
   StatsMap arr_traj_stats;  /**< arrival statistics per trajectory */
   StatsMap arr_res_stats;   /**< arrival statistics per resource */
   StatsMap attr_stats;      /**< attribute statistics */

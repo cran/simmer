@@ -63,8 +63,6 @@ private:
   Bind task;
 };
 
-typedef UMAP<std::string, double> Attr;
-
 struct Order {
 public:
   Order(int priority=0, int preemptible=0, bool restart=false)
@@ -196,13 +194,11 @@ public:
   void pause();
   void stop();
   virtual void terminate(bool finished);
-  void renege(Activity* next);
-  virtual int set_attribute(std::string key, double value);
+  virtual void set_attribute(std::string key, double value);
   double get_start(std::string name);
 
   Attr* get_attributes() { return &attributes; }
   double get_remaining() { return status.remaining; }
-  void set_start(std::string name, double value) { restime[name].start = value; }
   void set_activity(Activity* ptr) { activity = ptr; }
   double get_start() { return lifetime.start; }
   Activity* get_activity() { return activity; }
@@ -214,21 +210,15 @@ public:
   void unregister_entity(Resource* ptr);
   void unregister_entity(Batched* ptr) { batch = NULL; }
 
-  void set_timeout(double timeout, Activity* next) {
-    cancel_timeout();
+  void set_renege(double timeout, Activity* next) {
+    cancel_renege();
     timer = new Task(sim, "Renege-Timer",
                      boost::bind(&Arrival::renege, this, next),
                      PRIORITY_MIN);
     timer->activate(timeout);
   }
-
-  void cancel_timeout() {
-    if (!timer)
-      return;
-    timer->deactivate();
-    delete timer;
-    timer = NULL;
-  }
+  void set_renege(std::string sig, Activity* next);
+  void cancel_renege();
 
 protected:
   ArrStatus status;     /**< arrival timing status */
@@ -238,9 +228,11 @@ protected:
   Attr attributes;      /**< user-defined (key, value) pairs */
   SelMap selected;      /**< selected resource */
   Task* timer;          /**< timer that triggers reneging */
+  std::string signal;   /**< signal that triggers reneging */
   Batched* batch;       /**< batch that contains this arrival */
   ResMSet resources;    /**< resources that contain this arrival */
 
+  void renege(Activity* next);
   virtual void report(std::string resource);
   virtual void report(std::string resource, double start, double activity);
   bool leave_resources(bool flag = false);
@@ -308,7 +300,7 @@ public:
     arrivals.clear();
   }
 
-  int set_attribute(std::string key, double value);
+  void set_attribute(std::string key, double value);
 
   bool is_permanent() { return permanent; }
   size_t size() { return arrivals.size(); }

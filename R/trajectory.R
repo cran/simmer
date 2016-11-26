@@ -123,12 +123,13 @@ simmer.trajectory <- R6Class("simmer.trajectory",
       else private$add_activity(Timeout__new(private$verbose, task))
     },
 
-    set_attribute = function(key, value) {
+    set_attribute = function(key, value, global=FALSE) {
       key <- as.character(key)
       value <- evaluate_value(value)
+      global <- evaluate_value(global)
       if (is.function(value))
-        private$add_activity(SetAttribute__new_func(private$verbose, key, value, needs_attrs(value)))
-      else private$add_activity(SetAttribute__new(private$verbose, key, value))
+        private$add_activity(SetAttribute__new_func(private$verbose, key, value, needs_attrs(value), global))
+      else private$add_activity(SetAttribute__new(private$verbose, key, value, global))
     },
 
     activate = function(generator) {
@@ -150,7 +151,8 @@ simmer.trajectory <- R6Class("simmer.trajectory",
         stop("not a trajectory")
       generator <- evaluate_value(generator)
       if (is.function(generator))
-        private$add_activity(SetTraj__new_func(private$verbose, generator, needs_attrs(generator), trajectory))
+        private$add_activity(SetTraj__new_func(private$verbose, generator,
+                                               needs_attrs(generator), trajectory))
       else private$add_activity(SetTraj__new(private$verbose, generator, trajectory))
     },
 
@@ -158,7 +160,8 @@ simmer.trajectory <- R6Class("simmer.trajectory",
       generator <- evaluate_value(generator)
       distribution <- make_resetable(distribution)
       if (is.function(generator))
-        private$add_activity(SetDist__new_func(private$verbose, generator, needs_attrs(generator), distribution))
+        private$add_activity(SetDist__new_func(private$verbose, generator,
+                                               needs_attrs(generator), distribution))
       else private$add_activity(SetDist__new(private$verbose, generator, distribution))
     },
 
@@ -205,6 +208,18 @@ simmer.trajectory <- R6Class("simmer.trajectory",
       else private$add_activity(RenegeIn__new(private$verbose, t, traj))
     },
 
+    renege_if = function(signal, out=NULL) {
+      signal <- evaluate_value(signal)
+      traj <- list()
+      if (!is.null(out)) {
+        if (!inherits(out, "simmer.trajectory")) stop("not a trajectory")
+        traj <- c(traj, out)
+      }
+      if (is.function(signal))
+        private$add_activity(RenegeIf__new_func(private$verbose, signal, needs_attrs(signal), traj))
+      else private$add_activity(RenegeIf__new(private$verbose, signal, traj))
+    },
+
     renege_abort = function() { private$add_activity(RenegeAbort__new(private$verbose)) },
 
     replicate = function(n, ...) {
@@ -249,16 +264,18 @@ simmer.trajectory <- R6Class("simmer.trajectory",
       else private$add_activity(Send__new(private$verbose, signals, delay))
     },
 
-    trap = function(signals, handler=NULL) {
+    trap = function(signals, handler=NULL, interruptible=TRUE) {
       signals <- evaluate_value(signals)
+      interruptible <- evaluate_value(interruptible)
       traj <- list()
       if (!is.null(handler)) {
         if (!inherits(handler, "simmer.trajectory")) stop("not a trajectory")
         traj <- c(traj, handler)
       }
       if (is.function(signals))
-        private$add_activity(Trap__new_func(private$verbose, signals, needs_attrs(signals), traj))
-      else private$add_activity(Trap__new(private$verbose, signals, traj))
+        private$add_activity(Trap__new_func(private$verbose, signals, needs_attrs(signals),
+                                            traj, interruptible))
+      else private$add_activity(Trap__new(private$verbose, signals, traj, interruptible))
     },
 
     untrap = function(signals) {
@@ -341,9 +358,9 @@ simmer.trajectory$public_methods$clone <- simmer.trajectory$private_methods$copy
 #' \code{\link{seize}}, \code{\link{release}}, \code{\link{seize_selected}}, \code{\link{release_selected}},
 #' \code{\link{select}}, \code{\link{set_capacity}}, \code{\link{set_queue_size}},
 #' \code{\link{set_capacity_selected}}, \code{\link{set_queue_size_selected}}, \code{\link{set_prioritization}},
-#' \code{\link{activate}}, \code{\link{deactivate}}, \code{\link{set_trajectory}},
-#' \code{\link{set_distribution}}, \code{\link{set_attribute}}, \code{\link{timeout}}, \code{\link{branch}},
-#' \code{\link{rollback}}, \code{\link{leave}}, \code{\link{renege_in}}, \code{\link{renege_abort}},
+#' \code{\link{activate}}, \code{\link{deactivate}}, \code{\link{set_trajectory}}, \code{\link{set_distribution}},
+#' \code{\link{set_attribute}}, \code{\link{timeout}}, \code{\link{branch}}, \code{\link{rollback}},
+#' \code{\link{leave}}, \code{\link{renege_in}}, \code{\link{renege_if}}, \code{\link{renege_abort}},
 #' \code{\link{clone}}, \code{\link{synchronize}}, \code{\link{batch}}, \code{\link{separate}},
 #' \code{\link{send}}, \code{\link{trap}}, \code{\link{untrap}}, \code{\link{wait}}, \code{\link{log_}}.
 #' @export
@@ -538,10 +555,11 @@ timeout <- function(.trj, task) .trj$timeout(task)
 #' @param key the attribute key (coerced to a string).
 #' @param value the value to set, accepts either a numeric or a callable object
 #' (a function) which must return a numeric.
+#' @param global if \code{TRUE}, the attribute will be global instead of per-arrival.
 #'
 #' @return Returns the trajectory object.
 #' @export
-set_attribute <- function(.trj, key, value) .trj$set_attribute(key, value)
+set_attribute <- function(.trj, key, value, global=FALSE) .trj$set_attribute(key, value, global)
 
 #' Add a activate/deactivate activity
 #'
@@ -637,7 +655,7 @@ leave <- function(.trj, prob) .trj$leave(prob)
 
 #' Add a renege activity
 #'
-#' Set or unset a timer after which the arrival will abandon.
+#' Set or unset a timer or a signal after which the arrival will abandon.
 #'
 #' @inheritParams get_head
 #' @param t timeout to trigger reneging, accepts either a numeric or a callable object
@@ -648,8 +666,14 @@ leave <- function(.trj, prob) .trj$leave(prob)
 #' @export
 renege_in <- function(.trj, t, out=NULL) .trj$renege_in(t, out)
 
-#' @inheritParams get_head
+#' @param signal signal to trigger reneging, accepts either a string or a callable object
+#' (a function) which must return a string.
 #'
+#' @rdname renege_in
+#' @seealso \code{\link{send}}
+#' @export
+renege_if <- function(.trj, signal, out=NULL) .trj$renege_if(signal, out)
+
 #' @rdname renege_in
 #' @export
 renege_abort <- function(.trj) .trj$renege_abort()
@@ -724,14 +748,17 @@ separate <- function(.trj) .trj$separate()
 #' object (a function) which must return a numeric.
 #'
 #' @return Returns the trajectory object.
+#' @seealso \code{\link{renege_if}}
 #' @export
 send <- function(.trj, signals, delay=0) .trj$send(signals, delay)
 
 #' @param handler optional trajectory object to handle a signal received.
+#' @param interruptible whether the handler can be interrupted by signals.
 #'
 #' @rdname send
 #' @export
-trap <- function(.trj, signals, handler=NULL) .trj$trap(signals, handler)
+trap <- function(.trj, signals, handler=NULL, interruptible=TRUE)
+  .trj$trap(signals, handler, interruptible)
 
 #' @rdname send
 #' @export

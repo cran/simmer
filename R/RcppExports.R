@@ -29,8 +29,8 @@ add_generator_ <- function(sim_, name_prefix, trj, dist, mon, priority, preempti
     .Call('simmer_add_generator_', PACKAGE = 'simmer', sim_, name_prefix, trj, dist, mon, priority, preemptible, restart)
 }
 
-add_resource_ <- function(sim_, name, capacity, queue_size, mon, preemptive, preempt_order, keep_queue) {
-    .Call('simmer_add_resource_', PACKAGE = 'simmer', sim_, name, capacity, queue_size, mon, preemptive, preempt_order, keep_queue)
+add_resource_ <- function(sim_, name, capacity, queue_size, mon, preemptive, preempt_order, queue_size_strict) {
+    .Call('simmer_add_resource_', PACKAGE = 'simmer', sim_, name, capacity, queue_size, mon, preemptive, preempt_order, queue_size_strict)
 }
 
 add_resource_manager_ <- function(sim_, name, param, intervals, values, period) {
@@ -149,12 +149,12 @@ Select__new_func <- function(verbose, resources, provide_attrs, id) {
     .Call('simmer_Select__new_func', PACKAGE = 'simmer', verbose, resources, provide_attrs, id)
 }
 
-SetAttribute__new <- function(verbose, key, value) {
-    .Call('simmer_SetAttribute__new', PACKAGE = 'simmer', verbose, key, value)
+SetAttribute__new <- function(verbose, key, value, global) {
+    .Call('simmer_SetAttribute__new', PACKAGE = 'simmer', verbose, key, value, global)
 }
 
-SetAttribute__new_func <- function(verbose, key, value, provide_attrs) {
-    .Call('simmer_SetAttribute__new_func', PACKAGE = 'simmer', verbose, key, value, provide_attrs)
+SetAttribute__new_func <- function(verbose, key, value, provide_attrs, global) {
+    .Call('simmer_SetAttribute__new_func', PACKAGE = 'simmer', verbose, key, value, provide_attrs, global)
 }
 
 Activate__new <- function(verbose, generator) {
@@ -257,6 +257,14 @@ RenegeIn__new_func <- function(verbose, t, provide_attrs, trj) {
     .Call('simmer_RenegeIn__new_func', PACKAGE = 'simmer', verbose, t, provide_attrs, trj)
 }
 
+RenegeIf__new <- function(verbose, signal, trj) {
+    .Call('simmer_RenegeIf__new', PACKAGE = 'simmer', verbose, signal, trj)
+}
+
+RenegeIf__new_func <- function(verbose, signal, provide_attrs, trj) {
+    .Call('simmer_RenegeIf__new_func', PACKAGE = 'simmer', verbose, signal, provide_attrs, trj)
+}
+
 RenegeAbort__new <- function(verbose) {
     .Call('simmer_RenegeAbort__new', PACKAGE = 'simmer', verbose)
 }
@@ -277,12 +285,12 @@ Send__new_func4 <- function(verbose, signals, delay, provide_attrs) {
     .Call('simmer_Send__new_func4', PACKAGE = 'simmer', verbose, signals, delay, provide_attrs)
 }
 
-Trap__new <- function(verbose, signals, trj) {
-    .Call('simmer_Trap__new', PACKAGE = 'simmer', verbose, signals, trj)
+Trap__new <- function(verbose, signals, trj, interruptible) {
+    .Call('simmer_Trap__new', PACKAGE = 'simmer', verbose, signals, trj, interruptible)
 }
 
-Trap__new_func <- function(verbose, signals, provide_attrs, trj) {
-    .Call('simmer_Trap__new_func', PACKAGE = 'simmer', verbose, signals, provide_attrs, trj)
+Trap__new_func <- function(verbose, signals, provide_attrs, trj, interruptible) {
+    .Call('simmer_Trap__new_func', PACKAGE = 'simmer', verbose, signals, provide_attrs, trj, interruptible)
 }
 
 UnTrap__new <- function(verbose, signals) {

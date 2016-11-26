@@ -23,6 +23,7 @@ t0 <- create_trajectory(verbose = TRUE) %>%
   batch(1) %>%
   separate() %>%
   renege_in(function() 1, create_trajectory(verbose = TRUE) %>% timeout(1)) %>%
+  renege_if(function() "1", create_trajectory(verbose = TRUE) %>% timeout(1)) %>%
   renege_abort() %>%
   send(function() "asdf", function() 0) %>%
   trap(function() "asdf", create_trajectory(verbose = TRUE) %>% timeout(1)) %>%
@@ -49,7 +50,8 @@ trajs <- c(create_trajectory(verbose = TRUE) %>% seize("nurse", 1),
            create_trajectory(verbose = TRUE) %>% activate(function() "dummy"),
            create_trajectory(verbose = TRUE) %>% deactivate(function() "dummy"),
            create_trajectory(verbose = TRUE) %>% set_trajectory(function() "dummy",
-                                                                create_trajectory(verbose = TRUE) %>% timeout(1)),
+                                                                create_trajectory(verbose = TRUE) %>%
+                                                                  timeout(1)),
            create_trajectory(verbose = TRUE) %>% set_distribution(function() "dummy", at(0)),
            create_trajectory(verbose = TRUE) %>% rollback(1),
            create_trajectory(verbose = TRUE) %>% clone(function() 2,
@@ -58,6 +60,8 @@ trajs <- c(create_trajectory(verbose = TRUE) %>% seize("nurse", 1),
            create_trajectory(verbose = TRUE) %>% batch(1),
            create_trajectory(verbose = TRUE) %>% separate(),
            create_trajectory(verbose = TRUE) %>% renege_in(function() 1,
+                                                           create_trajectory(verbose = TRUE) %>% timeout(1)),
+           create_trajectory(verbose = TRUE) %>% renege_if(function() "1",
                                                            create_trajectory(verbose = TRUE) %>% timeout(1)),
            create_trajectory(verbose = TRUE) %>% renege_abort(),
            create_trajectory(verbose = TRUE) %>% send(function() "asdf", function() 0),
@@ -69,7 +73,7 @@ trajs <- c(create_trajectory(verbose = TRUE) %>% seize("nurse", 1),
            create_trajectory(verbose = TRUE) %>% release_selected(1),
            create_trajectory(verbose = TRUE) %>% release("nurse", 1))
 
-N <- 29
+N <- 30
 
 test_that("the activity chain grows as expected", {
   head <- t0 %>% get_head()

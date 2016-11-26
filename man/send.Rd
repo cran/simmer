@@ -9,7 +9,7 @@
 \usage{
 send(.trj, signals, delay = 0)
 
-trap(.trj, signals, handler = NULL)
+trap(.trj, signals, handler = NULL, interruptible = TRUE)
 
 untrap(.trj, signals)
 
@@ -25,6 +25,8 @@ callable object (a function) which must return a string or a list of strings.}
 object (a function) which must return a numeric.}
 
 \item{handler}{optional trajectory object to handle a signal received.}
+
+\item{interruptible}{whether the handler can be interrupted by signals.}
 }
 \value{
 Returns the trajectory object.
@@ -37,5 +39,8 @@ the batch are ignored. Upon a signal reception, the arrival stops the current ac
 executes the handler (if provided). Then, the execution returns to the activity following the
 point of the interruption. \code{untrap()} can be used to unsubscribe from signals.
 \code{wait()} blocks until a signal is received.
+}
+\seealso{
+\code{\link{renege_if}}
 }
 
