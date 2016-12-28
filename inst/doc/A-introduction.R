@@ -11,7 +11,7 @@ env <- simmer("SuperDuperSim")
 env
 
 ## ------------------------------------------------------------------------
-patient <- create_trajectory("patients' path") %>%
+patient <- trajectory("patients' path") %>%
   ## add an intake activity 
   seize("nurse", 1) %>%
   timeout(function() rnorm(1, 15)) %>%
@@ -87,16 +87,4 @@ head(
 head(
   envs %>% get_mon_arrivals()
 )
-
-## ---- message=FALSE------------------------------------------------------
-plot_resource_utilization(envs, c("nurse", "doctor","administration"))
-
-## ---- message=FALSE------------------------------------------------------
-plot_resource_usage(envs, "doctor", items="server", steps=T)
-
-## ---- message=FALSE------------------------------------------------------
-plot_resource_usage(envs[[6]], "doctor", items="server", steps=T)
-
-## ---- message=FALSE------------------------------------------------------
-plot_evolution_arrival_times(envs, type = "flow_time")
 

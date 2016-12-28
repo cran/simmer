@@ -17,7 +17,7 @@ set.seed(42)
 env <- simmer()
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-car <- create_trajectory() %>%
+car <- trajectory() %>%
   log_("arrives at the carwash") %>%
   seize("wash", 1) %>%
   log_("enters the carwash") %>%
@@ -59,7 +59,7 @@ env <- simmer()
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 make_parts <- function(machine)
-  create_trajectory() %>%
+  trajectory() %>%
     set_attribute("parts", 0) %>%
     seize(machine, 1) %>%
     timeout(function() rnorm(1, PT_MEAN, PT_SIGMA)) %>%
@@ -67,7 +67,7 @@ make_parts <- function(machine)
     rollback(2, Inf) # go to 'timeout' over and over
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-other_jobs <- create_trajectory() %>%
+other_jobs <- trajectory() %>%
   seize("repairman", 1) %>%
   timeout(JOB_DURATION) %>%
   rollback(1, Inf)
@@ -75,7 +75,7 @@ other_jobs <- create_trajectory() %>%
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 machines <- paste0("machine", 1:NUM_MACHINES-1)
 
-failure <- create_trajectory() %>%
+failure <- trajectory() %>%
   select(machines, policy = "random") %>%
   seize_selected(1) %>%
   seize("repairman", 1) %>%
@@ -123,7 +123,7 @@ set.seed(42)
 env <- simmer()
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-moviegoer <- create_trajectory() %>%
+moviegoer <- trajectory() %>%
   # select a movie
   set_attribute("movie", function() sample(3, 1)) %>%
   select(function(attr) movies[attr["movie"]]) %>%
@@ -135,7 +135,7 @@ moviegoer <- create_trajectory() %>%
   seize("counter", 1) %>%
   # buy tickets
   seize_selected(function() sample(6, 1), continue = FALSE,
-                 reject = create_trajectory() %>%
+                 reject = trajectory() %>%
                    # not enough tickets, leave after some discussion
                    timeout(0.5) %>%
                    release("counter", 1)
@@ -146,7 +146,7 @@ moviegoer <- create_trajectory() %>%
   branch(function(attr) get_server_count(env, movies[attr["movie"]]) > (TICKETS - 2),
          continue = TRUE,
          # trigger the "sold out" event for the movie
-         create_trajectory() %>%
+         trajectory() %>%
            set_capacity_selected(0) %>%
            send(function(attr) paste0(movies[attr["movie"]], " sold out"))
   ) %>%
@@ -218,12 +218,12 @@ env <- simmer()
 GAS_STATION_LEVEL <- GAS_STATION_SIZE
 signal <- "gas station refilled"
 
-refuelling <- create_trajectory() %>%
+refuelling <- trajectory() %>%
   # check if there is enough fuel available
   branch(function(attr) FUEL_TANK_SIZE - attr["level"] > GAS_STATION_LEVEL, 
          continue = TRUE,
          # if not, block until the signal "gas station refilled" is received
-         create_trajectory() %>%
+         trajectory() %>%
            trap(signal) %>%
            wait() %>%
            untrap(signal)
@@ -236,7 +236,7 @@ refuelling <- create_trajectory() %>%
   })
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-car <- create_trajectory() %>%
+car <- trajectory() %>%
   set_attribute("start", function() now(env)) %>%
   set_attribute("level", function() 
     sample(FUEL_TANK_LEVEL[1]:FUEL_TANK_LEVEL[2], 1)) %>%
@@ -249,7 +249,7 @@ car <- create_trajectory() %>%
     paste0("finished refuelling in ", now(env) - attr["start"], " seconds"))
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-tank_truck <- create_trajectory() %>%
+tank_truck <- trajectory() %>%
   timeout(TANK_TRUCK_TIME) %>%
   log_("tank truck arriving at gas station") %>%
   log_(function() {
@@ -260,10 +260,10 @@ tank_truck <- create_trajectory() %>%
   send(signal)
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-controller <- create_trajectory() %>%
+controller <- trajectory() %>%
   branch(function() GAS_STATION_LEVEL / GAS_STATION_SIZE * 100 < THRESHOLD, 
          continue = TRUE,
-         create_trajectory() %>%
+         trajectory() %>%
            log_("calling the tank truck") %>%
            join(tank_truck)
   ) %>%

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar, Bart Smeets" />
 
-<meta name="date" content="2016-11-26" />
+<meta name="date" content="2016-12-27" />
 
 <title>Terminology</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Terminology</h1>
 <h4 class="author"><em>Iñaki Ucar, Bart Smeets</em></h4>
-<h4 class="date"><em>2016-11-26</em></h4>
+<h4 class="date"><em>2016-12-27</em></h4>
 
 
 
@@ -94,7 +94,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co"># create a trajectory &quot;my_trajectory&quot;</span>
 <span class="co"># this trajectory consists of 3 activities, a seize, timeout and release activity.</span>
 t0&lt;-
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;my_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;my_trajectory&quot;</span>) %&gt;%
 <span class="st">  </span><span class="co"># seize one unit of the resource called &quot;operator&quot;</span>
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="co"># spend some (stochastic) time holding that resource</span>

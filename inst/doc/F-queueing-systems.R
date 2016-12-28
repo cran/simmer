@@ -16,7 +16,7 @@ lambda <- 2
 mu <- 4
 rho <- lambda/mu # = 2/4
 
-mm1.trajectory <- create_trajectory() %>%
+mm1.trajectory <- trajectory() %>%
   seize("resource", amount=1) %>%
   timeout(function() rexp(1, mu)) %>%
   release("resource", amount=1)
@@ -84,7 +84,7 @@ abline(0, 1, lty=2, col="red")
 lambda <- 2
 mu <- 4
 
-mm23.trajectory <- create_trajectory() %>%
+mm23.trajectory <- trajectory() %>%
   seize("server", amount=1) %>%
   timeout(function() rexp(1, mu)) %>%
   release("server", amount=1)
@@ -104,4 +104,64 @@ mm23.t_system <- mm23.arrivals$end_time - mm23.arrivals$start_time
 # Comparison with M/M/1 times
 qqplot(mm1.t_system, mm23.t_system)
 abline(0, 1, lty=2, col="red")
+
+## ------------------------------------------------------------------------
+mean_pkt_size <- 100        # bytes
+lambda1 <- 2                # pkts/s
+lambda3 <- 0.5              # pkts/s
+lambda4 <- 0.6              # pkts/s
+rate <- 2.2 * mean_pkt_size # bytes/s
+
+# set an exponential message size of mean mean_pkt_size
+set_msg_size <- function(.)
+  set_attribute(., "size", function() rexp(1, 1/mean_pkt_size))
+
+# seize an M/D/1 queue by id; the timeout is function of the message size
+md1 <- function(., id)
+  seize(., paste0("md1_", id), 1) %>%
+  timeout(function(attrs) attrs[["size"]] / rate) %>%
+  release(paste0("md1_", id), 1)
+
+## ------------------------------------------------------------------------
+to_queue_1 <- trajectory() %>%
+  set_msg_size() %>%
+  md1(1) %>%
+  leave(0.25) %>%
+  md1(2) %>%
+  branch(function() (runif(1) > 0.65) + 1, c(F, F),
+         trajectory() %>%
+           md1(3),
+         trajectory() %>%
+           md1(4))
+
+to_queue_3 <- trajectory() %>%
+  set_msg_size() %>%
+  md1(3)
+
+to_queue_4 <- trajectory() %>%
+  set_msg_size() %>%
+  md1(4)
+
+## ------------------------------------------------------------------------
+env <- simmer()
+lapply(1:4, function(i) env %>% add_resource(paste0("md1_", i))) %>% invisible
+env %>%
+  add_generator("arrival1_", to_queue_1, function() rexp(1, lambda1), mon=2) %>%
+  add_generator("arrival3_", to_queue_3, function() rexp(1, lambda3), mon=2) %>%
+  add_generator("arrival4_", to_queue_4, function() rexp(1, lambda4), mon=2) %>%
+  run(4000)
+
+## ------------------------------------------------------------------------
+res <- get_mon_arrivals(env, per_resource = TRUE) %>%
+  dplyr::select(name, resource) %>%
+  filter(resource %in% c("md1_3", "md1_4"))
+arr <- get_mon_arrivals(env) %>%
+  mutate(waiting_time = end_time - (start_time + activity_time),
+         generator = regmatches(name, regexpr("arrival[[:digit:]]", name))) %>%
+  left_join(res) %>%
+  group_by(generator, resource)
+
+summarise(arr, average = sum(waiting_time) / n())
+get_n_generated(env, "arrival1_") + get_n_generated(env, "arrival4_")
+count(arr)
 

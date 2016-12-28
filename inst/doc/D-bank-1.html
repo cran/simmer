@@ -12,7 +12,7 @@
 
 <meta name="author" content="Duncan Garmonsway" />
 
-<meta name="date" content="2016-11-26" />
+<meta name="date" content="2016-12-27" />
 
 <title>The Bank Tutorial: Part I</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">The Bank Tutorial: Part I</h1>
 <h4 class="author"><em>Duncan Garmonsway</em></h4>
-<h4 class="date"><em>2016-11-26</em></h4>
+<h4 class="date"><em>2016-12-27</em></h4>
 
 
 <div id="TOC">
@@ -112,7 +112,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simmer)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">10</span>) 
 
 bank &lt;-<span class="st"> </span>
@@ -136,7 +136,7 @@ bank %&gt;%<span class="st"> </span>get_mon_arrivals
 <span class="kw">set.seed</span>(<span class="dv">10212</span>)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">10</span>) 
 
 bank &lt;-<span class="st"> </span>
@@ -196,7 +196,7 @@ loop &lt;-<span class="st"> </span>function(...) {
   }
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="kw">loop</span>(<span class="dv">10</span>, <span class="dv">7</span>, <span class="dv">20</span>))
 
 bank &lt;-<span class="st"> </span>
@@ -220,7 +220,7 @@ bank %&gt;%<span class="st"> </span>get_mon_arrivals
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simmer)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">12</span>) 
 
 bank &lt;-<span class="st"> </span>
@@ -248,7 +248,7 @@ bank %&gt;%<span class="st"> </span>get_mon_arrivals
 <span class="kw">set.seed</span>(<span class="dv">1289</span>)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">12</span>) 
 
 bank &lt;-<span class="st"> </span>
@@ -281,7 +281,7 @@ bank %&gt;%<span class="st"> </span>get_mon_arrivals
 <span class="kw">set.seed</span>(<span class="dv">99999</span>)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">12</span>) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>)
@@ -322,7 +322,7 @@ bank %&gt;%<span class="st"> </span>
 <span class="kw">set.seed</span>(<span class="dv">99999</span>)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
 <span class="st">  </span><span class="co"># timeout(rexp(1, 1/12)) %&gt;% # This line would use the same time for everyone</span>
@@ -368,7 +368,7 @@ bank %&gt;%<span class="st"> </span>
 <span class="kw">set.seed</span>(<span class="dv">99999</span>)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
 <span class="st">  </span><span class="co"># timeout(rexp(1, 1/12)) %&gt;% # This line would use the same time for everyone</span>
@@ -411,7 +411,7 @@ bank %&gt;%<span class="st"> </span>
 <span class="kw">set.seed</span>(<span class="dv">1014</span>)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span>simmer::<span class="kw">select</span>(<span class="kw">c</span>(<span class="st">&quot;counter1&quot;</span>, <span class="st">&quot;counter2&quot;</span>), <span class="dt">policy =</span> <span class="st">&quot;shortest-queue&quot;</span>) %&gt;%
 <span class="st">  </span>seize_selected %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
@@ -481,7 +481,7 @@ bank %&gt;%<span class="st"> </span>
 <span class="kw">set.seed</span>(<span class="dv">100005</span>)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>)
@@ -512,7 +512,7 @@ result &lt;-<span class="st"> </span>
 <span class="kw">library</span>(parallel)
 
 customer &lt;-<span class="st"> </span>
-<span class="st">  </span><span class="kw">create_trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;Customer's path&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>)

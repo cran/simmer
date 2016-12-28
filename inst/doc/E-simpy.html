@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2016-11-26" />
+<meta name="date" content="2016-12-27" />
 
 <title>Other SimPy Examples</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Other SimPy Examples</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2016-11-26</em></h4>
+<h4 class="date"><em>2016-12-27</em></h4>
 
 
 <div id="TOC">
@@ -111,7 +111,7 @@ SIM_TIME &lt;-<span class="st"> </span><span class="dv">20</span>     <span clas
 <span class="kw">set.seed</span>(<span class="dv">42</span>)
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre></div>
 <p>The implementation with <code>simmer</code> is as simple as defining the trajectory each arriving <code>car</code> will share and follow. This trajectory comprises seizing a wash machine, spending some time and releasing it. The process takes <code>WASHTIME</code> and removes some random percentage of dirt between 50 and 90%. The <code>log_()</code> messages are merely illustrative.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;arrives at the carwash&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;wash&quot;</span>, <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;enters the carwash&quot;</span>) %&gt;%
@@ -190,21 +190,21 @@ SIM_TIME &lt;-<span class="st"> </span>WEEKS *<span class="st"> </span><span cla
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre></div>
 <p>The <code>make_parts</code> trajectory defines a machine’s operating loop. A worker seizes the machine and starts manufacturing and counting parts in an infinite loop. Provided we want more than one machine, we parametrise the trajectory as a function of the machine:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">make_parts &lt;-<span class="st"> </span>function(machine)
-  <span class="kw">create_trajectory</span>() %&gt;%
+  <span class="kw">trajectory</span>() %&gt;%
 <span class="st">    </span><span class="kw">set_attribute</span>(<span class="st">&quot;parts&quot;</span>, <span class="dv">0</span>) %&gt;%
 <span class="st">    </span><span class="kw">seize</span>(machine, <span class="dv">1</span>) %&gt;%
 <span class="st">    </span><span class="kw">timeout</span>(function() <span class="kw">rnorm</span>(<span class="dv">1</span>, PT_MEAN, PT_SIGMA)) %&gt;%
 <span class="st">    </span><span class="kw">set_attribute</span>(<span class="st">&quot;parts&quot;</span>, function(attr) attr[<span class="st">&quot;parts&quot;</span>] +<span class="st"> </span><span class="dv">1</span>) %&gt;%
 <span class="st">    </span><span class="kw">rollback</span>(<span class="dv">2</span>, <span class="ot">Inf</span>) <span class="co"># go to 'timeout' over and over</span></code></pre></div>
 <p>Repairman’s <em>unimportant</em> jobs may be modelled in the same way (without the accounting part):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">other_jobs &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">other_jobs &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(JOB_DURATION) %&gt;%
 <span class="st">  </span><span class="kw">rollback</span>(<span class="dv">1</span>, <span class="ot">Inf</span>)</code></pre></div>
 <p>Failures are high-priority arrivals, both for the machines and for the repairman. Each random generated failure will randomly select and seize (break) a machine, and will seize (call) the repairman. After the machine is repaired, both resources are released and the corresponding workers begin where they left.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">machines &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;machine&quot;</span>, <span class="dv">1</span>:NUM_MACHINES<span class="dv">-1</span>)
 
-failure &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+failure &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">select</span>(machines, <span class="dt">policy =</span> <span class="st">&quot;random&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize_selected</span>(<span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) %&gt;%
@@ -296,7 +296,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 <li>Enjoy the movie!</li>
 </ol>
 <p>This recipe is directly translated into a <code>simmer</code> trajectory as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">moviegoer &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">moviegoer &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="co"># select a movie</span>
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;movie&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">3</span>, <span class="dv">1</span>)) %&gt;%
 <span class="st">  </span><span class="kw">select</span>(function(attr) movies[attr[<span class="st">&quot;movie&quot;</span>]]) %&gt;%
@@ -308,7 +308,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="co"># buy tickets</span>
 <span class="st">  </span><span class="kw">seize_selected</span>(function() <span class="kw">sample</span>(<span class="dv">6</span>, <span class="dv">1</span>), <span class="dt">continue =</span> <span class="ot">FALSE</span>,
-                 <span class="dt">reject =</span> <span class="kw">create_trajectory</span>() %&gt;%
+                 <span class="dt">reject =</span> <span class="kw">trajectory</span>() %&gt;%
 <span class="st">                   </span><span class="co"># not enough tickets, leave after some discussion</span>
 <span class="st">                   </span><span class="kw">timeout</span>(<span class="fl">0.5</span>) %&gt;%
 <span class="st">                   </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>)
@@ -319,7 +319,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 <span class="st">  </span><span class="kw">branch</span>(function(attr) <span class="kw">get_server_count</span>(env, movies[attr[<span class="st">&quot;movie&quot;</span>]]) &gt;<span class="st"> </span>(TICKETS -<span class="st"> </span><span class="dv">2</span>),
          <span class="dt">continue =</span> <span class="ot">TRUE</span>,
          <span class="co"># trigger the &quot;sold out&quot; event for the movie</span>
-         <span class="kw">create_trajectory</span>() %&gt;%
+         <span class="kw">trajectory</span>() %&gt;%
 <span class="st">           </span><span class="kw">set_capacity_selected</span>(<span class="dv">0</span>) %&gt;%
 <span class="st">           </span><span class="kw">send</span>(function(attr) <span class="kw">paste0</span>(movies[attr[<span class="st">&quot;movie&quot;</span>]], <span class="st">&quot; sold out&quot;</span>))
   ) %&gt;%
@@ -422,12 +422,12 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">GAS_STATION_LEVEL &lt;-<span class="st"> </span>GAS_STATION_SIZE
 signal &lt;-<span class="st"> &quot;gas station refilled&quot;</span>
 
-refuelling &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+refuelling &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="co"># check if there is enough fuel available</span>
 <span class="st">  </span><span class="kw">branch</span>(function(attr) FUEL_TANK_SIZE -<span class="st"> </span>attr[<span class="st">&quot;level&quot;</span>] &gt;<span class="st"> </span>GAS_STATION_LEVEL, 
          <span class="dt">continue =</span> <span class="ot">TRUE</span>,
          <span class="co"># if not, block until the signal &quot;gas station refilled&quot; is received</span>
-         <span class="kw">create_trajectory</span>() %&gt;%
+         <span class="kw">trajectory</span>() %&gt;%
 <span class="st">           </span><span class="kw">trap</span>(signal) %&gt;%
 <span class="st">           </span><span class="kw">wait</span>() %&gt;%
 <span class="st">           </span><span class="kw">untrap</span>(signal)
@@ -439,7 +439,7 @@ refuelling &lt;-<span class="st"> </span><span class="kw">create_trajectory</spa
     <span class="kw">return</span>(liters_required /<span class="st"> </span>REFUELING_SPEED)
   })</code></pre></div>
 <p>Now a car’s trajectory is straightforward. First, the starting time is saved as well as the tank level. Then, the car seizes a pump, refuels and leaves.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;start&quot;</span>, function() <span class="kw">now</span>(env)) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;level&quot;</span>, function() 
     <span class="kw">sample</span>(FUEL_TANK_LEVEL[<span class="dv">1</span>]:FUEL_TANK_LEVEL[<span class="dv">2</span>], <span class="dv">1</span>)) %&gt;%
@@ -451,7 +451,7 @@ refuelling &lt;-<span class="st"> </span><span class="kw">create_trajectory</spa
 <span class="st">  </span><span class="kw">log_</span>(function(attr) 
     <span class="kw">paste0</span>(<span class="st">&quot;finished refuelling in &quot;</span>, <span class="kw">now</span>(env) -<span class="st"> </span>attr[<span class="st">&quot;start&quot;</span>], <span class="st">&quot; seconds&quot;</span>))</code></pre></div>
 <p>The tank truck takes some time to arrive. Then, the gas station is completely refilled and the signal “gas station refilled” is sent to the blocked cars.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tank_truck &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tank_truck &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(TANK_TRUCK_TIME) %&gt;%
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;tank truck arriving at gas station&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">log_</span>(function() {
@@ -461,10 +461,10 @@ refuelling &lt;-<span class="st"> </span><span class="kw">create_trajectory</spa
   }) %&gt;%
 <span class="st">  </span><span class="kw">send</span>(signal)</code></pre></div>
 <p>The controller periodically checks the <code>GAS_STATION_LEVEL</code> and calls the tank truck when needed.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">controller &lt;-<span class="st"> </span><span class="kw">create_trajectory</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">controller &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">branch</span>(function() GAS_STATION_LEVEL /<span class="st"> </span>GAS_STATION_SIZE *<span class="st"> </span><span class="dv">100</span> &lt;<span class="st"> </span>THRESHOLD, 
          <span class="dt">continue =</span> <span class="ot">TRUE</span>,
-         <span class="kw">create_trajectory</span>() %&gt;%
+         <span class="kw">trajectory</span>() %&gt;%
 <span class="st">           </span><span class="kw">log_</span>(<span class="st">&quot;calling the tank truck&quot;</span>) %&gt;%
 <span class="st">           </span><span class="kw">join</span>(tank_truck)
   ) %&gt;%

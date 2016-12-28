@@ -1,30 +1,30 @@
 Package: simmer
 Type: Package
-Version: 3.5.1
 Title: Discrete-Event Simulation for R
+Version: 3.6.0
+Authors@R: c(
+    person("Iñaki", "Ucar", email="i.ucar86@gmail.com", role=c("aut", "cph", "cre")),
+    person("Bart", "Smeets", email="bartsmeets86@gmail.com", role=c("aut", "cph")))
 Description: A process-oriented and trajectory-based Discrete-Event Simulation
     (DES) package for R. Designed to be a generic framework, it leverages the
     power of 'Rcpp' to boost the performance, turning DES in R feasible. As a
     noteworthy characteristic, 'simmer' exploits the concept of trajectory: a
     common path in the simulation model for entities of the same type.
+License: MIT + file LICENSE
 Encoding: UTF-8
-Authors@R: c(
-    person("Iñaki", "Ucar", email="i.ucar86@gmail.com", role=c("aut", "cph", "cre")),
-    person("Bart", "Smeets", email="bartsmeets86@gmail.com", role=c("aut", "cph")))
 URL: http://r-simmer.org, https://github.com/r-simmer/simmer
 BugReports: https://github.com/r-simmer/simmer/issues
 Depends: R (>= 3.1.2)
 Imports: Rcpp, R6, magrittr, methods, utils
 Suggests: parallel, dplyr, tidyr, ggplot2, scales, testthat, knitr,
         rmarkdown, covr
-LinkingTo: Rcpp (>= 0.12.0), BH (>= 1.58.0-1)
-License: MIT + file LICENSE
+LinkingTo: Rcpp (>= 0.12.8), BH (>= 1.62.0-1)
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2016-11-26 00:50:13 UTC; inaki
+Packaged: 2016-12-27 19:05:47 UTC; inaki
 Author: Iñaki Ucar [aut, cph, cre],
   Bart Smeets [aut, cph]
 Maintainer: Iñaki Ucar <i.ucar86@gmail.com>
 Repository: CRAN
-Date/Publication: 2016-11-26 12:53:08
+Date/Publication: 2016-12-28 01:58:50

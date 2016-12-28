@@ -29,12 +29,12 @@ N_average_theor <- sum(P * c(1, 0, 1)) ; N_average_theor
 
 ## ------------------------------------------------------------------------
 option.1 <- function(t) {
-  car <- create_trajectory() %>%
+  car <- trajectory() %>%
     seize("pump", amount=1) %>%
     timeout(function() rexp(1, mu[1])) %>%
     release("pump", amount=1)
   
-  mcycle <- create_trajectory() %>%
+  mcycle <- trajectory() %>%
     seize("pump", amount=1) %>%
     timeout(function() rexp(1, mu[2])) %>%
     release("pump", amount=1)
@@ -48,12 +48,12 @@ option.1 <- function(t) {
 
 ## ------------------------------------------------------------------------
 option.2 <- function(t) {
-  vehicle <- create_trajectory() %>%
+  vehicle <- trajectory() %>%
     seize("pump", amount=1) %>%
     branch(function() sample(c(1, 2), 1, prob=c(p, 1-p)), c(T, T), 
-           create_trajectory("car") %>%
+           trajectory("car") %>%
              timeout(function() rexp(1, mu[1])),
-           create_trajectory("mcycle") %>%
+           trajectory("mcycle") %>%
              timeout(function() rexp(1, mu[2]))) %>%
     release("pump", amount=1)
   
@@ -65,7 +65,7 @@ option.2 <- function(t) {
 
 ## ------------------------------------------------------------------------
 option.3 <- function(t) {
-  vehicle <- create_trajectory() %>%
+  vehicle <- trajectory() %>%
     seize("pump", amount=1) %>%
     timeout(function() {
       if (runif(1) < p) rexp(1, mu[1])  # car
@@ -111,7 +111,7 @@ N_average_theor <- sum(P * c(2, 1, 0, 1, 2)) ; N_average_theor
 
 ## ------------------------------------------------------------------------
 option.1 <- function(t) {
-  car <- create_trajectory() %>%
+  car <- trajectory() %>%
     seize("pump", amount=function() {
       if (env %>% get_server_count("pump")) 2  # rejection
       else 1                                   # serve
@@ -119,7 +119,7 @@ option.1 <- function(t) {
     timeout(function() rexp(1, mu[1])) %>%
     release("pump", amount=1)
   
-  mcycle <- create_trajectory() %>%
+  mcycle <- trajectory() %>%
     seize("pump", amount=1) %>%
     timeout(function() rexp(1, mu[2])) %>%
     release("pump", amount=1)
@@ -133,16 +133,16 @@ option.1 <- function(t) {
 
 ## ------------------------------------------------------------------------
 option.2 <- function(t) {
-  vehicle <- create_trajectory() %>%
+  vehicle <- trajectory() %>%
     branch(function() sample(c(1, 2), 1, prob=c(p, 1-p)), c(F, F), 
-           create_trajectory("car") %>%
+           trajectory("car") %>%
              seize("pump", amount=function() {
                if (env %>% get_server_count("pump")) 2  # rejection
                else 1                                   # serve
              }) %>%
              timeout(function() rexp(1, mu[1])) %>%
              release("pump", amount=1),                 # always 1
-           create_trajectory("mcycle") %>%
+           trajectory("mcycle") %>%
              seize("pump", amount=1) %>%
              timeout(function() rexp(1, mu[2])) %>%
              release("pump", amount=1))
@@ -155,7 +155,7 @@ option.2 <- function(t) {
 
 ## ------------------------------------------------------------------------
 option.3 <- function(t) {
-  vehicle <- create_trajectory("car") %>%
+  vehicle <- trajectory("car") %>%
     set_attribute("vehicle", function() sample(c(1, 2), 1, prob=c(p, 1-p))) %>%
     seize("pump", amount=function(attrs) {
       if (attrs["vehicle"] == 1 &&
@@ -173,13 +173,13 @@ option.3 <- function(t) {
 
 ## ------------------------------------------------------------------------
 option.4 <- function(t) {
-  vehicle <- create_trajectory() %>%
+  vehicle <- trajectory() %>%
     branch(function() sample(c(1, 2), 1, prob=c(p, 1-p)), c(F, F), 
-           create_trajectory("car") %>%
+           trajectory("car") %>%
              seize("pump", amount=3) %>%
              timeout(function() rexp(1, mu[1])) %>%
              release("pump", amount=3),
-           create_trajectory("mcycle") %>%
+           trajectory("mcycle") %>%
              seize("pump", amount=2) %>%
              timeout(function() rexp(1, mu[2])) %>%
              release("pump", amount=2))
@@ -192,12 +192,12 @@ option.4 <- function(t) {
 
 ## ------------------------------------------------------------------------
 option.5 <- function(t) {
-  car <- create_trajectory() %>%
+  car <- trajectory() %>%
     seize("pump", amount=3) %>%
     timeout(function() rexp(1, mu[1])) %>%
     release("pump", amount=3)
   
-  mcycle <- create_trajectory() %>%
+  mcycle <- trajectory() %>%
     seize("pump", amount=2) %>%
     timeout(function() rexp(1, mu[2])) %>%
     release("pump", amount=2)

@@ -16,8 +16,8 @@ bool Process::deactivate() {
 }
 
 void Generator::set_first_activity() {
-  Rcpp::Function get_head(trj["get_head"]);
-  first_activity = Rcpp::as<Rcpp::XPtr<Activity> >(get_head());
+  Rcpp::Function head(trj["head"]);
+  first_activity = Rcpp::as<Rcpp::XPtr<Activity> >(head());
 }
 
 void Generator::run() {
@@ -103,7 +103,7 @@ void Arrival::run() {
       FMT(10, right) << sim->now() << " |" <<
       FMT(12, right) << "arrival: " << FMT(15, left) << name << "|" <<
       FMT(12, right) << "activity: " << FMT(15, left) << activity->name << "| ";
-    activity->print(0, true);
+    activity->print(0, false, true);
   }
 
   active = false;

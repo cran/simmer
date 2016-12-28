@@ -8,7 +8,7 @@ theme_set(theme_bw())
 library(simmer)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   timeout(10) 
 
 bank <- 
@@ -24,7 +24,7 @@ library(simmer)
 set.seed(10212)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   timeout(10) 
 
 bank <- 
@@ -70,7 +70,7 @@ loop <- function(...) {
   }
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   timeout(loop(10, 7, 20))
 
 bank <- 
@@ -84,7 +84,7 @@ bank %>% get_mon_arrivals
 library(simmer)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   timeout(12) 
 
 bank <- 
@@ -101,7 +101,7 @@ library(simmer)
 set.seed(1289)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   timeout(12) 
 
 bank <- 
@@ -118,7 +118,7 @@ library(simmer)
 set.seed(99999)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   seize("counter") %>%
   timeout(12) %>%
   release("counter")
@@ -140,7 +140,7 @@ library(simmer)
 set.seed(99999)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   # timeout(rexp(1, 1/12)) %>% # This line would use the same time for everyone
@@ -163,7 +163,7 @@ library(simmer)
 set.seed(99999)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   # timeout(rexp(1, 1/12)) %>% # This line would use the same time for everyone
@@ -186,7 +186,7 @@ library(simmer)
 set.seed(1014)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   simmer::select(c("counter1", "counter2"), policy = "shortest-queue") %>%
   seize_selected %>%
   timeout(function() {rexp(1, 1/12)}) %>%
@@ -214,7 +214,7 @@ library(simmer)
 set.seed(100005)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   release("counter")
@@ -238,7 +238,7 @@ library(simmer)
 library(parallel)
 
 customer <- 
-  create_trajectory("Customer's path") %>%
+  trajectory("Customer's path") %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   release("counter")
