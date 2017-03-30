@@ -61,9 +61,9 @@ create_trajectory <- function(name="anonymous", verbose=FALSE) { # nocov start
   trajectory(name, verbose)
 } # nocov end
 
-#' Extract parts of a trajectory
+#' Extract or replace parts of a trajectory
 #'
-#' Operators acting on trajectories.
+#' Operators acting on trajectories to extract or replace parts.
 #'
 #' @param x the trajectory object.
 #' @param i indices specifying elements to extract. Indices are \code{numeric} or \code{character}
@@ -75,26 +75,44 @@ create_trajectory <- function(name="anonymous", verbose=FALSE) { # nocov start
 #' Character vectors will be matched to the names of the activities in the trajectory as by
 #' \code{\link{\%in\%}}.
 #'
-#' Logical vectors indicate elements/slices to select. Such vectors are NOT recycled to match the
-#' corresponding extent.
+#' Logical vectors indicate elements/slices to select. Such vectors are recycled if necessary to
+#' match the corresponding extent.
 #'
 #' An empty index will return the whole trajectory.
 #'
 #' An index value of \code{NULL} is treated as if it were \code{integer(0)}.
+#' @param value another trajectory object.
 #'
 #' @return Returns a new trajectory object.
 #' @seealso \code{\link{length.trajectory}}, \code{\link{get_n_activities}}, \code{\link{join}}.
 #'
-#' @name Extract
+#' @name Extract.trajectory
 #' @export
 `[.trajectory` <- function(x, i) x$subset(i)
 
-#' @rdname Extract
+#' @rdname Extract.trajectory
 #' @export
 `[[.trajectory` <- function(x, i) {
   stopifnot(length(i) == 1L)
   stopifnot(is.character(i) | (is.numeric(i) & i > 0))
-  x$subset(i)$subset(1)
+  x$subset(i, double=TRUE)
+}
+
+#' @rdname Extract.trajectory
+#' @export
+`[<-.trajectory` <- function(x, i, value) {
+  stopifnot(inherits(value, "trajectory"))
+  x$replace(i, value)
+}
+
+#' @rdname Extract.trajectory
+#' @export
+`[[<-.trajectory` <- function(x, i, value) {
+  stopifnot(length(i) == 1L)
+  stopifnot(inherits(value, "trajectory"))
+  stopifnot(length(value) == 1L)
+  stopifnot(is.character(i) | (is.numeric(i) & i > 0))
+  x$replace(i, value, double=TRUE)
 }
 
 #' Number of activities in a trajectory
@@ -103,16 +121,15 @@ create_trajectory <- function(name="anonymous", verbose=FALSE) { # nocov start
 #' of first-level activities (sub-trajectories not included). \code{get_n_activities}
 #' returns the total number of activities (sub-trajectories included).
 #'
-#' @inheritParams Extract
+#' @inheritParams Extract.trajectory
 #'
 #' @return Returns a non-negative integer of length 1.
 #' @seealso \code{\link{[.trajectory}}, \code{\link{[[.trajectory}}, \code{\link{join}}.
 #'
-#' @name length
 #' @export
 length.trajectory <- function(x) x$length()
 
-#' @rdname length
+#' @rdname length.trajectory
 #' @export
 get_n_activities <- function(x) UseMethod("get_n_activities")
 
@@ -149,3 +166,6 @@ join.trajectory <- function(...) {
   for (i in traj[-1]) traj[[1]] <- traj[[1]]$join(i)
   traj[[1]]
 }
+
+#' @export
+rep.trajectory <- function(x, ...) x$rep(...)

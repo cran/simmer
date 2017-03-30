@@ -1,4 +1,0 @@
- - change default behavior of `seize` and `release` (release 4.0.0?, see issues #25, #27)
- - split resource into queue and server (release 4.0.0?)
- - add_container (see simpy.resources.container)
- - add_store (see simpy.resources.store)

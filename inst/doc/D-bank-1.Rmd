@@ -14,8 +14,11 @@ vignette: >
 ```{r, cache = FALSE, include=FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
+
+required <- c("dplyr")
+
+if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+  knitr::opts_chunk$set(eval = FALSE)
 ```
 
 ## Introduction
@@ -24,7 +27,7 @@ This tutorial is adapted from a tutorial for the Python 2 package 'SimPy',
 [here](https://pythonhosted.org/SimPy/Tutorials/TheBank.html).  Users familiar
 with SimPy may find this tutorial helpful for transitioning to simmer.  Some
 very basic material is not covered.  Beginners should first read the vignettes
-'Introduction', 'Terminology' and 'Advanced Trajectory Usage'.
+[_Introduction to simmer_](A-introduction.html), [_Terminology_](B-terminology.html) and [_Advanced Trajectory Usage_](C-trajectories.html).
 
 ## A single customer
 
@@ -276,7 +279,6 @@ Since the activity trace does not produce the waiting time by default, this is
 calculated and appended using the `mutate` function in the dplyr package.
 
 ```{r, message = FALSE}
-library(dplyr)
 library(simmer)
 
 set.seed(99999)
@@ -295,7 +297,7 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 ```
 
 Examining the trace we see that the first customer gets instant service but the
@@ -312,7 +314,6 @@ Note that the argument to `timeout` must be a function, otherwise it would apply
 a constant timeout to every customer.
 
 ```{r, message = FALSE}
-library(dplyr)
 library(simmer)
 
 set.seed(99999)
@@ -332,7 +333,7 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 ```
 
 This model with random arrivals and exponential service times is an example of
@@ -359,7 +360,6 @@ The only difference between this model and the single-server model is in the
 can serve two customers at once.
 
 ```{r, message = FALSE}
-library(dplyr)
 library(simmer)
 
 set.seed(99999)
@@ -379,7 +379,7 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 ```
 
 The waiting times in this model are much shorter than those for the single
@@ -395,21 +395,19 @@ technique is to make each counter a separate resource.
 
 In practice, a customer might join the shortest queue.  We implement this
 behaviour by first selecting the shortest queue, using the `select` function.
-(This is prefixed `simmer::select` to avoid clashes with the dplyr package).
 Then we use `seize_selected` to enter the chosen queue, and later
 `release_selected`.
 
 The rest of the program is the same as before.
 
 ```{r, message = FALSE}
-library(dplyr)
 library(simmer)
 
 set.seed(1014)
 
 customer <- 
   trajectory("Customer's path") %>%
-  simmer::select(c("counter1", "counter2"), policy = "shortest-queue") %>%
+  select(c("counter1", "counter2"), policy = "shortest-queue") %>%
   seize_selected %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   release_selected
@@ -423,11 +421,11 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(service_start_time = end_time - activity_time) %>%
-  arrange(start_time)
+  dplyr::mutate(service_start_time = end_time - activity_time) %>%
+  dplyr::arrange(start_time)
 bank %>% 
   get_mon_resources %>%
-  arrange(time)
+  dplyr::arrange(time)
 ```
 
 The results show that the customers chose the counter with the smallest number.
@@ -448,7 +446,6 @@ We also increase the number of customers to 50 (find the number '49' in the
 code.code).
 
 ```{r, message = FALSE}
-library(dplyr)
 library(simmer)
 
 set.seed(100005)
@@ -468,7 +465,7 @@ bank %>% run(until = 400)
 result <- 
   bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 paste("Average wait for ", sum(result$finished), " completions was ",
       mean(result$waiting_time), "minutes.")
 ```
@@ -488,7 +485,6 @@ cores in the computer's processor.  Because we use seeds for reproducability, we
 pass these to the function that runs the simulation (`function(the_seed)`).
 
 ```{r, message = FALSE}
-library(dplyr)
 library(simmer)
 library(parallel)
 
@@ -510,10 +506,10 @@ mclapply(c(393943, 100005, 777999555, 319999772), function(the_seed) {
   result <- 
     bank %>% 
     get_mon_arrivals %>%
-    mutate(waiting_time = end_time - start_time - activity_time)
+    dplyr::mutate(waiting_time = end_time - start_time - activity_time)
   paste("Average wait for ", sum(result$finished), " completions was ",
         mean(result$waiting_time), "minutes.")
-})
+}) %>% unlist()
 ```
 
 The results show some variation. Remember, though, that the system is still only

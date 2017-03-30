@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2016-12-27" />
+<meta name="date" content="2017-03-30" />
 
 <title>Introduction to simmer</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to simmer</h1>
 <h4 class="author"><em>Bart Smeets, Iñaki Ucar</em></h4>
-<h4 class="date"><em>2016-12-27</em></h4>
+<h4 class="date"><em>2017-03-30</em></h4>
 
 
 <div id="TOC">
@@ -104,7 +104,7 @@ env
 <span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">rnorm</span>(<span class="dv">1</span>, <span class="dv">5</span>)) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;administration&quot;</span>, <span class="dv">1</span>)</code></pre></div>
 <p>In this case, the argument of the <code>timeout</code> activity is a function, which is evaluated dynamically to produce an stochastic waiting time, but it could be a constant too. Apart from that, this function may be as complex as you need and may do whatever you want: interact with entities in your simulation model, get resources’ status, make decisions according to the latter…</p>
-<p>Once the trajectory is known, you may attach arrivals to it and define the resources needed. In the example below, three types of resources are added: the <em>nurse</em> and <em>administration</em> resources, each one with a capacity of 1, and the <em>doctor</em> resource, with a capacity of 2. The last method adds a generator of arrivals (patients) following the trajectory <code>t0</code>. The time between patients is about 10 minutes (a Gaussian of <code>mean=10</code> and <code>sd=2</code>). (Note: returning a negative interarrival time at some point would stop the generator).</p>
+<p>Once the trajectory is known, you may attach arrivals to it and define the resources needed. In the example below, three types of resources are added: the <em>nurse</em> and <em>administration</em> resources, each one with a capacity of 1, and the <em>doctor</em> resource, with a capacity of 2. The last method adds a generator of arrivals (patients) following the trajectory <code>patient</code>. The time between patients is about 10 minutes (a Gaussian of <code>mean=10</code> and <code>sd=2</code>). (Note: returning a negative interarrival time at some point would stop the generator).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%
 <span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;nurse&quot;</span>, <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dv">2</span>) %&gt;%
@@ -117,37 +117,37 @@ env
 <span class="co">#&gt; { Generator: patient | monitored: 1 | n_generated: 0 }</span></code></pre></div>
 <p>The simulation is now ready for a test run; just let it <em>simmer</em> for a bit. Below, we specify that we want to limit the runtime to 80 time units using the <code>until</code> argument. After that, we verify the current simulation time (<code>now</code>) and when will be the next 3 events (<code>peek</code>).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dt">until=</span><span class="dv">80</span>)
-<span class="co">#&gt; simmer environment: SuperDuperSim | now: 80 | next: 80.3742672889814</span>
-<span class="co">#&gt; { Resource: nurse | monitored: 1 | server status: 1(1) | queue status: 2(Inf) }</span>
+<span class="co">#&gt; simmer environment: SuperDuperSim | now: 80 | next: 83.0274583880121</span>
+<span class="co">#&gt; { Resource: nurse | monitored: 1 | server status: 1(1) | queue status: 3(Inf) }</span>
 <span class="co">#&gt; { Resource: doctor | monitored: 1 | server status: 1(2) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Resource: administration | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: patient | monitored: 1 | n_generated: 8 }</span>
+<span class="co">#&gt; { Resource: administration | monitored: 1 | server status: 1(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Generator: patient | monitored: 1 | n_generated: 9 }</span>
 env %&gt;%<span class="st"> </span><span class="kw">now</span>()
 <span class="co">#&gt; [1] 80</span>
 env %&gt;%<span class="st"> </span><span class="kw">peek</span>(<span class="dv">3</span>)
-<span class="co">#&gt; [1] 80.37427 80.37427 82.44846</span></code></pre></div>
+<span class="co">#&gt; [1] 83.02746 88.96784 89.96295</span></code></pre></div>
 <p>It is possible to run the simulation step by step, and such a method is chainable too.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%<span class="st"> </span><span class="kw">onestep</span>()
-<span class="co">#&gt; simmer environment: SuperDuperSim | now: 80.3742672889814 | next: 80.3742672889814</span>
-<span class="co">#&gt; { Resource: nurse | monitored: 1 | server status: 1(1) | queue status: 2(Inf) }</span>
+<span class="co">#&gt; simmer environment: SuperDuperSim | now: 83.0274583880121 | next: 83.0274583880121</span>
+<span class="co">#&gt; { Resource: nurse | monitored: 1 | server status: 1(1) | queue status: 3(Inf) }</span>
 <span class="co">#&gt; { Resource: doctor | monitored: 1 | server status: 1(2) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: administration | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: patient | monitored: 1 | n_generated: 9 }</span>
 env %&gt;%<span class="st"> </span><span class="kw">onestep</span>() %&gt;%<span class="st"> </span><span class="kw">onestep</span>() %&gt;%<span class="st"> </span><span class="kw">onestep</span>()
-<span class="co">#&gt; simmer environment: SuperDuperSim | now: 82.448463357404 | next: 82.448463357404</span>
-<span class="co">#&gt; { Resource: nurse | monitored: 1 | server status: 1(1) | queue status: 2(Inf) }</span>
+<span class="co">#&gt; simmer environment: SuperDuperSim | now: 88.9678448570596 | next: 88.9678448570596</span>
+<span class="co">#&gt; { Resource: nurse | monitored: 1 | server status: 0(1) | queue status: 3(Inf) }</span>
 <span class="co">#&gt; { Resource: doctor | monitored: 1 | server status: 1(2) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: administration | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: patient | monitored: 1 | n_generated: 9 }</span>
 env %&gt;%<span class="st"> </span><span class="kw">now</span>()
-<span class="co">#&gt; [1] 82.44846</span>
+<span class="co">#&gt; [1] 88.96784</span>
 env %&gt;%<span class="st"> </span><span class="kw">peek</span>(<span class="ot">Inf</span>, <span class="dt">verbose=</span><span class="ot">TRUE</span>)
-<span class="co">#&gt;       time  process</span>
-<span class="co">#&gt; 1 82.44846 patient4</span>
-<span class="co">#&gt; 2 82.44846 patient5</span>
-<span class="co">#&gt; 3 84.54362 patient3</span>
-<span class="co">#&gt; 4 92.18684  patient</span>
-<span class="co">#&gt; 5 92.18684 patient8</span></code></pre></div>
+<span class="co">#&gt;       time      process</span>
+<span class="co">#&gt; 1 88.96784 Post-Release</span>
+<span class="co">#&gt; 2 88.96784     patient4</span>
+<span class="co">#&gt; 3 89.96295      patient</span>
+<span class="co">#&gt; 4 89.96295     patient8</span>
+<span class="co">#&gt; 5 93.34614     patient3</span></code></pre></div>
 <p>Also, it is possible to resume the automatic execution simply by specifying a longer runtime. Below, we continue the execution until 120 time units.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%<span class="st"> </span>
 <span class="st">  </span><span class="kw">run</span>(<span class="dt">until=</span><span class="dv">120</span>) %&gt;%
@@ -185,7 +185,7 @@ envs &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class=
 })</code></pre></div>
 <p>This helper function brings the simulation data back to R and makes it accessible through the same methods that would ordinarily be used for a <code>simmer</code> environment.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">envs[[<span class="dv">1</span>]] %&gt;%<span class="st"> </span><span class="kw">get_n_generated</span>(<span class="st">&quot;patient&quot;</span>)
-<span class="co">#&gt; [1] 8</span>
+<span class="co">#&gt; [1] 9</span>
 envs[[<span class="dv">1</span>]] %&gt;%<span class="st"> </span><span class="kw">get_capacity</span>(<span class="st">&quot;doctor&quot;</span>)
 <span class="co">#&gt; [1] 2</span>
 envs[[<span class="dv">1</span>]] %&gt;%<span class="st"> </span><span class="kw">get_queue_size</span>(<span class="st">&quot;doctor&quot;</span>)
@@ -193,13 +193,13 @@ envs[[<span class="dv">1</span>]] %&gt;%<span class="st"> </span><span class="kw
 <span class="kw">head</span>(
   envs %&gt;%<span class="st"> </span><span class="kw">get_mon_resources</span>()
 )
-<span class="co">#&gt;   resource     time server queue capacity queue_size system limit</span>
-<span class="co">#&gt; 1    nurse 14.65666      1     0        1        Inf      1   Inf</span>
-<span class="co">#&gt; 2    nurse 25.76415      1     1        1        Inf      2   Inf</span>
-<span class="co">#&gt; 3    nurse 30.89735      1     0        1        Inf      1   Inf</span>
-<span class="co">#&gt; 4   doctor 30.89735      1     0        2        Inf      1   Inf</span>
-<span class="co">#&gt; 5    nurse 35.77296      1     1        1        Inf      2   Inf</span>
-<span class="co">#&gt; 6    nurse 44.39902      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt;   resource      time server queue capacity queue_size system limit</span>
+<span class="co">#&gt; 1    nurse  8.890223      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt; 2    nurse 19.049287      1     1        1        Inf      2   Inf</span>
+<span class="co">#&gt; 3    nurse 24.516780      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt; 4   doctor 24.516780      1     0        2        Inf      1   Inf</span>
+<span class="co">#&gt; 5    nurse 28.011855      1     1        1        Inf      2   Inf</span>
+<span class="co">#&gt; 6    nurse 39.083147      1     2        1        Inf      3   Inf</span>
 <span class="co">#&gt;   replication</span>
 <span class="co">#&gt; 1           1</span>
 <span class="co">#&gt; 2           1</span>
@@ -211,17 +211,21 @@ envs[[<span class="dv">1</span>]] %&gt;%<span class="st"> </span><span class="kw
   envs %&gt;%<span class="st"> </span><span class="kw">get_mon_arrivals</span>()
 )
 <span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
-<span class="co">#&gt; 1 patient0   14.65666 55.80402      41.14736     TRUE           1</span>
-<span class="co">#&gt; 2 patient1   25.76415 68.26546      37.36811     TRUE           1</span>
-<span class="co">#&gt; 3 patient0   11.35245 51.78451      40.43206     TRUE           2</span>
-<span class="co">#&gt; 4 patient1   19.52631 63.66878      38.06922     TRUE           2</span>
-<span class="co">#&gt; 5 patient2   28.50659 79.54467      40.06847     TRUE           2</span>
-<span class="co">#&gt; 6 patient0   10.13644 48.48728      38.35084     TRUE           3</span></code></pre></div>
+<span class="co">#&gt; 1 patient0   8.890223 50.64487      41.75465     TRUE           1</span>
+<span class="co">#&gt; 2 patient1  19.049287 64.46454      39.94776     TRUE           1</span>
+<span class="co">#&gt; 3 patient0   8.668333 45.88646      37.21813     TRUE           2</span>
+<span class="co">#&gt; 4 patient1  18.748412 60.22790      38.75130     TRUE           2</span>
+<span class="co">#&gt; 5 patient2  27.583340 74.67003      37.58797     TRUE           2</span>
+<span class="co">#&gt; 6 patient0   6.749610 46.46709      39.71748     TRUE           3</span></code></pre></div>
 <p>Unfortunately, as the C++ simulation cores are destroyed, the downside of this kind of parallelization is that one cannot resume execution of the replicas.</p>
 </div>
 <div id="basic-visualisation-tools" class="section level2">
 <h2>Basic visualisation tools</h2>
-<p>You may want to try the <code>simmer.plot</code> package, a plugin for <code>simmer</code> that provides some basic visualisation tools to help you take a quick glance at your simulation results or debug a trajectory object.</p>
+<p>You may want to try the <code>simmer.plot</code> package, a plugin for <code>simmer</code> that provides some basic visualisation tools to help you take a quick glance at your simulation results or debug a trajectory object:</p>
+<ul>
+<li><a href="http://r-simmer.org/extensions/plot/articles/plot.simmer.html"><em>Plotting simmer statistics</em></a></li>
+<li><a href="http://r-simmer.org/extensions/plot/articles/plot.trajectory.html"><em>Plotting simmer trajectories</em></a>.</li>
+</ul>
 </div>
 
 

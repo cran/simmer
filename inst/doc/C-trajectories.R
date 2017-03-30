@@ -1,12 +1,15 @@
-## ---- echo = FALSE, message = FALSE--------------------------------------
+## ---- cache = FALSE, include=FALSE---------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
+
+required <- c("simmer.plot")
+
+if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+  knitr::opts_chunk$set(eval = FALSE)
 
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)
-library(ggplot2)
+library(simmer.plot)
 
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%
@@ -261,8 +264,7 @@ env <- env %>%
   add_generator("t2_", t2, function() rexp(1, 1)) %>%
   run(100)
 
-plot_resource_usage(env, "res1", steps = TRUE)
-plot_resource_usage(env, "res2", steps = TRUE)
+plot(env, "resources", "usage", c("res1", "res2"), steps = TRUE)
 
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%

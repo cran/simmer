@@ -11,11 +11,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, echo = FALSE, message = FALSE}
+```{r, cache = FALSE, include=FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
 ```
 
 ## Basic usage
@@ -49,7 +47,7 @@ patient <- trajectory("patients' path") %>%
 
 In this case, the argument of the ```timeout``` activity is a function, which is evaluated dynamically to produce an stochastic waiting time, but it could be a constant too. Apart from that, this function may be as complex as you need and may do whatever you want: interact with entities in your simulation model, get resources' status, make decisions according to the latter...
 
-Once the trajectory is known, you may attach arrivals to it and define the resources needed. In the example below, three types of resources are added: the *nurse* and *administration* resources, each one with a capacity of 1, and the *doctor* resource, with a capacity of 2. The last method adds a generator of arrivals (patients) following the trajectory ```t0```. The time between patients is about 10 minutes (a Gaussian of ```mean=10``` and ```sd=2```). (Note: returning a negative interarrival time at some point would stop the generator).
+Once the trajectory is known, you may attach arrivals to it and define the resources needed. In the example below, three types of resources are added: the *nurse* and *administration* resources, each one with a capacity of 1, and the *doctor* resource, with a capacity of 2. The last method adds a generator of arrivals (patients) following the trajectory `patient`. The time between patients is about 10 minutes (a Gaussian of ```mean=10``` and ```sd=2```). (Note: returning a negative interarrival time at some point would stop the generator).
 
 ```{r}
 env %>%
@@ -142,4 +140,7 @@ Unfortunately, as the C++ simulation cores are destroyed, the downside of this k
 
 ## Basic visualisation tools
 
-You may want to try the `simmer.plot` package, a plugin for `simmer` that provides some basic visualisation tools to help you take a quick glance at your simulation results or debug a trajectory object.
+You may want to try the `simmer.plot` package, a plugin for `simmer` that provides some basic visualisation tools to help you take a quick glance at your simulation results or debug a trajectory object:
+
+- [_Plotting simmer statistics_](http://r-simmer.org/extensions/plot/articles/plot.simmer.html)
+- [_Plotting simmer trajectories_](http://r-simmer.org/extensions/plot/articles/plot.trajectory.html).

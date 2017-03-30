@@ -1,8 +1,11 @@
 ## ---- cache = FALSE, include=FALSE---------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
+
+required <- c("dplyr")
+
+if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+  knitr::opts_chunk$set(eval = FALSE)
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 library(simmer)
@@ -39,8 +42,6 @@ env %>%
   run(SIM_TIME)
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-detach("package:simmer")
-library(dplyr)
 library(simmer)
 
 PT_MEAN <- 10.0         # Avg. processing time in minutes
@@ -84,11 +85,9 @@ failure <- trajectory() %>%
   release_selected(1)
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-lapply(machines, function(i) {
-  env %>%
-    add_resource(i, 1, 0, preemptive = TRUE) %>%
-    add_generator(paste0(i, "_worker"), make_parts(i), at(0), mon = 2)
-}) %>% invisible
+for (i in machines) env %>%
+  add_resource(i, 1, 0, preemptive = TRUE) %>%
+  add_generator(paste0(i, "_worker"), make_parts(i), at(0), mon = 2)
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 env %>%
@@ -105,13 +104,11 @@ env %>%
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 get_mon_attributes(env) %>%
-  group_by(name) %>%
-  slice(n()) %>%
-  arrange(name)
+  dplyr::group_by(name) %>%
+  dplyr::slice(n()) %>%
+  dplyr::arrange(name)
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-detach("package:simmer")
-library(dplyr)
 library(simmer)
 
 TICKETS <- 50     # Number of tickets per movie
@@ -157,7 +154,8 @@ moviegoer <- trajectory() %>%
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 # add movies as resources with capacity TICKETS and no queue
-lapply(movies, function(i) add_resource(env, i, TICKETS, 0)) %>% invisible
+for (i in movies) env %>%
+  add_resource(i, TICKETS, 0)
 
 # add ticket counter with capacity 1 and infinite queue
 env %>% add_resource("counter", 1, Inf)
@@ -176,21 +174,21 @@ attributes <- get_mon_attributes(env)
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 # get the three rows with the sold out instants
 sold_time <- resources %>%
-  filter(resource != "counter" & capacity == 0)
+  dplyr::filter(resource != "counter" & capacity == 0)
 
 # get the arrivals that left at the sold out instants
 # count the number of arrivals per movie
-n_reneges <- left_join(
+n_reneges <- dplyr::left_join(
     arrivals %>% 
-      filter(finished == FALSE & end_time %in% sold_time$time),
+      dplyr::filter(finished == FALSE & end_time %in% sold_time$time),
     attributes
   ) %>%
-  mutate(resource = movies[value]) %>%
-  group_by(resource) %>%
-  count()
+  dplyr::mutate(resource = movies[value]) %>%
+  dplyr::group_by(resource) %>%
+  dplyr::count()
 
 # merge the info
-result <- left_join(sold_time, n_reneges)
+result <- dplyr::left_join(sold_time, n_reneges)
 # and print
 apply(result, 1, function(i) {
   cat("Movie '", i["resource"], "' sold out ", i["time"], 

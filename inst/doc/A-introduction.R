@@ -1,8 +1,6 @@
-## ---- echo = FALSE, message = FALSE--------------------------------------
+## ---- cache = FALSE, include=FALSE---------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
 
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)

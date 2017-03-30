@@ -1,13 +1,15 @@
-## ---- echo = FALSE, message = FALSE--------------------------------------
+## ---- cache = FALSE, include=FALSE---------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
+
+required <- c("simmer.plot", "dplyr")
+
+if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+  knitr::opts_chunk$set(eval = FALSE)
 
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)
-library(ggplot2)
-library(dplyr)
+library(simmer.plot)
 library(parallel)
 set.seed(1234)
 
@@ -27,15 +29,15 @@ mm1.env <- simmer() %>%
   run(until=2000)
 
 ## ------------------------------------------------------------------------
-# Evolution of the average number of customers in the system
-graph <- plot_resource_usage(mm1.env, "resource", items="system")
-
 # Theoretical value
 mm1.N <- rho/(1-rho)
-graph + geom_hline(yintercept=mm1.N)
+
+# Evolution of the average number of customers in the system
+plot(mm1.env, "resources", "usage", "resource", items="system") +
+  geom_hline(yintercept=mm1.N)
 
 ## ------------------------------------------------------------------------
-plot_resource_usage(mm1.env, "resource", items=c("queue", "server"), steps=TRUE) +
+plot(mm1.env, "resources", "usage", "resource", items=c("queue", "server"), steps=TRUE) +
   xlim(0, 20) + ylim(0, 4)
 
 ## ------------------------------------------------------------------------
@@ -56,9 +58,9 @@ mm1.T ; mean(mm1.t_system)
 
 ## ---- eval=FALSE---------------------------------------------------------
 #  t_system <- get_mon_arrivals(envs) %>%
-#    mutate(t_system = end_time - start_time) %>%
-#    group_by(replication) %>%
-#    summarise(mean = mean(t_system))
+#    dplyr::mutate(t_system = end_time - start_time) %>%
+#    dplyr::group_by(replication) %>%
+#    dplyr::summarise(mean = mean(t_system))
 #  
 #  t.test(t_system$mean)
 #  #>
@@ -97,7 +99,7 @@ mm23.env <- simmer() %>%
 ## ------------------------------------------------------------------------
 mm23.arrivals <- get_mon_arrivals(mm23.env)
 mm23.arrivals %>%
-  summarise(rejection_rate = sum(!finished)/length(finished))
+  dplyr::summarise(rejection_rate = sum(!finished)/length(finished))
 
 ## ------------------------------------------------------------------------
 mm23.t_system <- mm23.arrivals$end_time - mm23.arrivals$start_time
@@ -144,7 +146,8 @@ to_queue_4 <- trajectory() %>%
 
 ## ------------------------------------------------------------------------
 env <- simmer()
-lapply(1:4, function(i) env %>% add_resource(paste0("md1_", i))) %>% invisible
+for (i in 1:4) env %>% 
+  add_resource(paste0("md1_", i))
 env %>%
   add_generator("arrival1_", to_queue_1, function() rexp(1, lambda1), mon=2) %>%
   add_generator("arrival3_", to_queue_3, function() rexp(1, lambda3), mon=2) %>%
@@ -154,14 +157,14 @@ env %>%
 ## ------------------------------------------------------------------------
 res <- get_mon_arrivals(env, per_resource = TRUE) %>%
   dplyr::select(name, resource) %>%
-  filter(resource %in% c("md1_3", "md1_4"))
+  dplyr::filter(resource %in% c("md1_3", "md1_4"))
 arr <- get_mon_arrivals(env) %>%
-  mutate(waiting_time = end_time - (start_time + activity_time),
-         generator = regmatches(name, regexpr("arrival[[:digit:]]", name))) %>%
-  left_join(res) %>%
-  group_by(generator, resource)
+  dplyr::mutate(waiting_time = end_time - (start_time + activity_time),
+                generator = regmatches(name, regexpr("arrival[[:digit:]]", name))) %>%
+  dplyr::left_join(res) %>%
+  dplyr::group_by(generator, resource)
 
-summarise(arr, average = sum(waiting_time) / n())
+dplyr::summarise(arr, average = sum(waiting_time) / n())
 get_n_generated(env, "arrival1_") + get_n_generated(env, "arrival4_")
-count(arr)
+dplyr::count(arr)
 

@@ -1,8 +1,11 @@
 ## ---- cache = FALSE, include=FALSE---------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
+
+required <- c("dplyr")
+
+if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+  knitr::opts_chunk$set(eval = FALSE)
 
 ## ------------------------------------------------------------------------
 library(simmer)
@@ -112,7 +115,6 @@ bank %>% run(until = 400)
 bank %>% get_mon_arrivals
 
 ## ---- message = FALSE----------------------------------------------------
-library(dplyr)
 library(simmer)
 
 set.seed(99999)
@@ -131,10 +133,9 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
-library(dplyr)
 library(simmer)
 
 set.seed(99999)
@@ -154,10 +155,9 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
-library(dplyr)
 library(simmer)
 
 set.seed(99999)
@@ -177,17 +177,16 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
-library(dplyr)
 library(simmer)
 
 set.seed(1014)
 
 customer <- 
   trajectory("Customer's path") %>%
-  simmer::select(c("counter1", "counter2"), policy = "shortest-queue") %>%
+  select(c("counter1", "counter2"), policy = "shortest-queue") %>%
   seize_selected %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   release_selected
@@ -201,14 +200,13 @@ bank <-
 bank %>% run(until = 400) 
 bank %>% 
   get_mon_arrivals %>%
-  mutate(service_start_time = end_time - activity_time) %>%
-  arrange(start_time)
+  dplyr::mutate(service_start_time = end_time - activity_time) %>%
+  dplyr::arrange(start_time)
 bank %>% 
   get_mon_resources %>%
-  arrange(time)
+  dplyr::arrange(time)
 
 ## ---- message = FALSE----------------------------------------------------
-library(dplyr)
 library(simmer)
 
 set.seed(100005)
@@ -228,12 +226,11 @@ bank %>% run(until = 400)
 result <- 
   bank %>% 
   get_mon_arrivals %>%
-  mutate(waiting_time = end_time - start_time - activity_time)
+  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 paste("Average wait for ", sum(result$finished), " completions was ",
       mean(result$waiting_time), "minutes.")
 
 ## ---- message = FALSE----------------------------------------------------
-library(dplyr)
 library(simmer)
 library(parallel)
 
@@ -255,8 +252,8 @@ mclapply(c(393943, 100005, 777999555, 319999772), function(the_seed) {
   result <- 
     bank %>% 
     get_mon_arrivals %>%
-    mutate(waiting_time = end_time - start_time - activity_time)
+    dplyr::mutate(waiting_time = end_time - start_time - activity_time)
   paste("Average wait for ", sum(result$finished), " completions was ",
         mean(result$waiting_time), "minutes.")
-})
+}) %>% unlist()
 

@@ -1,14 +1,15 @@
 ## ---- cache = FALSE, include=FALSE---------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
-library(ggplot2)
-theme_set(theme_bw())
+
+required <- c("simmer.plot", "dplyr", "tidyr")
+
+if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+  knitr::opts_chunk$set(eval = FALSE)
 
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
+library(simmer.plot)
 set.seed(1234)
 
 ## ------------------------------------------------------------------------
@@ -83,8 +84,8 @@ option.3 <- function(t) {
 gas.station <- option.3(5000)
 
 # Evolution + theoretical value
-graph <- plot_resource_usage(gas.station, "pump", items="system")
-graph + geom_hline(yintercept=N_average_theor)
+plot(gas.station, "resources", "usage", "pump", items="system") +
+  geom_hline(yintercept=N_average_theor)
 
 ## ---- eval=FALSE---------------------------------------------------------
 #  library(microbenchmark)
@@ -93,8 +94,8 @@ graph + geom_hline(yintercept=N_average_theor)
 #  tm <- microbenchmark(option.1(t),
 #                       option.2(t),
 #                       option.3(t))
-#  graph <- autoplot(tm)
-#  graph + scale_y_log10(breaks=function(limits) pretty(limits, 5)) +
+#  autoplot(tm) +
+#    scale_y_log10(breaks=function(limits) pretty(limits, 5)) +
 #    ylab("Time [milliseconds]")
 
 ## ------------------------------------------------------------------------
@@ -213,28 +214,28 @@ option.5 <- function(t) {
 gas.station <- option.1(5000)
 
 # Evolution + theoretical value
-graph <- plot_resource_usage(gas.station, "pump", items="system")
-graph + geom_hline(yintercept=N_average_theor)
+plot(gas.station, "resources", "usage", "pump", items="system") + 
+  geom_hline(yintercept=N_average_theor)
 
 ## ------------------------------------------------------------------------
 gas.station <- option.5(5000)
 
 limits <- data.frame(item = c("system"), value = c(2))
 
-graph <- gas.station %>% get_mon_resources() %>% 
-  gather(item, value, server, queue, system) %>%
-  mutate(value = round(value * 2/5),                  # rescaling here <------
+get_mon_resources(gas.station) %>% 
+  tidyr::gather(item, value, server, queue, system) %>%
+  dplyr::mutate(value = round(value * 2/5),                  # rescaling here <------
          item = factor(item)) %>%
-  filter(item %in% "system") %>%
-  group_by(resource, replication, item) %>%
-  mutate(mean = c(0, cumsum(head(value, -1) * diff(time))) / time) %>% 
-  ungroup() %>%
+  dplyr::filter(item %in% "system") %>%
+  dplyr::group_by(resource, replication, item) %>%
+  dplyr::mutate(mean = c(0, cumsum(head(value, -1) * diff(time))) / time) %>% 
+  dplyr::ungroup() %>%
   ggplot() + aes(x=time, color=item) +
   geom_line(aes(y=mean, group=interaction(replication, item))) +
   ggtitle("Resource usage: pump") +
   ylab("in use") + xlab("time") + expand_limits(y=0) +
-  geom_hline(aes(yintercept=value, color=item), limits, lty=2)
-graph + geom_hline(yintercept=N_average_theor)
+  geom_hline(aes(yintercept=value, color=item), limits, lty=2) + 
+  geom_hline(yintercept=N_average_theor)
 
 ## ---- eval=FALSE---------------------------------------------------------
 #  library(microbenchmark)
@@ -245,7 +246,7 @@ graph + geom_hline(yintercept=N_average_theor)
 #                       option.3(t),
 #                       option.4(t),
 #                       option.5(t))
-#  graph <- autoplot(tm)
-#  graph + scale_y_log10(breaks=function(limits) pretty(limits, 5)) +
+#  autoplot(tm) +
+#    scale_y_log10(breaks=function(limits) pretty(limits, 5)) +
 #    ylab("Time [milliseconds]")
 
