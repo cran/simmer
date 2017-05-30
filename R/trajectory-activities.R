@@ -92,10 +92,12 @@ set_queue_size_selected.trajectory <- function(.trj, value, id=0) .trj$set_queue
 #'
 #' @inheritParams seize
 #' @param resources one or more resource names, or a callable object (a function) which
-#' must return a resource name to select.
-#' @param policy if \code{resources} is a vector of names, this parameter determines
-#' the criteria for selecting a resource among the set of policies available; otherwise,
-#' it is ignored.
+#' must return one or more resource names.
+#' @param policy if \code{resources} is a character vector, this parameter determines
+#' the criteria for selecting a resource among the set of policies available:
+#' 'shortest-queue' selects the least busy resource, 'round-robin' selects the resources
+#' in order cyclically, 'first-available' selects the first resource available,
+#' and 'random' selects one at random.
 #' @param id selection identifier for nested usage.
 #'
 #' @return Returns the trajectory object.
@@ -243,10 +245,10 @@ branch.trajectory <- function(.trj, option, continue, ...) .trj$branch(option, c
 #'
 #' @return Returns the trajectory object.
 #' @export
-rollback <- function(.trj, amount, times=1, check) UseMethod("rollback")
+rollback <- function(.trj, amount, times=Inf, check) UseMethod("rollback")
 
 #' @export
-rollback.trajectory <- function(.trj, amount, times=1, check) .trj$rollback(amount, times, check)
+rollback.trajectory <- function(.trj, amount, times=Inf, check) .trj$rollback(amount, times, check)
 
 #' Add a leave activity
 #'
@@ -335,7 +337,8 @@ synchronize.trajectory <- function(.trj, wait=TRUE, mon_all=FALSE) .trj$synchron
 #' @inheritParams seize
 #' @param n batch size, accepts a numeric.
 #' @param timeout set an optional timer which triggers batches every \code{timeout} time
-#' units even if the batch size has not been fulfilled, accepts a numeric (0 = disabled).
+#' units even if the batch size has not been fulfilled, accepts a numeric or a callable
+#' object (a function) which must return a numeric (0 = disabled).
 #' @param permanent if \code{TRUE}, batches cannot be split.
 #' @param name optional string. Unnamed batches from different \code{batch} activities are
 #' independent. However, if you want to feed arrivals from different trajectories into a

@@ -20,7 +20,7 @@ t0 <- trajectory(verbose = TRUE) %>%
   rollback(1) %>%
   clone(function() 2, trajectory(verbose = TRUE) %>% timeout(1)) %>%
   synchronize() %>%
-  batch(1) %>%
+  batch(1, rule = function() 0) %>%
   separate() %>%
   renege_in(function() 1, trajectory(verbose = TRUE) %>% timeout(1)) %>%
   renege_if(function() "1", trajectory(verbose = TRUE) %>% timeout(1)) %>%
@@ -57,7 +57,7 @@ trajs <- c(trajectory(verbose = TRUE) %>% seize("nurse", 1),
            trajectory(verbose = TRUE) %>% clone(function() 2,
                                                        trajectory(verbose = TRUE) %>% timeout(1)),
            trajectory(verbose = TRUE) %>% synchronize(),
-           trajectory(verbose = TRUE) %>% batch(1),
+           trajectory(verbose = TRUE) %>% batch(1, rule = function() 0),
            trajectory(verbose = TRUE) %>% separate(),
            trajectory(verbose = TRUE) %>% renege_in(function() 1,
                                                            trajectory(verbose = TRUE) %>% timeout(1)),
@@ -111,7 +111,7 @@ test_that("the activity chain grows as expected using join", {
     line <- capture.output(i)
     regmatches(line, regexpr("<- 0x[[:alnum:]]{7} ->", line))
   }) %>% unlist
-  ptrs_t <- lapply(capture.output(t0), function(i) {
+  ptrs_t <- lapply(capture.output(t), function(i) {
     regmatches(i, regexpr("<- 0x[[:alnum:]]{7} ->", i))
   }) %>% unlist
 

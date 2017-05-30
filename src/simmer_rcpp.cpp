@@ -235,9 +235,9 @@ SEXP Select__new(std::vector<std::string> resources, std::string policy, int id)
 }
 
 //[[Rcpp::export]]
-SEXP Select__new_func(Function resources, int provide_attrs, int id) {
+SEXP Select__new_func(Function resources, int provide_attrs, std::string policy, int id) {
   return XPtr<Select<Function> >(
-      new Select<Function>(resources, provide_attrs, "custom", id));
+      new Select<Function>(resources, provide_attrs, policy, id));
 }
 
 //[[Rcpp::export]]
@@ -360,14 +360,34 @@ SEXP Synchronize__new(bool wait, bool terminate) {
 
 //[[Rcpp::export]]
 SEXP Batch__new(int n, double timeout, bool permanent, std::string name) {
-  return XPtr<Batch>(new Batch(n, timeout, permanent, name));
+  VEC<int> p = VEC<int>(2, 0);
+  return XPtr<Batch<double> >(new Batch<double>(n, timeout, p, permanent, name));
 }
 
 //[[Rcpp::export]]
-SEXP Batch__new_func(int n, double timeout, bool permanent,
-                     std::string name, Function rule, int provide_attrs)
+SEXP Batch__new_func1(int n, Function timeout, bool permanent, std::string name,
+                      int provide_attrs)
 {
-  return XPtr<Batch>(new Batch(n, timeout, permanent, name, rule, provide_attrs));
+  VEC<int> p = VEC<int>(2, 0);
+  p[0] = provide_attrs;
+  return XPtr<Batch<Function> >(new Batch<Function>(n, timeout, p, permanent, name));
+}
+
+//[[Rcpp::export]]
+SEXP Batch__new_func2(int n, double timeout, bool permanent,
+                      std::string name, Function rule, int provide_attrs)
+{
+  VEC<int> p = VEC<int>(2, 0);
+  p[1] = provide_attrs;
+  return XPtr<Batch<double> >(new Batch<double>(n, timeout, p, permanent, name, rule));
+}
+
+//[[Rcpp::export]]
+SEXP Batch__new_func4(int n, Function timeout, bool permanent, std::string name,
+                      Function rule, std::vector<int> provide_attrs)
+{
+  VEC<int> p = provide_attrs;
+  return XPtr<Batch<Function> >(new Batch<Function>(n, timeout, p, permanent, name, rule));
 }
 
 //[[Rcpp::export]]

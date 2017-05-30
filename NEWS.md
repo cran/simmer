@@ -1,3 +1,16 @@
+# simmer 3.6.2
+
+## Minor changes and fixes:
+
+* Update "The Bank Tutorial: Part I" vignette (@nacnudus in #90).
+* Fix `trap()`'s handler cloning and associated test (#91).
+* Apply `select()`'s `policy` also when `resources` is a function (#92).
+* Accept dynamic timeouts in batches (#93).
+* Change `rollback()`'s default behaviour to `times=Inf`, i.e., infinite loop (#95).
+* Stop and throw an error when `timeout()` returns a missing value (#96 and #97).
+* Fix memory management: resetting the environment was clearing but not deallocating memory (#98, fixed in #99).
+* Fix object destruction: workaround for tidyverse/magrittr#146 (#98, fixed in effcb6b).
+
 # simmer 3.6.1
 
 ## Minor changes and fixes:

@@ -5,6 +5,12 @@
 #include "simulator.h"
 #include "policy.h"
 
+#define LABEL(name) (#name": ") << name
+#define LABELC(name) LABEL(name) << ", "
+#define LABELE(name) LABEL(name) << " }" << std::endl
+#define C(name) name << ", "
+#define E(name) name << std::endl;
+
 /**
  *  Base class.
  */
@@ -190,9 +196,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "resource: " << resource << ", " << "amount: " << amount << " }" << std::endl;
-    else Rcpp::Rcout << resource << ", " << amount << ", ";
+    if (!brief) Rcpp::Rcout << LABELC(resource) << LABELE(amount);
+    else Rcpp::Rcout << C(resource) << C(amount);
     Fork::print(indent, verbose, brief);
   }
 
@@ -259,9 +264,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "resource: " << resource << ", " << "amount: " << amount << " }" << std::endl;
-    else Rcpp::Rcout << resource << ", " << amount << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(resource) << LABELE(amount);
+    else Rcpp::Rcout << C(resource) << E(amount);
   }
 
   double run(Arrival* arrival) {
@@ -306,9 +310,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "resource: " << resource << ", value: " << value << " }" << std::endl;
-    else Rcpp::Rcout << resource << ", " << value << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(resource) << LABELE(value);
+    else Rcpp::Rcout << C(resource) << E(value);
   }
 
   double run(Arrival* arrival) {
@@ -355,9 +358,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "resource: " << resource << ", value: " << value << " }" << std::endl;
-    else Rcpp::Rcout << resource << ", " << value << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(resource) << LABELE(value);
+    else Rcpp::Rcout << C(resource) << E(value);
   }
 
   double run(Arrival* arrival) {
@@ -400,30 +402,24 @@ public:
 
   Select(T resources, int provide_attrs, std::string policy, int id)
     : Activity("Select", VEC<int>(1, provide_attrs)), resources(resources),
-      policy(policy), id(id), dispatcher(Policy(resources, policy)) {}
+      id(id), policy(Policy(policy)) {}
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "resources: " << resources << ", policy: " << policy << " }" << std::endl;
-    else Rcpp::Rcout << resources << ", " << policy << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(resources) << LABELE(policy);
+    else Rcpp::Rcout << C(resources) << E(policy);
   }
 
   double run(Arrival* arrival) {
-    Resource* selected;
-    if (typeid(T) == typeid(Rcpp::Function)) {
-      VEC<std::string> res = get<VEC<std::string> >(resources, 0, arrival);
-      selected = arrival->sim->get_resource(res[0]);
-    } else selected = dispatcher.dispatch(arrival->sim);
-    arrival->set_selected(id, selected);
+    VEC<std::string> res = get<VEC<std::string> >(resources, 0, arrival);
+    arrival->set_selected(id, policy.dispatch(arrival->sim, res));
     return 0;
   }
 
 protected:
   T resources;
-  std::string policy;
   int id;
-  Policy dispatcher;
+  Policy policy;
 };
 
 /**
@@ -440,10 +436,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "key: " << key << ", value: " << value <<
-      ", global: " << global << " }" << std::endl;
-    else Rcpp::Rcout << key << ", " << value << ", " << global << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(key) << LABELC(value) << LABELE(global);
+    else Rcpp::Rcout << C(key) << C(value) << E(global);
   }
 
   double run(Arrival* arrival) {
@@ -474,9 +468,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "generator: " << generator << " }" << std::endl;
-    else Rcpp::Rcout << generator << std::endl;
+    if (!brief) Rcpp::Rcout << LABELE(generator);
+    else Rcpp::Rcout << E(generator);
   }
 
   double run(Arrival* arrival) {
@@ -503,9 +496,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "generator: " << generator << " }" << std::endl;
-    else Rcpp::Rcout << generator << std::endl;
+    if (!brief) Rcpp::Rcout << LABELE(generator);
+    else Rcpp::Rcout << E(generator);
   }
 
   double run(Arrival* arrival) {
@@ -526,26 +518,25 @@ class SetTraj : public Activity {
 public:
   CLONEABLE(SetTraj<T>)
 
-  SetTraj(T generator, int provide_attrs, Rcpp::Environment trj)
+  SetTraj(T generator, int provide_attrs, Rcpp::Environment trajectory)
     : Activity("SetTraj", VEC<int>(1, provide_attrs), PRIORITY_MAX),
-      generator(generator), trj(trj) {}
+      generator(generator), trajectory(trajectory) {}
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "generator: " << generator << ", trajectory: " << trj << " }" << std::endl;
-    else Rcpp::Rcout << generator << ", " << trj << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(generator) << LABELE(trajectory);
+    else Rcpp::Rcout << C(generator) << E(trajectory);
   }
 
   double run(Arrival* arrival) {
     std::string ret = get<std::string>(generator, 0, arrival);
-    arrival->sim->get_generator(ret)->set_trajectory(trj);
+    arrival->sim->get_generator(ret)->set_trajectory(trajectory);
     return 0;
   }
 
 protected:
   T generator;
-  Rcpp::Environment trj;
+  Rcpp::Environment trajectory;
 };
 
 /**
@@ -556,26 +547,25 @@ class SetDist : public Activity {
 public:
   CLONEABLE(SetDist<T>)
 
-  SetDist(T generator, int provide_attrs, Rcpp::Function dist)
+  SetDist(T generator, int provide_attrs, Rcpp::Function distribution)
     : Activity("SetDist", VEC<int>(1, provide_attrs), PRIORITY_MAX),
-      generator(generator), dist(dist) {}
+      generator(generator), distribution(distribution) {}
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "generator: " << generator << ", distribution: " << dist << " }" << std::endl;
-    else Rcpp::Rcout << generator << ", " << dist << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(generator) << LABELE(distribution);
+    else Rcpp::Rcout << C(generator) << E(distribution);
   }
 
   double run(Arrival* arrival) {
     std::string ret = get<std::string>(generator, 0, arrival);
-    arrival->sim->get_generator(ret)->set_distribution(dist);
+    arrival->sim->get_generator(ret)->set_distribution(distribution);
     return 0;
   }
 
 protected:
   T generator;
-  Rcpp::Function dist;
+  Rcpp::Function distribution;
 };
 
 /**
@@ -591,9 +581,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "values: " << values << " }" << std::endl;
-    else Rcpp::Rcout << values << std::endl;
+    if (!brief) Rcpp::Rcout << LABELE(values);
+    else Rcpp::Rcout << E(values);
   }
 
   double run(Arrival* arrival) {
@@ -623,12 +612,14 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout << "delay: " << delay << " }" << std::endl;
-    else Rcpp::Rcout << delay << std::endl;
+    if (!brief) Rcpp::Rcout << LABELE(delay);
+    else Rcpp::Rcout << E(delay);
   }
 
   double run(Arrival* arrival) {
     double value = get<double>(delay, 0, arrival);
+    if (ISNAN(value))
+      Rcpp::stop("%s: missing value (NA or NaN returned)", name);
     return std::abs(value);
   }
 
@@ -650,9 +641,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "option: " << option << " }" << std::endl;
-    else Rcpp::Rcout << option << ", ";
+    if (!brief) Rcpp::Rcout << LABELE(option);
+    else Rcpp::Rcout << C(option);
     Fork::print(indent, verbose, brief);
   }
 
@@ -692,12 +682,8 @@ public:
     Activity::print(indent, verbose, brief);
     if (!brief) {
       Rcpp::Rcout << "amount: " << amount << " (" << cached->name << "), ";
-      if (check) Rcpp::Rcout << "check: " << *check;
-      else {
-        if (times >= 0) Rcpp::Rcout << "times: " << times;
-        else Rcpp::Rcout << "times: Inf";
-      }
-      Rcpp::Rcout << " }" << std::endl;
+      if (check) Rcpp::Rcout << LABELE(*check);
+      else Rcpp::Rcout << LABELE(times);
     } else Rcpp::Rcout << cached->name << std::endl;
   }
 
@@ -757,9 +743,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "prob: " << prob << " }" << std::endl;
-    else Rcpp::Rcout << prob << std::endl;
+    if (!brief) Rcpp::Rcout << LABELE(prob);
+    else Rcpp::Rcout << E(prob);
   }
 
   double run(Arrival* arrival) {
@@ -787,9 +772,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "n: " << n << " }" << std::endl;
-    else Rcpp::Rcout << n << ", ";
+    if (!brief) Rcpp::Rcout << LABELE(n);
+    else Rcpp::Rcout << C(n);
     Fork::print(indent, verbose, brief);
   }
 
@@ -829,9 +813,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "wait: " << wait << " }" << std::endl;
-    else Rcpp::Rcout << wait << std::endl;
+    if (!brief) Rcpp::Rcout << LABELE(wait);
+    else Rcpp::Rcout << E(wait);
   }
 
   double run(Arrival* arrival) {
@@ -865,29 +848,29 @@ protected:
 /**
  * Create a batch.
  */
+template <typename T>
 class Batch : public Activity {
 public:
-  CLONEABLE(Batch)
+  CLONEABLE(Batch<T>)
 
-  Batch(int n, double timeout, bool permanent, std::string id = "",
-        OPT<Rcpp::Function> rule = NONE, int provide_attrs = false)
-    : Activity("Batch", VEC<int>(1, provide_attrs)), n(n),
-      timeout(std::abs(timeout)), permanent(permanent), id(id), rule(rule) {}
+  Batch(int n, T timeout, VEC<int> provide_attrs, bool permanent,
+        std::string id = "", OPT<Rcpp::Function> rule = NONE)
+    : Activity("Batch", provide_attrs),
+      n(n), timeout(timeout), permanent(permanent), id(id), rule(rule) {}
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "n: " << n << ", timeout: " << timeout << ", permanent: " << permanent <<
-      ", name: " << id << " }" << std::endl;
-    else Rcpp::Rcout << n << ", " << timeout << ", " << permanent << ", " << id << std::endl;
+    if (!brief)
+      Rcpp::Rcout << LABELC(n) << LABELC(timeout) << LABELC(permanent) << LABELE(id);
+    else Rcpp::Rcout << C(n) << C(timeout) << C(permanent) << E(id);
   }
 
   double run(Arrival* arrival) {
-    if (rule && !get<bool>(*rule, 0, arrival))
+    if (rule && !get<bool>(*rule, 1, arrival))
       return 0;
     Batched** ptr = arrival->sim->get_batch(this, id);
     if (!(*ptr))
-      *ptr = init(arrival->sim);
+      *ptr = init(arrival);
     (*ptr)->insert(arrival);
     if ((int)(*ptr)->size() == n)
       trigger(arrival->sim, *ptr);
@@ -896,27 +879,28 @@ public:
 
 protected:
   int n;
-  double timeout;
+  T timeout;
   bool permanent;
   std::string id;
   OPT<Rcpp::Function> rule;
 
-  Batched* init(Simulator* sim) {
+  Batched* init(Arrival* arrival) {
     std::string str;
     Batched* ptr = NULL;
     if (id.size()) {
       str = "batch_" + id;
-      ptr = new Batched(sim, str, permanent);
+      ptr = new Batched(arrival->sim, str, permanent);
     } else {
-      int count = sim->get_batch_count();
+      int count = arrival->sim->get_batch_count();
       str= "batch" + boost::lexical_cast<std::string>(count);
-      ptr = new Batched(sim, str, permanent, count);
+      ptr = new Batched(arrival->sim, str, permanent, count);
     }
-    if (timeout) {
-      Task* task = new Task(sim, "Batch-Timer",
-                            boost::bind(&Batch::trigger, this, sim, ptr),
+    double dt = std::abs(get<double>(timeout, 0, arrival));
+    if (dt) {
+      Task* task = new Task(arrival->sim, "Batch-Timer",
+                            boost::bind(&Batch::trigger, this, arrival->sim, ptr),
                             PRIORITY_MIN);
-      task->activate(timeout);
+      task->activate(dt);
     }
     return ptr;
   }
@@ -928,7 +912,7 @@ protected:
     if ((*ptr)->size()) {
       (*ptr)->set_activity(this->get_next());
       (*ptr)->activate();
-      *ptr = init((*ptr)->sim);
+      *ptr = init(*ptr);
     } else {
       delete *ptr;
       *ptr = NULL;
@@ -975,9 +959,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "t: " << t << " }" << std::endl;
-    else Rcpp::Rcout << t << ", ";
+    if (!brief) Rcpp::Rcout << LABELE(t);
+    else Rcpp::Rcout << C(t);
     Fork::print(indent, verbose, brief);
   }
 
@@ -1008,9 +991,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "signal: " << signal << " }" << std::endl;
-    else Rcpp::Rcout << signal << ", ";
+    if (!brief) Rcpp::Rcout << LABELE(signal);
+    else Rcpp::Rcout << C(signal);
     Fork::print(indent, verbose, brief);
   }
 
@@ -1061,9 +1043,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "signals: " << signals << ", delay: " << delay << " }" << std::endl;
-    else Rcpp::Rcout << signals << ", " << delay << std::endl;
+    if (!brief) Rcpp::Rcout << LABELC(signals) << LABELE(delay);
+    else Rcpp::Rcout << C(signals) << E(delay);
   }
 
   double run(Arrival* arrival) {
@@ -1096,18 +1077,14 @@ public:
       trj, VEC<int>(1, provide_attrs)),
       signals(signals), interruptible(interruptible) {}
 
-  Trap(const Trap& o)
-    : Fork(o.name, o.cont, o.trj, o.provide_attrs),
-      signals(o.signals), interruptible(o.interruptible)
-  {
+  Trap(const Trap& o) : Fork(o), signals(o.signals), interruptible(o.interruptible) {
     pending.clear();
   }
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) {
-      Rcpp::Rcout << "signals: " << signals << " }" << std::endl;
-    } else Rcpp::Rcout << signals << ", ";
+    if (!brief) Rcpp::Rcout << LABELE(signals);
+    else Rcpp::Rcout << C(signals);
     Fork::print(indent, verbose, brief);
   }
 
@@ -1161,9 +1138,8 @@ public:
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout <<
-      "signals: " << signals << " }" << std::endl;
-    else Rcpp::Rcout << signals << std::endl;
+    if (!brief) Rcpp::Rcout << LABELE(signals);
+    else Rcpp::Rcout << E(signals);
   }
 
   double run(Arrival* arrival) {

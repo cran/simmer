@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar, Bart Smeets" />
 
-<meta name="date" content="2017-03-30" />
+<meta name="date" content="2017-05-30" />
 
 <title>Advanced Trajectory Usage</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Advanced Trajectory Usage</h1>
 <h4 class="author"><em>Iñaki Ucar, Bart Smeets</em></h4>
-<h4 class="date"><em>2017-03-30</em></h4>
+<h4 class="date"><em>2017-05-30</em></h4>
 
 
 <div id="TOC">
@@ -1348,7 +1348,7 @@ t &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, t, function() <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">run</span>(<span class="dv">4</span>)
-<span class="co">#&gt; Error in run_(private$sim_obj, until): objeto 'env' no encontrado</span></code></pre></div>
+<span class="co">#&gt; Error in run_(private$sim_obj, until): Evaluation error: objeto 'env' no encontrado.</span></code></pre></div>
 <p>Because the global <code>env</code> is not available at runtime: the simulation runs <em>and then</em> the resulting object is assigned to <code>env</code>. We need to assign first, then run. So this will work:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">print</span>(env %&gt;%<span class="st"> </span><span class="kw">now</span>()))
@@ -1384,7 +1384,7 @@ env %&gt;%
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2017-03-30" />
+<meta name="date" content="2017-05-30" />
 
 <title>Queueing Systems</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Queueing Systems</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2017-03-30</em></h4>
+<h4 class="date"><em>2017-05-30</em></h4>
 
 
 <div id="TOC">
@@ -271,6 +271,7 @@ dplyr::<span class="kw">summarise</span>(arr, <span class="dt">average =</span> 
 <span class="co">#&gt; Source: local data frame [5 x 3]</span>
 <span class="co">#&gt; Groups: generator [?]</span>
 <span class="co">#&gt; </span>
+<span class="co">#&gt; # A tibble: 5 x 3</span>
 <span class="co">#&gt;   generator resource    average</span>
 <span class="co">#&gt;       &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt;</span>
 <span class="co">#&gt; 1  arrival1    md1_3 11.2998883</span>
@@ -284,6 +285,7 @@ dplyr::<span class="kw">count</span>(arr)
 <span class="co">#&gt; Source: local data frame [5 x 3]</span>
 <span class="co">#&gt; Groups: generator [?]</span>
 <span class="co">#&gt; </span>
+<span class="co">#&gt; # A tibble: 5 x 3</span>
 <span class="co">#&gt;   generator resource     n</span>
 <span class="co">#&gt;       &lt;chr&gt;    &lt;chr&gt; &lt;int&gt;</span>
 <span class="co">#&gt; 1  arrival1    md1_3  3951</span>
@@ -300,7 +302,7 @@ dplyr::<span class="kw">count</span>(arr)
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

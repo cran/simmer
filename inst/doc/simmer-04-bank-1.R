@@ -10,15 +10,17 @@ if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = T
 ## ------------------------------------------------------------------------
 library(simmer)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
-  timeout(10) 
+  log_("Here I am") %>%
+  timeout(10) %>%
+  log_("I must leave")
 
-bank <- 
-  simmer("bank") %>% 
+bank <-
+  simmer("bank") %>%
   add_generator("Customer", customer, at(5))
 
-bank %>% run(until = 100) 
+bank %>% run(until = 100)
 bank %>% get_mon_arrivals
 
 ## ------------------------------------------------------------------------
@@ -26,15 +28,17 @@ library(simmer)
 
 set.seed(10212)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
-  timeout(10) 
+  log_("Here I am") %>%
+  timeout(10) %>%
+  log_("I must leave")
 
-bank <- 
-  simmer("bank") %>% 
+bank <-
+  simmer("bank") %>%
   add_generator("Customer", customer, at(rexp(1, 1/5)))
 
-bank %>% run(until = 100) 
+bank %>% run(until = 100)
 bank %>% get_mon_arrivals
 
 ## ------------------------------------------------------------------------
@@ -42,14 +46,14 @@ bank %>% get_mon_arrivals
 loop <- function(...) {
     time_diffs <- c(...)
     i <- 0
-    function() {		
-      if (i < length(time_diffs)) {		
-        i <<- i+1		
-      } else {		
-        i <<- 1		
-      }		
-      return(time_diffs[i])		
-    }		
+    function() {
+      if (i < length(time_diffs)) {
+        i <<- i+1
+      } else {
+        i <<- 1
+      }
+      return(time_diffs[i])
+    }
   }
 
 x <- loop(10, 7, 20)
@@ -62,40 +66,78 @@ library(simmer)
 loop <- function(...) {
     time_diffs <- c(...)
     i <- 0
-    function() {		
-      if (i < length(time_diffs)) {		
-        i <<- i+1		
-      } else {		
-        i <<- 1		
-      }		
-      return(time_diffs[i])		
-    }		
+    function() {
+      if (i < length(time_diffs)) {
+        i <<- i+1
+      } else {
+        i <<- 1
+      }
+      return(time_diffs[i])
+    }
   }
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
-  timeout(loop(10, 7, 20))
+  log_("Here I am") %>%
+  timeout(loop(7, 10, 20)) %>%
+  log_("I must leave")
 
-bank <- 
-  simmer("bank") %>% 
+
+bank <-
+  simmer("bank") %>%
   add_generator("Customer", customer, at(2, 5, 12))
 
-bank %>% run(until = 400) 
+bank %>% run(until = 400)
 bank %>% get_mon_arrivals
 
 ## ------------------------------------------------------------------------
 library(simmer)
 
-customer <- 
+# Create a template trajectory
+customer <-
   trajectory("Customer's path") %>%
-  timeout(12) 
+  log_("Here I am") %>%
+  timeout(1) %>% # The timeout of 1 is a placeholder to be overwritten later
+  log_("I must leave")
 
-bank <- 
-  simmer("bank") %>% 
-  add_generator("Customer", customer, 
-                function() {c(0, rep(10, 4), -1)}) # every 10 starting at 0 for 5 customers
+# Create three copies of the template
+Klaus <- customer
+Tony <- customer
+Evelyn <- customer
 
-bank %>% run(until = 400) 
+# Modify the timeout of each copy
+Klaus[2] <- timeout(trajectory(), 10)
+Tony[2] <- timeout(trajectory(), 7)
+Evelyn[2] <- timeout(trajectory(), 20)
+
+# Check that the modifications worked
+Klaus
+Tony
+Evelyn
+
+bank <-
+  simmer("bank") %>%
+  add_generator("Klaus", Klaus, at(5)) %>%
+  add_generator("Tony", Tony, at(2)) %>%
+  add_generator("Evelyn", Evelyn, at(12))
+
+bank %>% run(until = 400)
+bank %>% get_mon_arrivals
+
+## ------------------------------------------------------------------------
+library(simmer)
+
+customer <-
+  trajectory("Customer's path") %>%
+  log_("Here I am") %>%
+  timeout(12) %>%
+  log_("I must leave")
+
+bank <-
+  simmer("bank") %>%
+  add_generator("Customer", customer, from_to(0, 41, function() {10}))
+
+bank %>% run(until = 400)
 bank %>% get_mon_arrivals
 
 ## ------------------------------------------------------------------------
@@ -103,79 +145,96 @@ library(simmer)
 
 set.seed(1289)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
-  timeout(12) 
+  log_("Here I am") %>%
+  timeout(12) %>%
+  log_("I must leave")
 
-bank <- 
-  simmer("bank") %>% 
+bank <-
+  simmer("bank") %>%
   add_generator("Customer", customer, function() {c(0, rexp(4, 1/10), -1)})
 
-bank %>% run(until = 400) 
+bank %>% run(until = 400)
 bank %>% get_mon_arrivals
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
 
-set.seed(99999)
+set.seed(1234)
 
-customer <- 
+bank <- simmer()
+
+customer <-
   trajectory("Customer's path") %>%
+  log_("Here I am") %>%
+  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
+  log_(function(attr) {paste("Waited: ", now(bank) - attr["start_time"])}) %>%
   timeout(12) %>%
-  release("counter")
+  release("counter") %>%
+  log_(function(attr) {paste("Finished: ", now(bank))})
 
-bank <- 
-  simmer("bank") %>% 
+bank <-
+  simmer("bank") %>%
   add_resource("counter") %>%
   add_generator("Customer", customer, function() {c(0, rexp(4, 1/10), -1)})
 
-bank %>% run(until = 400) 
-bank %>% 
+bank %>% run(until = 400)
+bank %>%
   get_mon_arrivals %>%
   dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
 
-set.seed(99999)
+set.seed(1269)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
+  log_("Here I am") %>%
+  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
+  log_(function(attr) {paste("Waited: ", now(bank) - attr["start_time"])}) %>%
+  # timeout(rexp(1, 1/12)) would generate a single random time and use it for
+  # every arrival, whereas the following line generates a random time for each
+  # arrival
   timeout(function() {rexp(1, 1/12)}) %>%
-  # timeout(rexp(1, 1/12)) %>% # This line would use the same time for everyone
-  release("counter")
+  release("counter") %>%
+  log_(function(attr) {paste("Finished: ", now(bank))})
 
-bank <- 
-  simmer("bank") %>% 
+bank <-
+  simmer("bank") %>%
   add_resource("counter") %>%
   add_generator("Customer", customer, function() {c(0, rexp(4, 1/10), -1)})
 
-bank %>% run(until = 400) 
-bank %>% 
+bank %>% run(until = 400)
+bank %>%
   get_mon_arrivals %>%
   dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
 
-set.seed(99999)
+set.seed(1269)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
+  log_("Here I am") %>%
+  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
+  log_(function(attr) {paste("Waited: ", now(bank) - attr["start_time"])}) %>%
   timeout(function() {rexp(1, 1/12)}) %>%
-  # timeout(rexp(1, 1/12)) %>% # This line would use the same time for everyone
-  release("counter")
+  release("counter") %>%
+  log_(function(attr) {paste("Finished: ", now(bank))})
 
-bank <- 
-  simmer("bank") %>% 
-  add_resource("counter", 2) %>%
+bank <-
+  simmer("bank") %>%
+  add_resource("counter", 2) %>% # Here is the change
   add_generator("Customer", customer, function() {c(0, rexp(4, 1/10), -1)})
 
-bank %>% run(until = 400) 
-bank %>% 
+bank %>% run(until = 400)
+bank %>%
   get_mon_arrivals %>%
   dplyr::mutate(waiting_time = end_time - start_time - activity_time)
 
@@ -184,25 +243,29 @@ library(simmer)
 
 set.seed(1014)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
+  log_("Here I am") %>%
+  set_attribute("start_time", function() {now(bank)}) %>%
   select(c("counter1", "counter2"), policy = "shortest-queue") %>%
   seize_selected %>%
+  log_(function(attr) {paste("Waited: ", now(bank) - attr["start_time"])}) %>%
   timeout(function() {rexp(1, 1/12)}) %>%
-  release_selected
+  release_selected %>%
+  log_(function(attr) {paste("Finished: ", now(bank))})
 
-bank <- 
-  simmer("bank") %>% 
+bank <-
+  simmer("bank") %>%
   add_resource("counter1", 1) %>%
   add_resource("counter2", 1) %>%
   add_generator("Customer", customer, function() {c(0, rexp(4, 1/10), -1)})
 
-bank %>% run(until = 400) 
-bank %>% 
+bank %>% run(until = 400)
+bank %>%
   get_mon_arrivals %>%
   dplyr::mutate(service_start_time = end_time - activity_time) %>%
   dplyr::arrange(start_time)
-bank %>% 
+bank %>%
   get_mon_resources %>%
   dplyr::arrange(time)
 
@@ -211,22 +274,25 @@ library(simmer)
 
 set.seed(100005)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   release("counter")
 
-bank <- 
-  simmer("bank") %>% 
+bank <-
+  simmer("bank") %>%
   add_resource("counter", 2) %>%
   add_generator("Customer", customer, function() {c(0, rexp(49, 1/10), -1)})
 
-bank %>% run(until = 400) 
-result <- 
-  bank %>% 
+bank %>% run(until = 1000)
+
+result <-
+  bank %>%
   get_mon_arrivals %>%
   dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+
+## ---- message = FALSE----------------------------------------------------
 paste("Average wait for ", sum(result$finished), " completions was ",
       mean(result$waiting_time), "minutes.")
 
@@ -234,7 +300,7 @@ paste("Average wait for ", sum(result$finished), " completions was ",
 library(simmer)
 library(parallel)
 
-customer <- 
+customer <-
   trajectory("Customer's path") %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/12)}) %>%
@@ -243,14 +309,14 @@ customer <-
 mclapply(c(393943, 100005, 777999555, 319999772), function(the_seed) {
   set.seed(the_seed)
 
-  bank <- 
-    simmer("bank") %>% 
+  bank <-
+    simmer("bank") %>%
     add_resource("counter", 2) %>%
     add_generator("Customer", customer, function() {c(0, rexp(49, 1/10), -1)})
 
-  bank %>% run(until = 400) 
-  result <- 
-    bank %>% 
+  bank %>% run(until = 400)
+  result <-
+    bank %>%
     get_mon_arrivals %>%
     dplyr::mutate(waiting_time = end_time - start_time - activity_time)
   paste("Average wait for ", sum(result$finished), " completions was ",
