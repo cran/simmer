@@ -14,12 +14,12 @@ class Resource;
  */
 class Process : public Entity {
 public:
-  Process(Simulator* sim, std::string name, int mon, int priority = 0)
+  Process(Simulator* sim, const std::string& name, int mon, int priority = 0)
     : Entity(sim, name, mon), active(true), priority(priority) {}
   virtual void run() = 0;
   virtual bool activate(double delay = 0);
   virtual bool deactivate();
-  bool is_active() { return active; }
+  bool is_active() const { return active; }
 
 protected:
   bool active;
@@ -30,8 +30,8 @@ class Manager : public Process {
   typedef boost::function<void (int)> Setter;
 
 public:
-  Manager(Simulator* sim, std::string name, std::string param,
-          VEC<double> duration, VEC<int> value, int period, Setter set)
+  Manager(Simulator* sim, const std::string& name, const std::string& param,
+          const VEC<double>& duration, const VEC<int>& value, int period, const Setter& set)
     : Process(sim, name, false, PRIORITY_MANAGER), param(param),
       duration(duration), value(value), period(period), set(set), index(0) {}
 
@@ -49,10 +49,8 @@ private:
 };
 
 class Task : public Process {
-  typedef boost::function<void ()> Bind;
-
 public:
-  Task(Simulator* sim, std::string name, Bind task, int priority = 0)
+  Task(Simulator* sim, const std::string& name, const BIND(void)& task, int priority = 0)
     : Process(sim, name, false, priority), task(task) {}
   ~Task() { reset(); }
 
@@ -60,7 +58,7 @@ public:
   void run();
 
 private:
-  Bind task;
+  BIND(void) task;
 };
 
 struct Order {
@@ -78,7 +76,7 @@ public:
     if (preemptible < priority)
       preemptible = priority;
   }
-  int get_priority() { return priority; }
+  int get_priority() const { return priority; }
   void set_preemptible(int value) {
     if (value < priority) {
       Rcpp::warning("`preemptible` level cannot be < `priority`, `preemptible` set to %d", priority);
@@ -86,9 +84,9 @@ public:
     }
     preemptible = value;
   }
-  int get_preemptible() { return preemptible; }
+  int get_preemptible() const { return preemptible; }
   void set_restart(bool value) { restart = value; }
-  bool get_restart() { return restart; }
+  bool get_restart() const { return restart; }
 
 private:
   int priority;       /**< arrival priority */
@@ -110,8 +108,8 @@ public:
    * @param dist            a user-defined R function that provides random numbers
    * @param order           priority, preemptible, restart
    */
-  Generator(Simulator* sim, std::string name_prefix, int mon,
-            Rcpp::Environment trj, Rcpp::Function dist, Order order)
+  Generator(Simulator* sim, const std::string& name_prefix, int mon,
+            const Rcpp::Environment& trj, const Rcpp::Function& dist, const Order& order)
     : Process(sim, name_prefix, mon, PRIORITY_GENERATOR), count(0), trj(trj),
       dist(dist), order(order), first_activity(NULL) { set_first_activity(); }
 
@@ -120,20 +118,18 @@ public:
    */
   void reset() {
     count = 0;
-    Rcpp::Environment dist_env(dist.environment());
-    Rcpp::Environment reset_env(dist_env[".reset"]);
-    Rcpp::Function reset_fun(reset_env["reset"]);
+    Rcpp::Function reset_fun(dist.attr("reset"));
     reset_fun();
   }
 
   void run();
 
-  int get_n_generated() { return count; }
-  void set_trajectory(Rcpp::Environment new_trj) {
+  int get_n_generated() const { return count; }
+  void set_trajectory(const Rcpp::Environment& new_trj) {
     trj = new_trj;
     set_first_activity();
   }
-  void set_distribution(Rcpp::Function new_dist) { dist = new_dist; }
+  void set_distribution(const Rcpp::Function& new_dist) { dist = new_dist; }
 
 private:
   int count;                /**< number of arrivals generated */
@@ -166,7 +162,7 @@ public:
   typedef UMAP<int, Resource*> SelMap;
   typedef MSET<Resource*> ResMSet;
 
-  CLONEABLE_COUNT(Arrival)
+  CLONEABLE(Arrival)
 
   Order order;        /**< priority, preemptible, restart */
 
@@ -178,33 +174,45 @@ public:
   * @param order           priority, preemptible, restart
   * @param first_activity  the first activity of a user-defined R trajectory
   */
-  Arrival(Simulator* sim, std::string name, int mon, Order order,
+  Arrival(Simulator* sim, const std::string& name, int mon, Order order,
           Activity* first_activity, int priority = 0)
-    : Process(sim, name, mon, priority), clones(new int(1)), order(order),
-      activity(first_activity), timer(NULL), batch(NULL) {}
+    : Process(sim, name, mon, priority), order(order), clones(new int(0)),
+      activity(first_activity), timer(NULL), batch(NULL) { init(); }
 
   Arrival(const Arrival& o)
-    : Process(o), clones(o.clones), order(o.order), activity(NULL), timer(NULL), batch(NULL) {}
+    : Process(o), order(o.order), clones(o.clones), activity(NULL),
+      timer(NULL), batch(NULL) { init(); }
 
   ~Arrival() { reset(); }
 
-  void reset();
   void run();
   void restart();
   void pause();
   void stop();
   virtual void terminate(bool finished);
-  virtual void set_attribute(std::string key, double value);
-  double get_start(std::string name);
+  virtual void set_attribute(const std::string& key, double value);
+  double get_start(const std::string& name);
 
-  Attr* get_attributes() { return &attributes; }
-  double get_remaining() { return status.remaining; }
+  int get_clones() const { return *clones; }
+  double get_remaining() const { return status.remaining; }
   void set_activity(Activity* ptr) { activity = ptr; }
-  double get_start() { return lifetime.start; }
-  Activity* get_activity() { return activity; }
+  double get_start() const { return lifetime.start; }
+  Activity* get_activity() const { return activity; }
+  Attr* get_attributes() { return &attributes; } // # nocov
+  double get_attribute(const std::string& key) const {
+    Attr::const_iterator search = attributes.find(key);
+    if (search == attributes.end())
+      return NA_REAL;
+    return (*search).second;
+  }
 
-  void set_selected(int id, Resource* res) { selected[id] = res; }
-  Resource* get_selected(int id) { return selected[id]; }
+  void set_resource_selected(int id, Resource* res) { selected[id] = res; }
+  Resource* get_resource_selected(int id) const {
+    SelMap::const_iterator search = selected.find(id);
+    if (search != selected.end())
+      return search->second;
+    return NULL;
+  }
   void register_entity(Resource* ptr);
   void register_entity(Batched* ptr) { batch = ptr; }
   void unregister_entity(Resource* ptr);
@@ -217,10 +225,11 @@ public:
                      PRIORITY_MIN);
     timer->activate(timeout);
   }
-  void set_renege(std::string sig, Activity* next);
+  void set_renege(const std::string& sig, Activity* next);
   void cancel_renege();
 
 protected:
+  int* clones;          /**< number of active clones */
   ArrStatus status;     /**< arrival timing status */
   ArrTime lifetime;     /**< time spent in the whole trajectory */
   ResTime restime;      /**< time spent in resources */
@@ -232,9 +241,11 @@ protected:
   Batched* batch;       /**< batch that contains this arrival */
   ResMSet resources;    /**< resources that contain this arrival */
 
+  void init();
+  void reset();
   void renege(Activity* next);
-  virtual void report(std::string resource);
-  virtual void report(std::string resource, double start, double activity);
+  virtual void report(const std::string& resource) const;
+  virtual void report(const std::string& resource, double start, double activity) const;
   bool leave_resources(bool flag = false);
 
   virtual void update_activity(double value) {
@@ -269,9 +280,9 @@ protected:
  */
 class Batched : public Arrival {
 public:
-  CLONEABLE_COUNT_DERIVED(Batched)
+  CLONEABLE(Batched)
 
-  Batched(Simulator* sim, std::string name, bool permanent, int priority = 0)
+  Batched(Simulator* sim, const std::string& name, bool permanent, int priority = 0)
     : Arrival(sim, name, true, Order(), NULL, priority), permanent(permanent) {}
 
   Batched(const Batched& o) : Arrival(o), arrivals(o.arrivals), permanent(o.permanent) {
@@ -282,12 +293,6 @@ public:
   }
 
   ~Batched() { reset(); }
-
-  void reset() {
-    foreach_ (Arrival* arrival, arrivals)
-      delete arrival;
-    arrivals.clear();
-  }
 
   void terminate(bool finished);
 
@@ -300,10 +305,10 @@ public:
     arrivals.clear();
   }
 
-  void set_attribute(std::string key, double value);
+  void set_attribute(const std::string& key, double value);
 
-  bool is_permanent() { return permanent; }
-  size_t size() { return arrivals.size(); }
+  bool is_permanent() const { return permanent; }
+  size_t size() const { return arrivals.size(); }
 
   void insert(Arrival* arrival) {
     arrival->set_activity(NULL);
@@ -316,21 +321,29 @@ protected:
   VEC<Arrival*> arrivals;
   bool permanent;
 
-  void report(std::string resource) {
-    foreach_ (Arrival* arrival, arrivals) {
-      if (arrival->is_monitored())
-        arrival->report(resource, restime[resource].start, restime[resource].activity);
+  void reset() {
+    foreach_ (Arrival* arrival, arrivals)
+      delete arrival;
+    arrivals.clear();
+  }
+
+  void report(const std::string& resource) const {
+    foreach_ (const Arrival* arrival, arrivals) {
+      if (arrival->is_monitored()) {
+        ArrTime time = restime.find(resource)->second;
+        arrival->report(resource, time.start, time.activity);
+      }
     }
   }
 
-  void report(std::string resource, double start, double activity) {
-    foreach_ (Arrival* arrival, arrivals) {
+  void report(const std::string& resource, double start, double activity) const {
+    foreach_ (const Arrival* arrival, arrivals) {
       if (arrival->is_monitored())
         arrival->report(resource, start, activity);
     }
   }
 
-  void report(Arrival* arrival);
+  void report(Arrival* arrival) const;
 
   void update_activity(double value) {
     Arrival::update_activity(value);

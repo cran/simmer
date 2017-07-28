@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar, Bart Smeets" />
 
-<meta name="date" content="2017-05-30" />
+<meta name="date" content="2017-07-27" />
 
 <title>Advanced Trajectory Usage</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Advanced Trajectory Usage</h1>
 <h4 class="author"><em>Iñaki Ucar, Bart Smeets</em></h4>
-<h4 class="date"><em>2017-05-30</em></h4>
+<h4 class="date"><em>2017-07-27</em></h4>
 
 
 <div id="TOC">
@@ -147,19 +147,21 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="co">#&gt; 1    0 patient0 my_key   123           1</span>
 <span class="co">#&gt; 2    5 patient0 my_key   456           1</span></code></pre></div>
 <p>Above, a trajectory which <em>only</em> sets attribute <code>my_key</code> to value <code>123</code> is launched once by an arrival generated at time 0 (check <code>?at</code>). The <code>mon=2</code> of <code>add_generator()</code> makes the simulation environment monitor the attributes’ evolution (disabled by default). Using <code>get_mon_attributes()</code>, we can look at the evolution of the value of <code>my_key</code>.</p>
-<p>If you want to set an attribute that depends on another attribute, or on the current value of the attribute to be set, this is also possible. In fact, if, instead of a numeric value, you supply a function with one parameter, the current set of attributes is passed as a list to that function. Whatever (numeric value) your function returns is set as the value of the specified attribute key. If the supplied function has no parameters, it is evaluated in the same way, but the attribute list is not accesible in the function body. This means that, if you supply a function to the <code>value</code> parameter, it has to be in the form of either <code>function(attrs){}</code> (first case) or <code>function(){}</code> (second case). Below, you can see an example of this in practice.</p>
+<p>If you want to set an attribute that depends on another attribute, or on the current value of the attribute to be set, this is also possible. Attributes can be retrieved inside user-supplied functions using <code>get_attribute(.)</code>. Below, you can see an example of this in practice.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;my_key&quot;</span>, <span class="dv">123</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;my_key&quot;</span>, function(attrs) attrs[[<span class="st">&quot;my_key&quot;</span>]] +<span class="st"> </span><span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;my_key&quot;</span>, function() <span class="kw">get_attribute</span>(env, <span class="st">&quot;my_key&quot;</span>) +<span class="st"> </span><span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;dependent_key&quot;</span>, function(attrs) <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;my_key&quot;</span>]]&lt;=<span class="dv">123</span>, <span class="dv">1</span>, <span class="dv">0</span>)) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;dependent_key&quot;</span>, function() <span class="kw">ifelse</span>(<span class="kw">get_attribute</span>(env, <span class="st">&quot;my_key&quot;</span>)&lt;=<span class="dv">123</span>, <span class="dv">1</span>, <span class="dv">0</span>)) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;independent_key&quot;</span>, function() <span class="kw">runif</span>(<span class="dv">1</span>))
 
 env&lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">run</span>()
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
+env %&gt;%<span class="st"> </span><span class="kw">run</span>()
+<span class="co">#&gt; simmer environment: anonymous | now: 15 | next: </span>
+<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time     name             key       value replication</span>
@@ -167,35 +169,40 @@ env&lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="co">#&gt; 2    5 patient0          my_key 124.0000000           1</span>
 <span class="co">#&gt; 3   10 patient0   dependent_key   0.0000000           1</span>
 <span class="co">#&gt; 4   15 patient0 independent_key   0.9234335           1</span></code></pre></div>
-<p>In general, whenever an activity accepts a function as a parameter, the rule above applies, and you can obtain the current set of attributes as the first argument of that function.</p>
 <p>Attributes are <em>per arrival</em> by default (<code>global=FALSE</code>), meaning that each arrival has its own set of attributes, not visible by anyone else:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">writer &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="dt">key =</span> <span class="st">&quot;my_key&quot;</span>, <span class="dt">value =</span> <span class="dv">123</span>)
 
 reader &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) <span class="kw">paste0</span>(attr[<span class="st">&quot;my_key&quot;</span>]))
+<span class="st">  </span><span class="kw">log_</span>(function() <span class="kw">paste0</span>(<span class="kw">get_attribute</span>(env, <span class="st">&quot;my_key&quot;</span>)))
 
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;writer&quot;</span>, writer, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;reader&quot;</span>, reader, <span class="kw">at</span>(<span class="dv">1</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">run</span>()
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;reader&quot;</span>, reader, <span class="kw">at</span>(<span class="dv">1</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
+env %&gt;%<span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; 1: reader0: NA</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 1 | next: </span>
+<span class="co">#&gt; { Generator: writer | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Generator: reader | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time    name    key value replication</span>
 <span class="co">#&gt; 1    0 writer0 my_key   123           1</span></code></pre></div>
-<p>Thus, the reader in the example above returns <code>NA</code>, missing. However, attributes can also be global with <code>global=TRUE</code>. To retrieve the global set of attributes in any activity that accepts a function as a parameter, you need to specify a second argument:</p>
+<p>Thus, the reader in the example above returns <code>NA</code>, missing. However, attributes can also be global with <code>global=TRUE</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">writer &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="dt">key =</span> <span class="st">&quot;my_key&quot;</span>, <span class="dt">value =</span> <span class="dv">123</span>, <span class="dt">global =</span> <span class="ot">TRUE</span>)
 
 reader &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr, glb) <span class="kw">paste0</span>(attr[<span class="st">&quot;my_key&quot;</span>], <span class="st">&quot;, &quot;</span>, glb[<span class="st">&quot;my_key&quot;</span>]))
+<span class="st">  </span><span class="kw">log_</span>(function() <span class="kw">paste0</span>(<span class="kw">get_attribute</span>(env, <span class="st">&quot;my_key&quot;</span>), <span class="st">&quot;, &quot;</span>, <span class="kw">get_attribute</span>(env, <span class="st">&quot;my_key&quot;</span>, <span class="dt">global =</span> <span class="ot">TRUE</span>)))
 
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;writer&quot;</span>, writer, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;reader&quot;</span>, reader, <span class="kw">at</span>(<span class="dv">1</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">run</span>()
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;reader&quot;</span>, reader, <span class="kw">at</span>(<span class="dv">1</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
+env %&gt;%<span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; 1: reader0: NA, 123</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 1 | next: </span>
+<span class="co">#&gt; { Generator: writer | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Generator: reader | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time name    key value replication</span>
@@ -215,17 +222,19 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="kw">get_mon_arrivals</span>(env)
 <span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
 <span class="co">#&gt; 1 patient0          0        3             3     TRUE           1</span></code></pre></div>
-<p>Often, however, you want a timeout to be dependent on a distribution or, for example, an earlier set attribute. This is achieved by passing a function in to form of either <code>function(){}</code> or <code>function(attrs){}</code> to the <code>task</code> parameter, as we explained before. In the following example, this functionality is demonstrated:</p>
+<p>Often, however, you want a timeout to be dependent on a distribution or, for example, an earlier set attribute. This is achieved by passing a function to the <code>task</code> parameter, as we explained before, and using <code>get_attribute(.)</code>. In the following example, this functionality is demonstrated:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;health&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">20</span>:<span class="dv">80</span>, <span class="dv">1</span>)) %&gt;%
 <span class="st">  </span><span class="co"># distribution-based timeout</span>
 <span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">10</span>)) %&gt;%
 <span class="st">  </span><span class="co"># attribute-dependent timeout</span>
-<span class="st">  </span><span class="kw">timeout</span>(function(attrs) (<span class="dv">100</span> -<span class="st"> </span>attrs[[<span class="st">&quot;health&quot;</span>]]) *<span class="st"> </span><span class="dv">2</span>)
+<span class="st">  </span><span class="kw">timeout</span>(function() (<span class="dv">100</span> -<span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;health&quot;</span>)) *<span class="st"> </span><span class="dv">2</span>)
 
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">run</span>()
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
+env %&gt;%<span class="st"> </span><span class="kw">run</span>()
+<span class="co">#&gt; simmer environment: anonymous | now: 126.067459125631 | next: </span>
+<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_arrivals</span>(env)
 <span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
@@ -255,18 +264,21 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="co">#&gt; 1   doctor    0      1     0        1        Inf      1   Inf           1</span>
 <span class="co">#&gt; 2   doctor    3      0     0        1        Inf      0   Inf           1</span></code></pre></div>
 <p>Here the <code>mon=1</code> argument (=default) of <code>add_resource()</code> makes the simulation environment monitor the resource usage. Using the <code>get_mon_resources(env)</code> method you can get access to the log of the usage evolution of resources.</p>
-<p>There are situations where you want to let the amount of resources seized/released be dependent on a specific function or on a previously set attribute. To achieve this, you can pass a function in the form of either <code>function(){}</code> or <code>function(attrs){}</code> to the <code>amount</code> parameter instead of a numeric value. If going for the latter, the current state of the arrival’s attributes will be passed to <code>attrs</code> as a list which you can inspect. This allows for the following:</p>
+<p>There are situations where you want to let the amount of resources seized/released be dependent on a specific function or on a previously set attribute. To achieve this, you can pass a function to the <code>amount</code> parameter instead of a numeric value and use <code>get_attribute(.)</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;health&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">20</span>:<span class="dv">80</span>, <span class="dv">1</span>)) %&gt;%
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;docs_to_seize&quot;</span>, function(attrs) <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;health&quot;</span>]]&lt;<span class="dv">50</span>, <span class="dv">1</span>, <span class="dv">2</span>)) %&gt;%
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;doctor&quot;</span>, function(attrs) attrs[[<span class="st">&quot;docs_to_seize&quot;</span>]]) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;docs_to_seize&quot;</span>, function() <span class="kw">ifelse</span>(<span class="kw">get_attribute</span>(env, <span class="st">&quot;health&quot;</span>)&lt;<span class="dv">50</span>, <span class="dv">1</span>, <span class="dv">2</span>)) %&gt;%
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;doctor&quot;</span>, function() <span class="kw">get_attribute</span>(env, <span class="st">&quot;docs_to_seize&quot;</span>)) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">3</span>) %&gt;%
-<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;doctor&quot;</span>, function(attrs) attrs[[<span class="st">&quot;docs_to_seize&quot;</span>]])
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;doctor&quot;</span>, function() <span class="kw">get_attribute</span>(env, <span class="st">&quot;docs_to_seize&quot;</span>))
 
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dt">capacity =</span> <span class="dv">2</span>, <span class="dt">mon =</span> <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">run</span>()
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
+env %&gt;%<span class="st"> </span><span class="kw">run</span>()
+<span class="co">#&gt; simmer environment: anonymous | now: 3 | next: </span>
+<span class="co">#&gt; { Resource: doctor | monitored: 1 | server status: 0(2) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_resources</span>(env)
 <span class="co">#&gt;   resource time server queue capacity queue_size system limit replication</span>
@@ -421,7 +433,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 </div>
 <div id="set_capacity-set_queue_size" class="section level3">
 <h3><code>set_capacity()</code>, <code>set_queue_size()</code></h3>
-<p>The <code>set_capacity(., resource, value)</code> method modifies the capacity of the specified resource by name, and the <code>set_queue_size(., resource, value)</code> method modifies its queue size. Be aware that, in order to use these functions in relation to a specific resource, you have to create it in your definition of the simulation environment (check <code>?add_resource</code>). You can supply the <code>value</code> parameter either as a numeric value or as a function, in the form of either <code>function(){}</code> or <code>function(attrs){}</code>, which must return a numeric value.</p>
+<p>The <code>set_capacity(., resource, value)</code> method modifies the capacity of the specified resource by name, and the <code>set_queue_size(., resource, value)</code> method modifies its queue size. Be aware that, in order to use these functions in relation to a specific resource, you have to create it in your definition of the simulation environment (check <code>?add_resource</code>). You can supply the <code>value</code> parameter either as a numeric value or as a function which must return a numeric value.</p>
 <p>These activities are interesting to introduce dynamical changes in the resources. For instance, consider the following example in which two trajectories fight for the capacity of their resource:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">12345</span>)
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>()
@@ -497,7 +509,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <p>If you provide <code>select()</code> with <code>resources</code> as a vector of names, you can use one of the predefined policies (see <code>?select</code>). If you need some custom policy, you can define it and supply it as a function. For instance, let’s pick a resource based on a previously set attribute:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;resource&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">1</span>:<span class="dv">3</span>, <span class="dv">1</span>)) %&gt;%
-<span class="st">  </span><span class="kw">select</span>(<span class="dt">resources =</span> function(attrs) <span class="kw">paste0</span>(<span class="st">&quot;doctor&quot;</span>, attrs[<span class="st">&quot;resource&quot;</span>])) %&gt;%
+<span class="st">  </span><span class="kw">select</span>(<span class="dt">resources =</span> function() <span class="kw">paste0</span>(<span class="st">&quot;doctor&quot;</span>, <span class="kw">get_attribute</span>(env, <span class="st">&quot;resource&quot;</span>))) %&gt;%
 <span class="st">  </span><span class="kw">seize_selected</span>(<span class="dt">amount =</span> <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">5</span>) %&gt;%
 <span class="st">  </span><span class="kw">release_selected</span>(<span class="dt">amount =</span> <span class="dv">1</span>)
@@ -506,8 +518,13 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
 <span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor1&quot;</span>, <span class="dt">capacity =</span> <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor2&quot;</span>, <span class="dt">capacity =</span> <span class="dv">1</span>) %&gt;%
 <span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;doctor3&quot;</span>, <span class="dt">capacity =</span> <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">mon =</span> <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">run</span>()
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
+env %&gt;%<span class="st"> </span><span class="kw">run</span>()
+<span class="co">#&gt; simmer environment: anonymous | now: 11 | next: </span>
+<span class="co">#&gt; { Resource: doctor1 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: doctor2 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: doctor3 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 3 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time     name      key value replication</span>
@@ -574,13 +591,17 @@ t2 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 </div>
 <div id="set_prioritization" class="section level3">
 <h3><code>set_prioritization()</code></h3>
-<p>The <code>add_generator()</code> method assigns a set of prioritization values to each generated arrival: by default, <code>priority=0</code>, <code>preemptible=priority</code>, <code>restart=FALSE</code> (see <code>?add_generator</code> for more details). The <code>set_prioritization(., values)</code> method can change those values with more granularity at any point in the trajectory:</p>
+<p>The <code>add_generator()</code> method assigns a set of prioritization values to each generated arrival: by default, <code>priority=0</code>, <code>preemptible=priority</code>, <code>restart=FALSE</code> (see <code>?add_generator</code> for more details). The <code>set_prioritization(., values)</code> method can change those values with more granularity at any point in the trajectory, and they can also be retrieved inside the trajectory using <code>get_prioritization(.)</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>(<span class="dt">name =</span> <span class="st">&quot;patient_trajectory&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;priority&quot;</span>, <span class="dv">3</span>) %&gt;%
 <span class="st">  </span><span class="co"># static values</span>
 <span class="st">  </span><span class="kw">set_prioritization</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">7</span>, <span class="ot">TRUE</span>)) %&gt;%
 <span class="st">  </span><span class="co"># dynamically with a function</span>
-<span class="st">  </span><span class="kw">set_prioritization</span>(<span class="dt">values =</span> function(attrs) <span class="kw">c</span>(attrs[<span class="st">&quot;priority&quot;</span>], <span class="dv">7</span>, <span class="ot">TRUE</span>))</code></pre></div>
+<span class="st">  </span><span class="kw">set_prioritization</span>(<span class="dt">values =</span> function() {
+    prio &lt;-<span class="st"> </span><span class="kw">get_prioritization</span>(env)
+    attr &lt;-<span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;priority&quot;</span>)
+    <span class="kw">c</span>(attr, prio[[<span class="dv">2</span>]]+<span class="dv">1</span>, <span class="ot">FALSE</span>)
+  })</code></pre></div>
 <p>More details on prioritization in the <em>Advanced Resource Usage</em> vignette (pending).</p>
 </div>
 <div id="branch" class="section level3">
@@ -650,19 +671,20 @@ arrivals &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(
 <p>The <code>rollback()</code> method also accepts an optional <code>check</code> parameter which overrides the default amount-based behaviour. This parameter must be a function that returns a logical value. Each time an arrival reaches the activity, this <code>check</code> is evaluated to determine whether the <code>rollback()</code> with <code>amount</code> steps must be performed or not. Consider the following example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t0 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;happiness&quot;</span>, <span class="dv">0</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attrs) {
-    <span class="kw">paste0</span>(<span class="st">&quot;&gt;&gt; Happiness level is at: &quot;</span>, attrs[[<span class="st">&quot;happiness&quot;</span>]], <span class="st">&quot; -- &quot;</span>, 
-           <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">25</span>,<span class="st">&quot;PETE: I'm feeling crappy...&quot;</span>,
-                  <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">50</span>,<span class="st">&quot;PETE: Feelin' a bit moody&quot;</span>,
-                         <span class="kw">ifelse</span>(attrs[[<span class="st">&quot;happiness&quot;</span>]]&lt;<span class="dv">75</span>,<span class="st">&quot;PETE: Just had a good espresso&quot;</span>,
+<span class="st">  </span><span class="kw">log_</span>(function() {
+    level &lt;-<span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;happiness&quot;</span>)
+    <span class="kw">paste0</span>(<span class="st">&quot;&gt;&gt; Happiness level is at: &quot;</span>, level, <span class="st">&quot; -- &quot;</span>, 
+           <span class="kw">ifelse</span>(level&lt;<span class="dv">25</span>,<span class="st">&quot;PETE: I'm feeling crappy...&quot;</span>,
+                  <span class="kw">ifelse</span>(level&lt;<span class="dv">50</span>,<span class="st">&quot;PETE: Feelin' a bit moody&quot;</span>,
+                         <span class="kw">ifelse</span>(level&lt;<span class="dv">75</span>,<span class="st">&quot;PETE: Just had a good espresso&quot;</span>,
                                 <span class="st">&quot;PETE: Let's do this! (and stop this loop...)&quot;</span>))))
   }) %&gt;%
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;happiness&quot;</span>, function(attrs) attrs[[<span class="st">&quot;happiness&quot;</span>]] +<span class="st"> </span><span class="dv">25</span>) %&gt;%
-<span class="st">  </span><span class="kw">rollback</span>(<span class="dt">amount =</span> <span class="dv">2</span>, <span class="dt">check =</span> function(attrs) attrs[[<span class="st">&quot;happiness&quot;</span>]] &lt;<span class="st"> </span><span class="dv">100</span>)
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;happiness&quot;</span>, function() <span class="kw">get_attribute</span>(env, <span class="st">&quot;happiness&quot;</span>) +<span class="st"> </span><span class="dv">25</span>) %&gt;%
+<span class="st">  </span><span class="kw">rollback</span>(<span class="dt">amount =</span> <span class="dv">2</span>, <span class="dt">check =</span> function() <span class="kw">get_attribute</span>(env, <span class="st">&quot;happiness&quot;</span>) &lt;<span class="st"> </span><span class="dv">100</span>)
 
-<span class="kw">simmer</span>() %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;mood_swinger&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">run</span>() %&gt;%<span class="st"> </span>invisible
+env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;mood_swinger&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>))
+env %&gt;%<span class="st"> </span><span class="kw">run</span>() %&gt;%<span class="st"> </span><span class="kw">invisible</span>()
 <span class="co">#&gt; 0: mood_swinger0: &gt;&gt; Happiness level is at: 0 -- PETE: I'm feeling crappy...</span>
 <span class="co">#&gt; 0: mood_swinger0: &gt;&gt; Happiness level is at: 25 -- PETE: Feelin' a bit moody</span>
 <span class="co">#&gt; 0: mood_swinger0: &gt;&gt; Happiness level is at: 50 -- PETE: Just had a good espresso</span>

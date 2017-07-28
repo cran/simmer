@@ -2,7 +2,7 @@
 #define SIMULATOR_H
 
 #include "simmer.h"
-#include "stats.h"
+#include "monitor.h"
 #include "process.h"
 #include "resource.h"
 
@@ -36,8 +36,7 @@ class Simulator {
   typedef UMAP<Arrival*, USET<std::string> > ArrMap;
   typedef UMAP<std::string, Batched*> NamBMap;
   typedef UMAP<Activity*, Batched*> UnnBMap;
-  typedef boost::function<void ()> Bind;
-  typedef std::pair<bool, Bind> Handler;
+  typedef std::pair<bool, BIND(void)> Handler;
   typedef UMAP<Arrival*, Handler> HandlerMap;
   typedef UMAP<std::string, HandlerMap> SigMap;
 
@@ -50,8 +49,8 @@ public:
    * @param name    simulator name
    * @param verbose verbose flag
    */
-  Simulator(std::string name, bool verbose)
-    : name(name), verbose(verbose), now_(0), b_count(0) {}
+  Simulator(const std::string& name, bool verbose)
+    : name(name), verbose(verbose), now_(0), process_(NULL), b_count(0) {}
 
   ~Simulator() {
     foreach_ (EntMap::value_type& itr, resource_map)
@@ -72,14 +71,14 @@ public:
   void reset() {
     now_ = 0;
     foreach_ (EntMap::value_type& itr, resource_map)
-      ((Resource*)itr.second)->reset();
+      static_cast<Resource*>(itr.second)->reset();
     foreach_ (PQueue::value_type& itr, event_queue)
       if (dynamic_cast<Arrival*>(itr.process)) delete itr.process;
     event_queue.clear();
     event_map.clear();
     foreach_ (EntMap::value_type& itr, process_map) {
-      ((Process*)itr.second)->reset();
-      ((Process*)itr.second)->activate();
+      static_cast<Process*>(itr.second)->reset();
+      static_cast<Process*>(itr.second)->activate();
     }
     foreach_ (NamBMap::value_type& itr, namedb_map)
       if (itr.second) delete itr.second;
@@ -91,13 +90,13 @@ public:
     b_count = 0;
     signal_map.clear();
     attributes.clear();
-    arr_traj_stats.clear();
-    arr_res_stats.clear();
-    attr_stats.clear();
-    res_stats.clear();
+    mon_arr_traj.clear();
+    mon_arr_res.clear();
+    mon_attributes.clear();
+    mon_resources.clear();
   }
 
-  double now() { return now_; }
+  double now() const { return now_; }
 
   /**
    * Schedule a future event.
@@ -117,17 +116,21 @@ public:
   /**
    * Look for future events.
    */
-  std::pair<VEC<double>, VEC<std::string> > peek(int steps) {
+  Rcpp::DataFrame peek(int steps) const {
     VEC<double> time;
     VEC<std::string> process;
     if (steps) {
-      foreach_ (PQueue::value_type& itr, event_queue) {
+      foreach_ (const PQueue::value_type& itr, event_queue) {
         time.push_back(itr.time);
         process.push_back(itr.process->name);
         if (!--steps) break;
       }
     }
-    return std::make_pair(time, process);
+    return Rcpp::DataFrame::create(
+      Rcpp::Named("time")             = time,
+      Rcpp::Named("process")          = process,
+      Rcpp::Named("stringsAsFactors") = false
+    );
   }
 
   /**
@@ -143,8 +146,10 @@ public:
       return false;
     }
     now_ = ev->time;
+    process_ = ev->process;
     event_map.erase(ev->process);
-    ev->process->run();
+    process_->run();
+    process_ = NULL;
     event_queue.erase(ev);
     return true;
   }
@@ -169,7 +174,7 @@ public:
    * @param   preemptible     maximum priority that cannot cause preemption (>=priority)
    * @param   restart         whether activity must be restarted after preemption
    */
-  bool add_generator(std::string name_prefix, Rcpp::Environment trj, Rcpp::Function dist,
+  bool add_generator(const std::string& name_prefix, Rcpp::Environment trj, Rcpp::Function dist,
                      int mon, int priority, int preemptible, bool restart)
   {
     if (process_map.find(name_prefix) != process_map.end()) {
@@ -193,8 +198,8 @@ public:
    * @param   preempt_order     fifo or lifo
    * @param   queue_size_strict whether the queue size is a hard limit
    */
-  bool add_resource(std::string name, int capacity, int queue_size, bool mon,
-                    bool preemptive, std::string preempt_order, bool queue_size_strict)
+  bool add_resource(const std::string& name, int capacity, int queue_size, bool mon,
+                    bool preemptive, const std::string& preempt_order, bool queue_size_strict)
   {
     if (resource_map.find(name) != resource_map.end()) {
       Rcpp::warning("resource '%s' already defined", name);
@@ -224,15 +229,15 @@ public:
    * @param   duration  vector of durations until the next value change
    * @param   value     vector of values
    */
-  bool add_resource_manager(std::string name, std::string param,
-                            VEC<double> duration, VEC<int> value, int period)
+  bool add_resource_manager(const std::string& name, const std::string& param,
+                            const VEC<double>& duration, const VEC<int>& value, int period)
   {
     if (process_map.find(name) != process_map.end())
       Rcpp::stop("process '%s' already defined", name);
     EntMap::iterator search = resource_map.find(name);
     if (search == resource_map.end())
       Rcpp::stop("resource '%s' not found (typo?)", name);
-    Resource* res = (Resource*)search->second;
+    Resource* res = static_cast<Resource*>(search->second);
     Manager* manager;
     if (param.compare("capacity") == 0)
       manager = new Manager(this, name, param, duration, value, period,
@@ -248,24 +253,31 @@ public:
   /**
    * Get a generator by name.
    */
-  Generator* get_generator(std::string name) {
-    EntMap::iterator search = process_map.find(name);
+  Generator* get_generator(const std::string& name) const {
+    EntMap::const_iterator search = process_map.find(name);
     if (search == process_map.end())
       Rcpp::stop("generator '%s' not found (typo?)", name);
-    return (Generator*)search->second;
+    return static_cast<Generator*>(search->second);
   }
 
   /**
    * Get a resource by name.
    */
-  Resource* get_resource(std::string name) {
-    EntMap::iterator search = resource_map.find(name);
+  Resource* get_resource(const std::string& name) const {
+    EntMap::const_iterator search = resource_map.find(name);
     if (search == resource_map.end())
       Rcpp::stop("resource '%s' not found (typo?)", name);
-    return (Resource*)search->second;
+    return static_cast<Resource*>(search->second);
   }
 
-  Batched** get_batch(Activity* ptr, std::string id) {
+  Arrival* get_running_arrival() const {
+    Arrival* arrival = dynamic_cast<Arrival*>(process_);
+    if (!arrival)
+      Rcpp::stop("there is no arrival running");
+    return arrival;
+  }
+
+  Batched** get_batch(Activity* ptr, const std::string& id) {
     if (id.size()) {
       if (namedb_map.find(id) == namedb_map.end())
         namedb_map[id] = NULL;
@@ -279,9 +291,9 @@ public:
 
   size_t get_batch_count() { return b_count++; }
 
-  void broadcast(VEC<std::string> signals) {
-    foreach_ (std::string signal, signals) {
-      foreach_ (HandlerMap::value_type& itr, signal_map[signal]) {
+  void broadcast(const VEC<std::string>& signals) {
+    foreach_ (const std::string& signal, signals) {
+      foreach_ (const HandlerMap::value_type& itr, signal_map[signal]) {
         if (!itr.second.first)
           continue;
         Task* task = new Task(this, "Handler", itr.second.second);
@@ -289,40 +301,46 @@ public:
       }
     }
   }
-  void subscribe(std::string signal, Arrival* arrival, Bind handler) {
+  void subscribe(const std::string& signal, Arrival* arrival, BIND(void) handler) {
     signal_map[signal][arrival] = std::make_pair(true, handler);
     arrival_map[arrival].emplace(signal);
   }
-  void subscribe(VEC<std::string> signals, Arrival* arrival, Bind handler) {
-    foreach_ (std::string signal, signals)
+  void subscribe(const VEC<std::string>& signals, Arrival* arrival, BIND(void) handler) {
+    foreach_ (const std::string& signal, signals)
       subscribe(signal, arrival, handler);
   }
   void subscribe(Arrival* arrival) {
-    foreach_ (std::string signal, arrival_map[arrival])
+    foreach_ (const std::string& signal, arrival_map[arrival])
       signal_map[signal][arrival].first = true;
   }
-  void unsubscribe(std::string signal, Arrival* arrival) {
+  void unsubscribe(const std::string& signal, Arrival* arrival) {
     signal_map[signal].erase(arrival);
     arrival_map[arrival].erase(signal);
   }
-  void unsubscribe(VEC<std::string> signals, Arrival* arrival) {
-    foreach_ (std::string signal, signals)
+  void unsubscribe(const VEC<std::string>& signals, Arrival* arrival) {
+    foreach_ (const std::string& signal, signals)
       unsubscribe(signal, arrival);
   }
   void unsubscribe(Arrival* arrival) {
-    foreach_ (std::string signal, arrival_map[arrival])
+    foreach_ (const std::string& signal, arrival_map[arrival])
       signal_map[signal][arrival].first = false;
   }
 
-  void set_attribute(std::string key, double value) {
+  void set_attribute(const std::string& key, double value) {
     attributes[key] = value;
     record_attribute("", key, value);
   }
-  Attr* get_attributes() { return &attributes; }
+  double get_attribute(const std::string& key) const {
+    Attr::const_iterator search = attributes.find(key);
+    if (search == attributes.end())
+      return NA_REAL;
+    return search->second;
+  }
+  Attr* get_attributes() { return &attributes; } // # nocov
 
   void register_arrival(Arrival* arrival) { arrival_map[arrival]; }
   void unregister_arrival(Arrival* arrival) {
-    foreach_ (std::string signal, arrival_map[arrival])
+    foreach_ (const std::string& signal, arrival_map[arrival])
       signal_map[signal].erase(arrival);
     arrival_map.erase(arrival);
   }
@@ -330,49 +348,49 @@ public:
   /**
    * Record monitoring data.
    */
-  void record_end(std::string name, double start, double activity, bool finished) {
-    arr_traj_stats.insert("name",           name);
-    arr_traj_stats.insert("start_time",     start);
-    arr_traj_stats.insert("end_time",       now_);
-    arr_traj_stats.insert("activity_time",  activity);
-    arr_traj_stats.insert("finished",       finished);
+  void record_end(const std::string& name, double start, double activity, bool finished) {
+    mon_arr_traj.insert("name",           name);
+    mon_arr_traj.insert("start_time",     start);
+    mon_arr_traj.insert("end_time",       now_);
+    mon_arr_traj.insert("activity_time",  activity);
+    mon_arr_traj.insert("finished",       finished);
   }
-  void record_release(std::string name, double start, double activity, std::string resource) {
-    arr_res_stats.insert("name",            name);
-    arr_res_stats.insert("start_time",      start);
-    arr_res_stats.insert("end_time",        now_);
-    arr_res_stats.insert("activity_time",   activity);
-    arr_res_stats.insert("resource",        resource);
+  void record_release(const std::string& name, double start, double activity, const std::string& resource) {
+    mon_arr_res.insert("name",            name);
+    mon_arr_res.insert("start_time",      start);
+    mon_arr_res.insert("end_time",        now_);
+    mon_arr_res.insert("activity_time",   activity);
+    mon_arr_res.insert("resource",        resource);
   }
-  void record_attribute(std::string name, std::string key, double value) {
-    attr_stats.insert("time",               now_);
-    attr_stats.insert("name",               name);
-    attr_stats.insert("key",                key);
-    attr_stats.insert("value",              value);
+  void record_attribute(const std::string& name, const std::string& key, double value) {
+    mon_attributes.insert("time",         now_);
+    mon_attributes.insert("name",         name);
+    mon_attributes.insert("key",          key);
+    mon_attributes.insert("value",        value);
   }
-  void record_resource(std::string name, int server_count, int queue_count,
+  void record_resource(const std::string& name, int server_count, int queue_count,
                        int capacity, int queue_size) {
-    res_stats.insert("resource",            name);
-    res_stats.insert("time",                now_);
-    res_stats.insert("server",              server_count);
-    res_stats.insert("queue",               queue_count);
-    res_stats.insert("capacity",            capacity);
-    res_stats.insert("queue_size",          queue_size);
+    mon_resources.insert("resource",      name);
+    mon_resources.insert("time",          now_);
+    mon_resources.insert("server",        server_count);
+    mon_resources.insert("queue",         queue_count);
+    mon_resources.insert("capacity",      capacity);
+    mon_resources.insert("queue_size",    queue_size);
   }
 
   /**
    * Get monitoring data.
    */
-  Rcpp::List get_arr_stats(bool per_resource, bool ongoing) {
+  Rcpp::DataFrame get_mon_arrivals(bool per_resource, bool ongoing) const {
     if (!per_resource) {
-      VEC<std::string> name             = arr_traj_stats.get<std::string>("name");
-      VEC<double> start_time            = arr_traj_stats.get<double>("start_time");
-      VEC<double> end_time              = arr_traj_stats.get<double>("end_time");
-      VEC<double> activity_time         = arr_traj_stats.get<double>("activity_time");
-      Rcpp::LogicalVector finished      = Rcpp::wrap(arr_traj_stats.get<bool>("finished"));
+      VEC<std::string> name             = mon_arr_traj.get<std::string>("name");
+      VEC<double> start_time            = mon_arr_traj.get<double>("start_time");
+      VEC<double> end_time              = mon_arr_traj.get<double>("end_time");
+      VEC<double> activity_time         = mon_arr_traj.get<double>("activity_time");
+      Rcpp::LogicalVector finished      = Rcpp::wrap(mon_arr_traj.get<bool>("finished"));
       if (ongoing) {
-        foreach_ (ArrMap::value_type& itr, arrival_map) {
-          if (!itr.first->is_monitored())
+        foreach_ (const ArrMap::value_type& itr, arrival_map) {
+          if (dynamic_cast<Batched*>(itr.first) || !itr.first->is_monitored())
             continue;
           name.push_back(itr.first->name);
           start_time.push_back(itr.first->get_start());
@@ -381,24 +399,25 @@ public:
           finished.push_back(R_NaInt);
         }
       }
-      return Rcpp::List::create(
-          Rcpp::Named("name")           = name,
-          Rcpp::Named("start_time")     = start_time,
-          Rcpp::Named("end_time")       = end_time,
-          Rcpp::Named("activity_time")  = activity_time,
-          Rcpp::Named("finished")       = finished
+      return Rcpp::DataFrame::create(
+        Rcpp::Named("name")             = name,
+        Rcpp::Named("start_time")       = start_time,
+        Rcpp::Named("end_time")         = end_time,
+        Rcpp::Named("activity_time")    = activity_time,
+        Rcpp::Named("finished")         = finished,
+        Rcpp::Named("stringsAsFactors") = false
       );
     } else {
-      VEC<std::string> name             = arr_res_stats.get<std::string>("name");
-      VEC<double> start_time            = arr_res_stats.get<double>("start_time");
-      VEC<double> end_time              = arr_res_stats.get<double>("end_time");
-      VEC<double> activity_time         = arr_res_stats.get<double>("activity_time");
-      VEC<std::string> resource         = arr_res_stats.get<std::string>("resource");
+      VEC<std::string> name             = mon_arr_res.get<std::string>("name");
+      VEC<double> start_time            = mon_arr_res.get<double>("start_time");
+      VEC<double> end_time              = mon_arr_res.get<double>("end_time");
+      VEC<double> activity_time         = mon_arr_res.get<double>("activity_time");
+      VEC<std::string> resource         = mon_arr_res.get<std::string>("resource");
       if (ongoing) {
-        foreach_ (ArrMap::value_type& itr1, arrival_map) {
-          if (!itr1.first->is_monitored())
+        foreach_ (const ArrMap::value_type& itr1, arrival_map) {
+          if (dynamic_cast<Batched*>(itr1.first) || !itr1.first->is_monitored())
             continue;
-          foreach_ (EntMap::value_type& itr2, resource_map) {
+          foreach_ (const EntMap::value_type& itr2, resource_map) {
             double start = itr1.first->get_start(itr2.second->name);
             if (start < 0)
               continue;
@@ -410,52 +429,57 @@ public:
           }
         }
       }
-      return Rcpp::List::create(
+      return Rcpp::DataFrame::create(
         Rcpp::Named("name")             = name,
         Rcpp::Named("start_time")       = start_time,
         Rcpp::Named("end_time")         = end_time,
         Rcpp::Named("activity_time")    = activity_time,
-        Rcpp::Named("resource")         = resource
+        Rcpp::Named("resource")         = resource,
+        Rcpp::Named("stringsAsFactors") = false
       );
     }
   }
-  Rcpp::List get_attr_stats() {
-    return Rcpp::List::create(
-      Rcpp::Named("time")             = attr_stats.get<double>("time"),
-      Rcpp::Named("name")             = attr_stats.get<std::string>("name"),
-      Rcpp::Named("key")              = attr_stats.get<std::string>("key"),
-      Rcpp::Named("value")            = attr_stats.get<double>("value")
+  Rcpp::DataFrame get_mon_attributes() const {
+    return Rcpp::DataFrame::create(
+      Rcpp::Named("time")             = mon_attributes.get<double>("time"),
+      Rcpp::Named("name")             = mon_attributes.get<std::string>("name"),
+      Rcpp::Named("key")              = mon_attributes.get<std::string>("key"),
+      Rcpp::Named("value")            = mon_attributes.get<double>("value"),
+      Rcpp::Named("stringsAsFactors") = false
     );
   }
-  Rcpp::List get_res_stats() {
-    return Rcpp::List::create(
-      Rcpp::Named("resource")         = res_stats.get<std::string>("resource"),
-      Rcpp::Named("time")             = res_stats.get<double>("time"),
-      Rcpp::Named("server")           = res_stats.get<int>("server"),
-      Rcpp::Named("queue")            = res_stats.get<int>("queue"),
-      Rcpp::Named("capacity")         = res_stats.get<int>("capacity"),
-      Rcpp::Named("queue_size")       = res_stats.get<int>("queue_size")
+  Rcpp::DataFrame get_mon_resources() const {
+    return Rcpp::DataFrame::create(
+      Rcpp::Named("resource")         = mon_resources.get<std::string>("resource"),
+      Rcpp::Named("time")             = mon_resources.get<double>("time"),
+      Rcpp::Named("server")           = mon_resources.get<int>("server"),
+      Rcpp::Named("queue")            = mon_resources.get<int>("queue"),
+      Rcpp::Named("capacity")         = mon_resources.get<int>("capacity"),
+      Rcpp::Named("queue_size")       = mon_resources.get<int>("queue_size"),
+      Rcpp::Named("stringsAsFactors") = false
     );
   }
-  Rcpp::List get_res_stats_counts() {
-    return Rcpp::List::create(
-      Rcpp::Named("resource")         = res_stats.get<std::string>("resource"),
-      Rcpp::Named("time")             = res_stats.get<double>("time"),
-      Rcpp::Named("server")           = res_stats.get<int>("server"),
-      Rcpp::Named("queue")            = res_stats.get<int>("queue")
+  Rcpp::DataFrame get_mon_resources_counts() const {
+    return Rcpp::DataFrame::create(
+      Rcpp::Named("resource")         = mon_resources.get<std::string>("resource"),
+      Rcpp::Named("time")             = mon_resources.get<double>("time"),
+      Rcpp::Named("server")           = mon_resources.get<int>("server"),
+      Rcpp::Named("queue")            = mon_resources.get<int>("queue"),
+      Rcpp::Named("stringsAsFactors") = false
     );
   }
-  Rcpp::List get_res_stats_limits() {
-    return Rcpp::List::create(
-      Rcpp::Named("resource")         = res_stats.get<std::string>("resource"),
-      Rcpp::Named("time")             = res_stats.get<double>("time"),
-      Rcpp::Named("server")           = res_stats.get<int>("capacity"),
-      Rcpp::Named("queue")            = res_stats.get<int>("queue_size")
+  Rcpp::DataFrame get_mon_resources_limits() const {
+    return Rcpp::DataFrame::create(
+      Rcpp::Named("resource")         = mon_resources.get<std::string>("resource"),
+      Rcpp::Named("time")             = mon_resources.get<double>("time"),
+      Rcpp::Named("server")           = mon_resources.get<int>("capacity"),
+      Rcpp::Named("queue")            = mon_resources.get<int>("queue_size")
     );
   }
 
 private:
   double now_;              /**< simulation time */
+  Process* process_;        /**< running process */
   PQueue event_queue;       /**< the event queue */
   EntMap resource_map;      /**< map of resources */
   EntMap process_map;       /**< map of processes */
@@ -466,10 +490,10 @@ private:
   size_t b_count;           /**< unnamed batch counter */
   SigMap signal_map;        /**< map of arrivals subscribed to signals */
   Attr attributes;          /**< user-defined (key, value) pairs */
-  StatsMap arr_traj_stats;  /**< arrival statistics per trajectory */
-  StatsMap arr_res_stats;   /**< arrival statistics per resource */
-  StatsMap attr_stats;      /**< attribute statistics */
-  StatsMap res_stats;       /**< resource statistics */
+  Monitor mon_arr_traj;     /**< arrival statistics per trajectory */
+  Monitor mon_arr_res;      /**< arrival statistics per resource */
+  Monitor mon_attributes;   /**< attribute statistics */
+  Monitor mon_resources;    /**< resource statistics */
 };
 
 #endif

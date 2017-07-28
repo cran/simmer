@@ -158,12 +158,12 @@ option.2 <- function(t) {
 option.3 <- function(t) {
   vehicle <- trajectory("car") %>%
     set_attribute("vehicle", function() sample(c(1, 2), 1, prob=c(p, 1-p))) %>%
-    seize("pump", amount=function(attrs) {
-      if (attrs["vehicle"] == 1 &&
+    seize("pump", amount=function() {
+      if (get_attribute(env, "vehicle") == 1 &&
           env %>% get_server_count("pump")) 2    # car rejection
       else 1                                     # serve
     }) %>%
-    timeout(function(attrs) rexp(1, mu[attrs["vehicle"]])) %>%
+    timeout(function() rexp(1, mu[get_attribute(env, "vehicle")])) %>%
     release("pump", amount=1)                    # always 1
   
   env <- simmer() %>%

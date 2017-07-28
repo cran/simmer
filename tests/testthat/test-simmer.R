@@ -1,17 +1,19 @@
 context("basic simmer functionality")
 
 test_that("an empty environment behaves as expected", {
-  env <- simmer(verbose = TRUE)
+  env <- simmer(verbose = TRUE) %>%
+    add_resource("asdf") %>%
+    add_generator("dummy", trajectory() %>% timeout(1), at(0))
 
   expect_output(print(env))
 
   expect_is(env, "simmer")
   expect_equal(env %>% now(), 0)
-  expect_equal(env %>% peek(), numeric(0))
+  expect_equal(env %>% peek(), 0)
 
   env %>% onestep() %>% run()
 
-  expect_equal(env %>% now(), 0)
+  expect_equal(env %>% now(), 1)
   expect_equal(env %>% peek(), numeric(0))
 })
 
@@ -76,6 +78,19 @@ test_that("the simulator is reset (2)", {
   expect_equal(nrow(arrivals_res), 0)
   expect_equal(nrow(resources), 0)
   expect_equal(nrow(attributes), 0)
+})
+
+test_that("the progress is reported", {
+  t1 <- trajectory() %>% timeout(1)
+
+  progress <- NULL
+  record <- function(x) progress <<- c(progress, x)
+
+  env <- simmer() %>%
+    add_generator("dummy", t1, at(0)) %>%
+    run(progress=record)
+
+  expect_equal(progress, seq(0, 1, 0.1))
 })
 
 test_that("the simulator stops if there are no more events", {

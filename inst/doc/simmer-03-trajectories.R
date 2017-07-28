@@ -43,15 +43,15 @@ get_mon_attributes(env)
 patient_traj <- trajectory(name = "patient_trajectory") %>%
   set_attribute("my_key", 123) %>%
   timeout(5) %>%
-  set_attribute("my_key", function(attrs) attrs[["my_key"]] + 1) %>%
+  set_attribute("my_key", function() get_attribute(env, "my_key") + 1) %>%
   timeout(5) %>%
-  set_attribute("dependent_key", function(attrs) ifelse(attrs[["my_key"]]<=123, 1, 0)) %>%
+  set_attribute("dependent_key", function() ifelse(get_attribute(env, "my_key")<=123, 1, 0)) %>%
   timeout(5) %>%
   set_attribute("independent_key", function() runif(1))
 
 env<- simmer() %>%
-  add_generator("patient", patient_traj, at(0), mon = 2) %>%
-  run()
+  add_generator("patient", patient_traj, at(0), mon = 2)
+env %>% run()
 
 get_mon_attributes(env)
 
@@ -60,12 +60,12 @@ writer <- trajectory() %>%
   set_attribute(key = "my_key", value = 123)
 
 reader <- trajectory() %>%
-  log_(function(attr) paste0(attr["my_key"]))
+  log_(function() paste0(get_attribute(env, "my_key")))
 
 env <- simmer() %>%
   add_generator("writer", writer, at(0), mon = 2) %>%
-  add_generator("reader", reader, at(1), mon = 2) %>%
-  run()
+  add_generator("reader", reader, at(1), mon = 2)
+env %>% run()
 
 get_mon_attributes(env)
 
@@ -74,12 +74,12 @@ writer <- trajectory() %>%
   set_attribute(key = "my_key", value = 123, global = TRUE)
 
 reader <- trajectory() %>%
-  log_(function(attr, glb) paste0(attr["my_key"], ", ", glb["my_key"]))
+  log_(function() paste0(get_attribute(env, "my_key"), ", ", get_attribute(env, "my_key", global = TRUE)))
 
 env <- simmer() %>%
   add_generator("writer", writer, at(0), mon = 2) %>%
-  add_generator("reader", reader, at(1), mon = 2) %>%
-  run()
+  add_generator("reader", reader, at(1), mon = 2)
+env %>% run()
 
 get_mon_attributes(env)
 
@@ -99,11 +99,11 @@ patient_traj <- trajectory(name = "patient_trajectory") %>%
   # distribution-based timeout
   timeout(function() rexp(1, 10)) %>%
   # attribute-dependent timeout
-  timeout(function(attrs) (100 - attrs[["health"]]) * 2)
+  timeout(function() (100 - get_attribute(env, "health")) * 2)
 
 env <- simmer() %>%
-  add_generator("patient", patient_traj, at(0), mon = 2) %>%
-  run()
+  add_generator("patient", patient_traj, at(0), mon = 2)
+env %>% run()
 
 get_mon_arrivals(env)
 get_mon_attributes(env)
@@ -124,15 +124,15 @@ get_mon_resources(env)
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%
   set_attribute("health", function() sample(20:80, 1)) %>%
-  set_attribute("docs_to_seize", function(attrs) ifelse(attrs[["health"]]<50, 1, 2)) %>%
-  seize("doctor", function(attrs) attrs[["docs_to_seize"]]) %>%
+  set_attribute("docs_to_seize", function() ifelse(get_attribute(env, "health")<50, 1, 2)) %>%
+  seize("doctor", function() get_attribute(env, "docs_to_seize")) %>%
   timeout(3) %>%
-  release("doctor", function(attrs) attrs[["docs_to_seize"]])
+  release("doctor", function() get_attribute(env, "docs_to_seize"))
 
 env <- simmer() %>%
   add_resource("doctor", capacity = 2, mon = 1) %>%
-  add_generator("patient", patient_traj, at(0), mon = 2) %>%
-  run()
+  add_generator("patient", patient_traj, at(0), mon = 2)
+env %>% run()
 
 get_mon_resources(env)
 get_mon_attributes(env)
@@ -287,7 +287,7 @@ get_mon_resources(env)
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%
   set_attribute("resource", function() sample(1:3, 1)) %>%
-  select(resources = function(attrs) paste0("doctor", attrs["resource"])) %>%
+  select(resources = function() paste0("doctor", get_attribute(env, "resource"))) %>%
   seize_selected(amount = 1) %>%
   timeout(5) %>%
   release_selected(amount = 1)
@@ -296,8 +296,8 @@ env <- simmer() %>%
   add_resource("doctor1", capacity = 1) %>%
   add_resource("doctor2", capacity = 1) %>%
   add_resource("doctor3", capacity = 1) %>%
-  add_generator("patient", patient_traj, at(0, 1, 2), mon = 2) %>%
-  run()
+  add_generator("patient", patient_traj, at(0, 1, 2), mon = 2)
+env %>% run()
 
 get_mon_attributes(env)
 get_mon_arrivals(env)
@@ -334,7 +334,11 @@ patient_traj <- trajectory(name = "patient_trajectory") %>%
   # static values
   set_prioritization(values = c(3, 7, TRUE)) %>%
   # dynamically with a function
-  set_prioritization(values = function(attrs) c(attrs["priority"], 7, TRUE))
+  set_prioritization(values = function() {
+    prio <- get_prioritization(env)
+    attr <- get_attribute(env, "priority")
+    c(attr, prio[[2]]+1, FALSE)
+  })
 
 ## ------------------------------------------------------------------------
 t1 <- trajectory("trajectory with a branch") %>%
@@ -391,19 +395,20 @@ simmer() %>%
 ## ------------------------------------------------------------------------
 t0 <- trajectory() %>%
   set_attribute("happiness", 0) %>%
-  log_(function(attrs) {
-    paste0(">> Happiness level is at: ", attrs[["happiness"]], " -- ", 
-           ifelse(attrs[["happiness"]]<25,"PETE: I'm feeling crappy...",
-                  ifelse(attrs[["happiness"]]<50,"PETE: Feelin' a bit moody",
-                         ifelse(attrs[["happiness"]]<75,"PETE: Just had a good espresso",
+  log_(function() {
+    level <- get_attribute(env, "happiness")
+    paste0(">> Happiness level is at: ", level, " -- ", 
+           ifelse(level<25,"PETE: I'm feeling crappy...",
+                  ifelse(level<50,"PETE: Feelin' a bit moody",
+                         ifelse(level<75,"PETE: Just had a good espresso",
                                 "PETE: Let's do this! (and stop this loop...)"))))
   }) %>%
-  set_attribute("happiness", function(attrs) attrs[["happiness"]] + 25) %>%
-  rollback(amount = 2, check = function(attrs) attrs[["happiness"]] < 100)
+  set_attribute("happiness", function() get_attribute(env, "happiness") + 25) %>%
+  rollback(amount = 2, check = function() get_attribute(env, "happiness") < 100)
 
-simmer() %>%
-  add_generator("mood_swinger", t0, at(0)) %>% 
-  run() %>% invisible
+env <- simmer() %>%
+  add_generator("mood_swinger", t0, at(0))
+env %>% run() %>% invisible()
 
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%

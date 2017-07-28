@@ -3,9 +3,9 @@
 \name{run}
 \alias{run}
 \alias{onestep}
-\title{Run the simulation}
+\title{Run a Simulation}
 \usage{
-run(.env, until = 1000)
+run(.env, until = 1000, progress = NULL, steps = 10)
 
 onestep(.env)
 }
@@ -13,12 +13,18 @@ onestep(.env)
 \item{.env}{the simulation environment.}
 
 \item{until}{stop time.}
+
+\item{progress}{optional callback to show the progress of the simulation. The
+completed ratio is periodically passed as argument to the callback.}
+
+\item{steps}{number of steps to show as progress (it takes effect only if
+\code{progress} is provided).}
 }
 \value{
 Returns the simulation environment.
 }
 \description{
-Execute steps until the given criterion.
+Execute steps until a given criterion.
 }
 \seealso{
 \code{\link{reset}}.

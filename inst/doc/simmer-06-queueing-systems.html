@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2017-05-30" />
+<meta name="date" content="2017-07-27" />
 
 <title>Queueing Systems</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Queueing Systems</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2017-05-30</em></h4>
+<h4 class="date"><em>2017-07-27</em></h4>
 
 
 <div id="TOC">
@@ -218,7 +218,7 @@ set_msg_size &lt;-<span class="st"> </span>function(.)
 <span class="co"># seize an M/D/1 queue by id; the timeout is function of the message size</span>
 md1 &lt;-<span class="st"> </span>function(., id)
   <span class="kw">seize</span>(., <span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, id), <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">timeout</span>(function(attrs) attrs[[<span class="st">&quot;size&quot;</span>]] /<span class="st"> </span>rate) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">get_attribute</span>(env, <span class="st">&quot;size&quot;</span>) /<span class="st"> </span>rate) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, id), <span class="dv">1</span>)</code></pre></div>
 <p>The next step is to set up the three points of attachment for our generators:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">to_queue_1 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
@@ -249,10 +249,10 @@ env %&gt;%
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival4_&quot;</span>, to_queue_4, function() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda4), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
 <span class="st">  </span><span class="kw">run</span>(<span class="dv">4000</span>)
 <span class="co">#&gt; simmer environment: anonymous | now: 4000 | next: 4000.11349802496</span>
-<span class="co">#&gt; { Resource: md1_1 | monitored: 1 | server status: 1(1) | queue status: 9(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_2 | monitored: 1 | server status: 1(1) | queue status: 3(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_3 | monitored: 1 | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_4 | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: md1_1 | monitored: TRUE | server status: 1(1) | queue status: 9(Inf) }</span>
+<span class="co">#&gt; { Resource: md1_2 | monitored: TRUE | server status: 1(1) | queue status: 3(Inf) }</span>
+<span class="co">#&gt; { Resource: md1_3 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
+<span class="co">#&gt; { Resource: md1_4 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: arrival1_ | monitored: 2 | n_generated: 8141 }</span>
 <span class="co">#&gt; { Generator: arrival3_ | monitored: 2 | n_generated: 2053 }</span>
 <span class="co">#&gt; { Generator: arrival4_ | monitored: 2 | n_generated: 2398 }</span></code></pre></div>
@@ -268,10 +268,8 @@ arr &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env) 
 <span class="co">#&gt; Joining, by = &quot;name&quot;</span>
 
 dplyr::<span class="kw">summarise</span>(arr, <span class="dt">average =</span> <span class="kw">sum</span>(waiting_time) /<span class="st"> </span><span class="kw">n</span>())
-<span class="co">#&gt; Source: local data frame [5 x 3]</span>
-<span class="co">#&gt; Groups: generator [?]</span>
-<span class="co">#&gt; </span>
 <span class="co">#&gt; # A tibble: 5 x 3</span>
+<span class="co">#&gt; # Groups:   generator [?]</span>
 <span class="co">#&gt;   generator resource    average</span>
 <span class="co">#&gt;       &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt;</span>
 <span class="co">#&gt; 1  arrival1    md1_3 11.2998883</span>
@@ -282,10 +280,8 @@ dplyr::<span class="kw">summarise</span>(arr, <span class="dt">average =</span> 
 <span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival1_&quot;</span>) +<span class="st"> </span><span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival4_&quot;</span>)
 <span class="co">#&gt; [1] 10539</span>
 dplyr::<span class="kw">count</span>(arr)
-<span class="co">#&gt; Source: local data frame [5 x 3]</span>
-<span class="co">#&gt; Groups: generator [?]</span>
-<span class="co">#&gt; </span>
 <span class="co">#&gt; # A tibble: 5 x 3</span>
+<span class="co">#&gt; # Groups:   generator, resource [5]</span>
 <span class="co">#&gt;   generator resource     n</span>
 <span class="co">#&gt;       &lt;chr&gt;    &lt;chr&gt; &lt;int&gt;</span>
 <span class="co">#&gt; 1  arrival1    md1_3  3951</span>

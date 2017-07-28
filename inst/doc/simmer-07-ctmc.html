@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2017-05-30" />
+<meta name="date" content="2017-07-27" />
 
 <title>Continuous-Time Markov Chains</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Continuous-Time Markov Chains</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2017-05-30</em></h4>
+<h4 class="date"><em>2017-07-27</em></h4>
 
 
 <div id="TOC">
@@ -275,16 +275,16 @@ N_average_theor &lt;-<span class="st"> </span><span class="kw">sum</span>(P *<sp
 <span class="st">    </span><span class="kw">add_generator</span>(<span class="st">&quot;vehicle&quot;</span>, vehicle, function() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda))
   env %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dt">until=</span>t)
 }</code></pre></div>
-<p>We may also avoid messing up things with branches and subtrajectories. We can decide the type of vehicle and set it as an attribute of the arrival with <code>set_attribute</code>. Then, every activity’s function is able to retrieve those attributes as a named list. Although the branch option is a little bit faster, this one is nicer, because there are no subtrajectories involved.</p>
+<p>We may also avoid messing up things with branches and subtrajectories. We can decide the type of vehicle and set it as an attribute of the arrival with <code>set_attribute()</code>. Then, those attributes can be retrieved using <code>get_attribute()</code>. Although the branch option is a little bit faster, this one is nicer, because there are no subtrajectories involved.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">option<span class="fl">.3</span> &lt;-<span class="st"> </span>function(t) {
   vehicle &lt;-<span class="st"> </span><span class="kw">trajectory</span>(<span class="st">&quot;car&quot;</span>) %&gt;%
 <span class="st">    </span><span class="kw">set_attribute</span>(<span class="st">&quot;vehicle&quot;</span>, function() <span class="kw">sample</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dv">1</span>, <span class="dt">prob=</span><span class="kw">c</span>(p, <span class="dv">1</span>-p))) %&gt;%
-<span class="st">    </span><span class="kw">seize</span>(<span class="st">&quot;pump&quot;</span>, <span class="dt">amount=</span>function(attrs) {
-      if (attrs[<span class="st">&quot;vehicle&quot;</span>] ==<span class="st"> </span><span class="dv">1</span> &amp;&amp;
+<span class="st">    </span><span class="kw">seize</span>(<span class="st">&quot;pump&quot;</span>, <span class="dt">amount=</span>function() {
+      if (<span class="kw">get_attribute</span>(env, <span class="st">&quot;vehicle&quot;</span>) ==<span class="st"> </span><span class="dv">1</span> &amp;&amp;
 <span class="st">          </span>env %&gt;%<span class="st"> </span><span class="kw">get_server_count</span>(<span class="st">&quot;pump&quot;</span>)) <span class="dv">2</span>    <span class="co"># car rejection</span>
       else <span class="dv">1</span>                                     <span class="co"># serve</span>
     }) %&gt;%
-<span class="st">    </span><span class="kw">timeout</span>(function(attrs) <span class="kw">rexp</span>(<span class="dv">1</span>, mu[attrs[<span class="st">&quot;vehicle&quot;</span>]])) %&gt;%
+<span class="st">    </span><span class="kw">timeout</span>(function() <span class="kw">rexp</span>(<span class="dv">1</span>, mu[<span class="kw">get_attribute</span>(env, <span class="st">&quot;vehicle&quot;</span>)])) %&gt;%
 <span class="st">    </span><span class="kw">release</span>(<span class="st">&quot;pump&quot;</span>, <span class="dt">amount=</span><span class="dv">1</span>)                    <span class="co"># always 1</span>
   
   env &lt;-<span class="st"> </span><span class="kw">simmer</span>() %&gt;%

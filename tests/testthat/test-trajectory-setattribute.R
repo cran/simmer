@@ -10,23 +10,24 @@ test_that("only valid types can be passed to functions", {
 test_that("an arrival attribute is correctly set and returned to a function", {
   t0 <- trajectory() %>%
     set_attribute("test", 123) %>%
-    set_attribute("test", 456, global = TRUE) %>%
-    log_(function(attrs) paste0(attrs["test"])) %>%
-    log_(function(attrs, glb) paste0(attrs["test"], glb["test"]))
+    set_global("test", 456) %>%
+    log_(function() paste0(get_attribute(env, "test"))) %>%
+    log_(function()
+      paste0(get_attribute(env, "test"),
+             get_attribute(env, "asdf"),
+             get_global(env, "test"),
+             get_global(env, "asdf")))
 
-  expect_output({
-    simmer(verbose = TRUE) %>%
-      add_generator("entity", t0, at(0)) %>%
-      run()
-    },
-    ".*123.*123456"
-  )
+  env <- simmer(verbose = TRUE) %>%
+    add_generator("entity", t0, at(0))
+
+  expect_output(run(env), ".*123.*123NA456NA")
 })
 
 test_that("attributes can be correctly retrieved using get_mon_attributes()", {
   t0 <- trajectory() %>%
     set_attribute("test", function() 123) %>%
-    set_attribute("test", function() 456, global = TRUE)
+    set_global("test", function() 456)
 
   env <-
     simmer(verbose = TRUE) %>%
@@ -47,7 +48,7 @@ test_that("attributes can be correctly retrieved using get_mon_attributes()", {
 test_that("the attribute dataframe is returned with the expected columns", {
   t0 <- trajectory() %>%
     set_attribute("test", 123) %>%
-    set_attribute("test", 456, global = TRUE)
+    set_global("test", 456)
 
   env <-
     simmer(verbose = TRUE) %>%
@@ -63,7 +64,7 @@ test_that("the attribute dataframe is returned with the expected columns", {
 test_that("arrival attributes are returned empty when mon level is <2", {
   t0 <- trajectory() %>%
     set_attribute("test", 123) %>%
-    set_attribute("test", 456, global = TRUE)
+    set_global("test", 456)
 
   env <-
     simmer(verbose = TRUE) %>%

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Duncan Garmonsway" />
 
-<meta name="date" content="2017-05-30" />
+<meta name="date" content="2017-07-27" />
 
 <title>The Bank Tutorial: Part I</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">The Bank Tutorial: Part I</h1>
 <h4 class="author"><em>Duncan Garmonsway</em></h4>
-<h4 class="date"><em>2017-05-30</em></h4>
+<h4 class="date"><em>2017-07-27</em></h4>
 
 
 <div id="TOC">
@@ -388,10 +388,10 @@ customer &lt;-
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;Here I am&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;start_time&quot;</span>, function() {<span class="kw">now</span>(bank)}) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span>attr[<span class="st">&quot;start_time&quot;</span>])}) %&gt;%
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span><span class="kw">get_attribute</span>(bank, <span class="st">&quot;start_time&quot;</span>))}) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">12</span>) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
 
 bank &lt;-
 <span class="st">  </span><span class="kw">simmer</span>(<span class="st">&quot;bank&quot;</span>) %&gt;%
@@ -415,7 +415,7 @@ bank %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dt"
 <span class="co">#&gt; 61.0176: Customer4: Waited:  16.0391307005949</span>
 <span class="co">#&gt; 73.0176: Customer4: Finished:  73.0175860496223</span>
 <span class="co">#&gt; simmer environment: bank | now: 73.0175860496223 | next: </span>
-<span class="co">#&gt; { Resource: counter | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
 bank %&gt;%
 <span class="st">  </span>get_mon_arrivals %&gt;%
@@ -447,13 +447,13 @@ customer &lt;-
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;Here I am&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;start_time&quot;</span>, function() {<span class="kw">now</span>(bank)}) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span>attr[<span class="st">&quot;start_time&quot;</span>])}) %&gt;%
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span><span class="kw">get_attribute</span>(bank, <span class="st">&quot;start_time&quot;</span>))}) %&gt;%
 <span class="st">  </span><span class="co"># timeout(rexp(1, 1/12)) would generate a single random time and use it for</span>
 <span class="st">  </span><span class="co"># every arrival, whereas the following line generates a random time for each</span>
 <span class="st">  </span><span class="co"># arrival</span>
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
 
 bank &lt;-
 <span class="st">  </span><span class="kw">simmer</span>(<span class="st">&quot;bank&quot;</span>) %&gt;%
@@ -477,7 +477,7 @@ bank %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dt"
 <span class="co">#&gt; 80.1134: Customer4: Waited:  67.6990166719428</span>
 <span class="co">#&gt; 93.7286: Customer4: Finished:  93.7285504163997</span>
 <span class="co">#&gt; simmer environment: bank | now: 93.7285504163997 | next: </span>
-<span class="co">#&gt; { Resource: counter | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
 bank %&gt;%
 <span class="st">  </span>get_mon_arrivals %&gt;%
@@ -513,10 +513,10 @@ customer &lt;-
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;Here I am&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;start_time&quot;</span>, function() {<span class="kw">now</span>(bank)}) %&gt;%
 <span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span>attr[<span class="st">&quot;start_time&quot;</span>])}) %&gt;%
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span><span class="kw">get_attribute</span>(bank, <span class="st">&quot;start_time&quot;</span>))}) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
 
 bank &lt;-
 <span class="st">  </span><span class="kw">simmer</span>(<span class="st">&quot;bank&quot;</span>) %&gt;%
@@ -540,7 +540,7 @@ bank %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dt"
 <span class="co">#&gt; 48.2406: Customer4: Finished:  48.2406153584756</span>
 <span class="co">#&gt; 49.1716: Customer2: Finished:  49.1715828181142</span>
 <span class="co">#&gt; simmer environment: bank | now: 49.1715828181142 | next: </span>
-<span class="co">#&gt; { Resource: counter | monitored: 1 | server status: 0(2) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(2) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
 bank %&gt;%
 <span class="st">  </span>get_mon_arrivals %&gt;%
@@ -573,11 +573,11 @@ customer &lt;-
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;Here I am&quot;</span>) %&gt;%
 <span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;start_time&quot;</span>, function() {<span class="kw">now</span>(bank)}) %&gt;%
 <span class="st">  </span><span class="kw">select</span>(<span class="kw">c</span>(<span class="st">&quot;counter1&quot;</span>, <span class="st">&quot;counter2&quot;</span>), <span class="dt">policy =</span> <span class="st">&quot;shortest-queue&quot;</span>) %&gt;%
-<span class="st">  </span>seize_selected %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span>attr[<span class="st">&quot;start_time&quot;</span>])}) %&gt;%
+<span class="st">  </span><span class="kw">seize_selected</span>() %&gt;%
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Waited: &quot;</span>, <span class="kw">now</span>(bank) -<span class="st"> </span><span class="kw">get_attribute</span>(bank, <span class="st">&quot;start_time&quot;</span>))}) %&gt;%
 <span class="st">  </span><span class="kw">timeout</span>(function() {<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>/<span class="dv">12</span>)}) %&gt;%
-<span class="st">  </span>release_selected %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function(attr) {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
+<span class="st">  </span><span class="kw">release_selected</span>() %&gt;%
+<span class="st">  </span><span class="kw">log_</span>(function() {<span class="kw">paste</span>(<span class="st">&quot;Finished: &quot;</span>, <span class="kw">now</span>(bank))})
 
 bank &lt;-
 <span class="st">  </span><span class="kw">simmer</span>(<span class="st">&quot;bank&quot;</span>) %&gt;%
@@ -602,8 +602,8 @@ bank %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dt"
 <span class="co">#&gt; 62.1037: Customer2: Waited:  31.7026170465295</span>
 <span class="co">#&gt; 62.3885: Customer2: Finished:  62.3885266177193</span>
 <span class="co">#&gt; simmer environment: bank | now: 62.3885266177193 | next: </span>
-<span class="co">#&gt; { Resource: counter1 | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Resource: counter2 | monitored: 1 | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: counter1 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: counter2 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
 bank %&gt;%
 <span class="st">  </span>get_mon_arrivals %&gt;%
@@ -669,7 +669,7 @@ bank &lt;-
 
 bank %&gt;%<span class="st"> </span><span class="kw">run</span>(<span class="dt">until =</span> <span class="dv">1000</span>)
 <span class="co">#&gt; simmer environment: bank | now: 650.615510598544 | next: </span>
-<span class="co">#&gt; { Resource: counter | monitored: 1 | server status: 0(2) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(2) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 50 }</span>
 
 result &lt;-

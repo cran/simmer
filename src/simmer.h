@@ -40,6 +40,8 @@ std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#define BIND(T) boost::function<T ()>
+
 #define FMT(n, justify) std::setw(n) << std::justify
 
 #define PRIORITY_MAX            std::numeric_limits<int>::min()
@@ -61,13 +63,6 @@ std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
 
 #define CLONEABLE(Type) \
   virtual Type* clone() const { return new Type(*this); }
-
-#define CLONEABLE_COUNT(Type) \
-  virtual Type* clone() const { (*clones)++; return new Type(*this); } \
-  int* clones;
-
-#define CLONEABLE_COUNT_DERIVED(Type) \
-  virtual Type* clone() const { (*clones)++; return new Type(*this); }
 
 typedef UMAP<std::string, double> Attr;
 
