@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar, Bart Smeets" />
 
-<meta name="date" content="2017-07-27" />
+<meta name="date" content="2017-11-04" />
 
 <title>Terminology</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Terminology</h1>
 <h4 class="author"><em>Iñaki Ucar, Bart Smeets</em></h4>
-<h4 class="date"><em>2017-07-27</em></h4>
+<h4 class="date"><em>2017-11-04</em></h4>
 
 
 
@@ -94,23 +94,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co"># create a trajectory &quot;my_trajectory&quot;</span>
 <span class="co"># this trajectory consists of 3 activities, a seize, timeout and release activity.</span>
 t0&lt;-
-<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;my_trajectory&quot;</span>) %&gt;%
+<span class="st">  </span><span class="kw">trajectory</span>(<span class="st">&quot;my_trajectory&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># seize one unit of the resource called &quot;operator&quot;</span>
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># spend some (stochastic) time holding that resource</span>
-<span class="st">  </span><span class="kw">timeout</span>(function() <span class="kw">rpois</span>(<span class="dv">1</span>,<span class="dv">50</span>)) %&gt;%
+<span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">rpois</span>(<span class="dv">1</span>,<span class="dv">50</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># release the previously seized unit of &quot;operator&quot;</span>
 <span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>)</code></pre></div>
 <p>Once the trajectory has been created, the simulation object (a <code>simmer</code> instance) is set up. One of the first steps is to actually attach a <strong>resource</strong> instance called <code>operator</code>. Next, a <strong>generator</strong> instance is attached. This generator, called <code>my_generator</code>, has an associated trajectory (<code>my_trajectory</code> stored in <code>t0</code>) and an associated <code>dist</code> function. Once <code>run()</code> is called the simulation model will start running. The generator <code>my_generator</code> will create an <strong>arrival</strong> at an interarrival time delivered by the function passed to <code>dist</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env&lt;-<span class="kw">simmer</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env&lt;-<span class="kw">simmer</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># a resource called &quot;operator&quot;&quot; is created with a capacity of 1 and an infinite queue size</span>
-<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>) %&gt;%
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;operator&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># this generator will create arrivals at each interval rpois(1,40) during</span>
 <span class="st">  </span><span class="co"># the simulation lifetime (while &quot;dist&quot; returns positive time values)</span>
 <span class="st">  </span><span class="co"># the arrivals will follow the trajectory specified in t0</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;my_generator&quot;</span>, 
                 <span class="dt">trajectory =</span> t0,
-                <span class="dt">dist =</span> function() <span class="kw">rpois</span>(<span class="dv">1</span>, <span class="dv">40</span>)) %&gt;%
+                <span class="dt">dist =</span> <span class="cf">function</span>() <span class="kw">rpois</span>(<span class="dv">1</span>, <span class="dv">40</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()</code></pre></div>
 <p>For more information, see the other vignettes or the function specific help documentation (e.g. <code>?simmer</code>).</p>
 </div>

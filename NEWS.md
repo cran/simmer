@@ -1,3 +1,11 @@
+# simmer 3.6.4
+
+## Minor changes and fixes:
+
+* Fix preemption in non-saturated multi-server resources when seizing amounts > 1 (#114).
+* Fix queue priority in non-saturated finite-queue resources when seizing amounts > 1 (#115).
+* Fix resource seizing: avoid jumping the queue when there is room in the server but other arrivals are waiting (#116).
+
 # simmer 3.6.3
 
 ## New features:

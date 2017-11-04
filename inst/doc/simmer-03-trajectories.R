@@ -866,7 +866,7 @@ join(t0, t0)[["timeout"]]
 remove(env)
 
 t <- trajectory() %>%
-  timeout(function() print(env %>% now()))
+  log_(function() paste(now(env)))
 
 env <- simmer() %>%
   add_generator("dummy", t, function() 1) %>%
@@ -874,7 +874,7 @@ env <- simmer() %>%
 
 ## ------------------------------------------------------------------------
 t <- trajectory() %>%
-  timeout(function() print(env %>% now()))
+  log_(function() paste(now(env)))
 
 env <- simmer() %>%
   add_generator("dummy", t, function() 1)
@@ -887,7 +887,7 @@ env <- simmer()
 
 # Here I'm using it
 t <- trajectory() %>%
-  timeout(function() print(env %>% now()))
+  log_(function() paste(now(env)))
 
 # And finally, run it
 env %>%

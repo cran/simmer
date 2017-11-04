@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2017-07-27" />
+<meta name="date" content="2017-11-04" />
 
 <title>Other SimPy Examples</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Other SimPy Examples</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2017-07-27</em></h4>
+<h4 class="date"><em>2017-11-04</em></h4>
 
 
 <div id="TOC">
@@ -111,23 +111,23 @@ SIM_TIME &lt;-<span class="st"> </span><span class="dv">20</span>     <span clas
 <span class="kw">set.seed</span>(<span class="dv">42</span>)
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre></div>
 <p>The implementation with <code>simmer</code> is as simple as defining the trajectory each arriving <code>car</code> will share and follow. This trajectory comprises seizing a wash machine, spending some time and releasing it. The process takes <code>WASHTIME</code> and removes some random percentage of dirt between 50 and 90%. The <code>log_()</code> messages are merely illustrative.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;arrives at the carwash&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;wash&quot;</span>, <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;enters the carwash&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">timeout</span>(WASHTIME) %&gt;%
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;dirt_removed&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">50</span>:<span class="dv">99</span>, <span class="dv">1</span>)) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function() 
-    <span class="kw">paste0</span>(<span class="kw">get_attribute</span>(env, <span class="st">&quot;dirt_removed&quot;</span>), <span class="st">&quot;% of dirt was removed&quot;</span>)) %&gt;%
-<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;wash&quot;</span>, <span class="dv">1</span>) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;arrives at the carwash&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;wash&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;enters the carwash&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">timeout</span>(WASHTIME) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;dirt_removed&quot;</span>, <span class="cf">function</span>() <span class="kw">sample</span>(<span class="dv">50</span><span class="op">:</span><span class="dv">99</span>, <span class="dv">1</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() 
+    <span class="kw">paste0</span>(<span class="kw">get_attribute</span>(env, <span class="st">&quot;dirt_removed&quot;</span>), <span class="st">&quot;% of dirt was removed&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;wash&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;leaves the carwash&quot;</span>)</code></pre></div>
 <p>Finally, we setup the resources and feed the trajectory with a couple of generators. The result is shown below:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%
-<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;wash&quot;</span>, NUM_MACHINES) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;wash&quot;</span>, NUM_MACHINES) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># feed the trajectory with 4 initial cars</span>
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;car_initial&quot;</span>, car, <span class="kw">at</span>(<span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>))) %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;car_initial&quot;</span>, car, <span class="kw">at</span>(<span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>))) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># new cars approx. every T_INTER minutes</span>
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;car&quot;</span>, car, function() <span class="kw">sample</span>((T_INTER<span class="dv">-2</span>):(T_INTER<span class="dv">+2</span>), <span class="dv">1</span>)) %&gt;%
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;car&quot;</span>, car, <span class="cf">function</span>() <span class="kw">sample</span>((T_INTER<span class="op">-</span><span class="dv">2</span>)<span class="op">:</span>(T_INTER<span class="op">+</span><span class="dv">2</span>), <span class="dv">1</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># start the simulation</span>
 <span class="st">  </span><span class="kw">run</span>(SIM_TIME)
 <span class="co">#&gt; 0: car_initial0: arrives at the carwash</span>
@@ -176,59 +176,59 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 PT_MEAN &lt;-<span class="st"> </span><span class="fl">10.0</span>         <span class="co"># Avg. processing time in minutes</span>
 PT_SIGMA &lt;-<span class="st"> </span><span class="fl">2.0</span>         <span class="co"># Sigma of processing time</span>
 MTTF &lt;-<span class="st"> </span><span class="fl">300.0</span>           <span class="co"># Mean time to failure in minutes</span>
-BREAK_MEAN &lt;-<span class="st"> </span><span class="dv">1</span> /<span class="st"> </span>MTTF  <span class="co"># Param. for exponential distribution</span>
+BREAK_MEAN &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span>MTTF  <span class="co"># Param. for exponential distribution</span>
 REPAIR_TIME &lt;-<span class="st"> </span><span class="fl">30.0</span>     <span class="co"># Time it takes to repair a machine in minutes</span>
 JOB_DURATION &lt;-<span class="st"> </span><span class="fl">30.0</span>    <span class="co"># Duration of other jobs in minutes</span>
 NUM_MACHINES &lt;-<span class="st"> </span><span class="dv">10</span>      <span class="co"># Number of machines in the machine shop</span>
 WEEKS &lt;-<span class="st"> </span><span class="dv">4</span>              <span class="co"># Simulation time in weeks</span>
-SIM_TIME &lt;-<span class="st"> </span>WEEKS *<span class="st"> </span><span class="dv">7</span> *<span class="st"> </span><span class="dv">24</span> *<span class="st"> </span><span class="dv">60</span>  <span class="co"># Simulation time in minutes</span>
+SIM_TIME &lt;-<span class="st"> </span>WEEKS <span class="op">*</span><span class="st"> </span><span class="dv">7</span> <span class="op">*</span><span class="st"> </span><span class="dv">24</span> <span class="op">*</span><span class="st"> </span><span class="dv">60</span>  <span class="co"># Simulation time in minutes</span>
 
 <span class="co"># setup</span>
 <span class="kw">set.seed</span>(<span class="dv">42</span>)
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre></div>
 <p>The <code>make_parts</code> trajectory defines a machine’s operating loop. A worker seizes the machine and starts manufacturing and counting parts in an infinite loop. Provided we want more than one machine, we parametrise the trajectory as a function of the machine:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">make_parts &lt;-<span class="st"> </span>function(machine)
-  <span class="kw">trajectory</span>() %&gt;%
-<span class="st">    </span><span class="kw">set_attribute</span>(<span class="st">&quot;parts&quot;</span>, <span class="dv">0</span>) %&gt;%
-<span class="st">    </span><span class="kw">seize</span>(machine, <span class="dv">1</span>) %&gt;%
-<span class="st">    </span><span class="kw">timeout</span>(function() <span class="kw">rnorm</span>(<span class="dv">1</span>, PT_MEAN, PT_SIGMA)) %&gt;%
-<span class="st">    </span><span class="kw">set_attribute</span>(<span class="st">&quot;parts&quot;</span>, function() <span class="kw">get_attribute</span>(env, <span class="st">&quot;parts&quot;</span>) +<span class="st"> </span><span class="dv">1</span>) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">make_parts &lt;-<span class="st"> </span><span class="cf">function</span>(machine)
+  <span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">set_attribute</span>(<span class="st">&quot;parts&quot;</span>, <span class="dv">0</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">seize</span>(machine, <span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">rnorm</span>(<span class="dv">1</span>, PT_MEAN, PT_SIGMA)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">set_attribute</span>(<span class="st">&quot;parts&quot;</span>, <span class="cf">function</span>() <span class="kw">get_attribute</span>(env, <span class="st">&quot;parts&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">rollback</span>(<span class="dv">2</span>, <span class="ot">Inf</span>) <span class="co"># go to 'timeout' over and over</span></code></pre></div>
 <p>Repairman’s <em>unimportant</em> jobs may be modelled in the same way (without the accounting part):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">other_jobs &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">timeout</span>(JOB_DURATION) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">other_jobs &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">timeout</span>(JOB_DURATION) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">rollback</span>(<span class="dv">1</span>, <span class="ot">Inf</span>)</code></pre></div>
 <p>Failures are high-priority arrivals, both for the machines and for the repairman. Each random generated failure will randomly select and seize (break) a machine, and will seize (call) the repairman. After the machine is repaired, both resources are released and the corresponding workers begin where they left.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">machines &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;machine&quot;</span>, <span class="dv">1</span>:NUM_MACHINES<span class="dv">-1</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">machines &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;machine&quot;</span>, <span class="dv">1</span><span class="op">:</span>NUM_MACHINES<span class="op">-</span><span class="dv">1</span>)
 
-failure &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">select</span>(machines, <span class="dt">policy =</span> <span class="st">&quot;random&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">seize_selected</span>(<span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">timeout</span>(REPAIR_TIME) %&gt;%
-<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) %&gt;%
+failure &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(machines, <span class="dt">policy =</span> <span class="st">&quot;random&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">seize_selected</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">timeout</span>(REPAIR_TIME) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">release_selected</span>(<span class="dv">1</span>)</code></pre></div>
 <p>The machines and their workers are appended to the simulation environment. Note that each machine, which is defined as preemptive, has space for one worker (or a failure) and no space in queue.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">for (i in machines) env %&gt;%
-<span class="st">  </span><span class="kw">add_resource</span>(i, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dt">preemptive =</span> <span class="ot">TRUE</span>) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">for</span> (i <span class="cf">in</span> machines) env <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_resource</span>(i, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dt">preemptive =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="kw">paste0</span>(i, <span class="st">&quot;_worker&quot;</span>), <span class="kw">make_parts</span>(i), <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>)</code></pre></div>
 <p>The same for the repairman, but this time the queue is infinite, since there could be any number of machines at any time waiting for repairments.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%
-<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>, <span class="dt">preemptive =</span> <span class="ot">TRUE</span>) %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;repairman_worker&quot;</span>, other_jobs, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;repairman&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>, <span class="dt">preemptive =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;repairman_worker&quot;</span>, other_jobs, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span>invisible</code></pre></div>
 <p>Finally, the failure generator is defined with <code>priority=1</code> (default: 0), and the simulation begins:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;failure&quot;</span>, failure, 
-                function() <span class="kw">rexp</span>(<span class="dv">1</span>, BREAK_MEAN *<span class="st"> </span>NUM_MACHINES), 
-                <span class="dt">priority =</span> <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">run</span>(SIM_TIME) %&gt;%<span class="st"> </span>invisible</code></pre></div>
+                <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, BREAK_MEAN <span class="op">*</span><span class="st"> </span>NUM_MACHINES), 
+                <span class="dt">priority =</span> <span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">run</span>(SIM_TIME) <span class="op">%&gt;%</span><span class="st"> </span>invisible</code></pre></div>
 <p>The last value per worker from the attributes table reports the number of parts made:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env) %&gt;%
-<span class="st">  </span>dplyr::<span class="kw">group_by</span>(name) %&gt;%
-<span class="st">  </span>dplyr::<span class="kw">slice</span>(<span class="kw">n</span>()) %&gt;%
-<span class="st">  </span>dplyr::<span class="kw">arrange</span>(name)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_mon_attributes</span>(env) <span class="op">%&gt;%</span>
+<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">group_by</span>(name) <span class="op">%&gt;%</span>
+<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">slice</span>(<span class="kw">n</span>()) <span class="op">%&gt;%</span>
+<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">arrange</span>(name)
 <span class="co">#&gt; # A tibble: 10 x 5</span>
 <span class="co">#&gt; # Groups:   name [10]</span>
 <span class="co">#&gt;        time             name   key value replication</span>
@@ -289,44 +289,49 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 <li>Enjoy the movie!</li>
 </ol>
 <p>This recipe is directly translated into a <code>simmer</code> trajectory as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">moviegoer &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">get_movie &lt;-<span class="st"> </span><span class="cf">function</span>() movies[<span class="kw">get_attribute</span>(env, <span class="st">&quot;movie&quot;</span>)]
+soldout_signal &lt;-<span class="st"> </span><span class="cf">function</span>() <span class="kw">paste0</span>(<span class="kw">get_movie</span>(), <span class="st">&quot; sold out&quot;</span>)
+check_soldout &lt;-<span class="st"> </span><span class="cf">function</span>() <span class="kw">get_capacity</span>(env, <span class="kw">get_movie</span>()) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>
+check_tickets_available &lt;-<span class="st"> </span><span class="cf">function</span>()
+  <span class="kw">get_server_count</span>(env, <span class="kw">get_movie</span>()) <span class="op">&gt;</span><span class="st"> </span>(TICKETS <span class="op">-</span><span class="st"> </span><span class="dv">2</span>)
+
+moviegoer &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># select a movie</span>
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;movie&quot;</span>, function() <span class="kw">sample</span>(<span class="dv">3</span>, <span class="dv">1</span>)) %&gt;%
-<span class="st">  </span><span class="kw">select</span>(function() movies[<span class="kw">get_attribute</span>(env, <span class="st">&quot;movie&quot;</span>)]) %&gt;%
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;movie&quot;</span>, <span class="cf">function</span>() <span class="kw">sample</span>(<span class="dv">3</span>, <span class="dv">1</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(get_movie) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># set reneging condition</span>
-<span class="st">  </span><span class="kw">renege_if</span>(function() <span class="kw">paste0</span>(movies[<span class="kw">get_attribute</span>(env, <span class="st">&quot;movie&quot;</span>)], <span class="st">&quot; sold out&quot;</span>)) %&gt;%
+<span class="st">  </span><span class="kw">renege_if</span>(soldout_signal) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># leave immediately if the movie was already sold out</span>
-<span class="st">  </span><span class="kw">leave</span>(function() <span class="kw">get_capacity</span>(env, movies[<span class="kw">get_attribute</span>(env, <span class="st">&quot;movie&quot;</span>)]) ==<span class="st"> </span><span class="dv">0</span>) %&gt;%
+<span class="st">  </span><span class="kw">leave</span>(check_soldout) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># wait for my turn</span>
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># buy tickets</span>
-<span class="st">  </span><span class="kw">seize_selected</span>(function() <span class="kw">sample</span>(<span class="dv">6</span>, <span class="dv">1</span>), <span class="dt">continue =</span> <span class="ot">FALSE</span>,
-                 <span class="dt">reject =</span> <span class="kw">trajectory</span>() %&gt;%
-<span class="st">                   </span><span class="co"># not enough tickets, leave after some discussion</span>
-<span class="st">                   </span><span class="kw">timeout</span>(<span class="fl">0.5</span>) %&gt;%
-<span class="st">                   </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>)
-  ) %&gt;%
+<span class="st">  </span><span class="kw">seize_selected</span>(
+    <span class="cf">function</span>() <span class="kw">sample</span>(<span class="dv">6</span>, <span class="dv">1</span>), <span class="dt">continue =</span> <span class="ot">FALSE</span>,
+    <span class="dt">reject =</span> <span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">      </span><span class="kw">timeout</span>(<span class="fl">0.5</span>) <span class="op">%&gt;%</span>
+<span class="st">      </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>)
+  ) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># abort reneging condition</span>
-<span class="st">  </span><span class="kw">renege_abort</span>() %&gt;%
+<span class="st">  </span><span class="kw">renege_abort</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># check the tickets available</span>
-<span class="st">  </span><span class="kw">branch</span>(function() <span class="kw">get_server_count</span>(env, movies[<span class="kw">get_attribute</span>(env, <span class="st">&quot;movie&quot;</span>)]) &gt;<span class="st"> </span>(TICKETS -<span class="st"> </span><span class="dv">2</span>),
-         <span class="dt">continue =</span> <span class="ot">TRUE</span>,
-         <span class="co"># trigger the &quot;sold out&quot; event for the movie</span>
-         <span class="kw">trajectory</span>() %&gt;%
-<span class="st">           </span><span class="kw">set_capacity_selected</span>(<span class="dv">0</span>) %&gt;%
-<span class="st">           </span><span class="kw">send</span>(function() <span class="kw">paste0</span>(movies[<span class="kw">get_attribute</span>(env, <span class="st">&quot;movie&quot;</span>)], <span class="st">&quot; sold out&quot;</span>))
-  ) %&gt;%
-<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>) %&gt;%
+<span class="st">  </span><span class="kw">branch</span>(
+    check_tickets_available, <span class="dt">continue =</span> <span class="ot">TRUE</span>,
+    <span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">      </span><span class="kw">set_capacity_selected</span>(<span class="dv">0</span>) <span class="op">%&gt;%</span>
+<span class="st">      </span><span class="kw">send</span>(soldout_signal)
+  ) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># watch the movie</span>
 <span class="st">  </span><span class="kw">wait</span>()</code></pre></div>
 <p>which actually constitutes a quite interesting subset of <code>simmer</code>’s capabilities. The next step is to add the required resources to the environment <code>env</code>: the three movies and the ticket counter.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># add movies as resources with capacity TICKETS and no queue</span>
-for (i in movies) env %&gt;%
+<span class="cf">for</span> (i <span class="cf">in</span> movies) env <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_resource</span>(i, TICKETS, <span class="dv">0</span>)
 
 <span class="co"># add ticket counter with capacity 1 and infinite queue</span>
-env %&gt;%<span class="st"> </span><span class="kw">add_resource</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)
+env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_resource</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)
 <span class="co">#&gt; simmer environment: anonymous | now: 0 | next: </span>
 <span class="co">#&gt; { Resource: R Unchained | monitored: TRUE | server status: 0(50) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: Kill Process | monitored: TRUE | server status: 0(50) | queue status: 0(0) }</span>
@@ -334,8 +339,8 @@ env %&gt;%<span class="st"> </span><span class="kw">add_resource</span>(<span cl
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></code></pre></div>
 <p>And finally, we attach an exponential <em>moviegoer</em> generator to the <code>moviegoer</code> trajectory and the simulation starts:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># add a moviegoer generator and start simulation</span>
-env %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;moviegoer&quot;</span>, moviegoer, function() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span> /<span class="st"> </span><span class="fl">0.5</span>), <span class="dt">mon=</span><span class="dv">2</span>) %&gt;%
+env <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;moviegoer&quot;</span>, moviegoer, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="fl">0.5</span>), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>(SIM_TIME)
 <span class="co">#&gt; simmer environment: anonymous | now: 120 | next: 120.289360000071</span>
 <span class="co">#&gt; { Resource: R Unchained | monitored: TRUE | server status: 50(0) | queue status: 0(0) }</span>
@@ -343,40 +348,33 @@ env %&gt;%
 <span class="co">#&gt; { Resource: Pulp Implementation | monitored: TRUE | server status: 49(0) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: moviegoer | monitored: 2 | n_generated: 227 }</span></code></pre></div>
-<p><code>simmer</code> <em>automagically</em> monitors the system status, and this information can be retrieved with three methods:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">arrivals &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env)
-resources &lt;-<span class="st"> </span><span class="kw">get_mon_resources</span>(env)
-attributes &lt;-<span class="st"> </span><span class="kw">get_mon_attributes</span>(env)</code></pre></div>
 <p>The analysis is performed with the help of <code>dplyr</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># get the three rows with the sold out instants</span>
-sold_time &lt;-<span class="st"> </span>resources %&gt;%
-<span class="st">  </span>dplyr::<span class="kw">filter</span>(resource !=<span class="st"> &quot;counter&quot;</span> &amp;<span class="st"> </span>capacity ==<span class="st"> </span><span class="dv">0</span>)
+sold_time &lt;-<span class="st"> </span><span class="kw">get_mon_resources</span>(env) <span class="op">%&gt;%</span>
+<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(resource <span class="op">!=</span><span class="st"> &quot;counter&quot;</span> <span class="op">&amp;</span><span class="st"> </span>capacity <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)
 
 <span class="co"># get the arrivals that left at the sold out instants</span>
 <span class="co"># count the number of arrivals per movie</span>
-n_reneges &lt;-<span class="st"> </span>dplyr::<span class="kw">left_join</span>(
-    arrivals %&gt;%<span class="st"> </span>
-<span class="st">      </span>dplyr::<span class="kw">filter</span>(finished ==<span class="st"> </span><span class="ot">FALSE</span> &amp;<span class="st"> </span>end_time %in%<span class="st"> </span>sold_time$time),
-    attributes
-  ) %&gt;%
-<span class="st">  </span>dplyr::<span class="kw">mutate</span>(<span class="dt">resource =</span> movies[value]) %&gt;%
-<span class="st">  </span>dplyr::<span class="kw">group_by</span>(resource) %&gt;%
-<span class="st">  </span>dplyr::<span class="kw">count</span>()
+n_reneges &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(
+  <span class="kw">get_mon_arrivals</span>(env) <span class="op">%&gt;%</span>
+<span class="st">    </span>dplyr<span class="op">::</span><span class="kw">filter</span>(finished <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span> <span class="op">&amp;</span><span class="st"> </span>end_time <span class="op">%in%</span><span class="st"> </span>sold_time<span class="op">$</span>time),
+  <span class="kw">get_mon_attributes</span>(env)
+) <span class="op">%&gt;%</span>
+<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">resource =</span> movies[value]) <span class="op">%&gt;%</span>
+<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">group_by</span>(resource) <span class="op">%&gt;%</span>
+<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">count</span>()
 
-<span class="co"># merge the info</span>
-result &lt;-<span class="st"> </span>dplyr::<span class="kw">left_join</span>(sold_time, n_reneges)
-<span class="co"># and print</span>
-<span class="kw">apply</span>(result, <span class="dv">1</span>, function(i) {
-  <span class="kw">cat</span>(<span class="st">&quot;Movie '&quot;</span>, i[<span class="st">&quot;resource&quot;</span>], <span class="st">&quot;' sold out &quot;</span>, i[<span class="st">&quot;time&quot;</span>], 
-      <span class="st">&quot; minutes after ticket counter opening.</span><span class="ch">\n</span><span class="st">&quot;</span>,
-      <span class="st">&quot;  Number of people leaving queue when film sold out: &quot;</span>, i[<span class="st">&quot;n&quot;</span>], <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
-}) %&gt;%<span class="st"> </span>invisible
-<span class="co">#&gt; Movie 'Pulp Implementation' sold out 31.09917 minutes after ticket counter opening.</span>
-<span class="co">#&gt;   Number of people leaving queue when film sold out: 18</span>
-<span class="co">#&gt; Movie 'R Unchained' sold out 40.59917 minutes after ticket counter opening.</span>
-<span class="co">#&gt;   Number of people leaving queue when film sold out: 14</span>
-<span class="co">#&gt; Movie 'Kill Process' sold out 41.59917 minutes after ticket counter opening.</span>
-<span class="co">#&gt;   Number of people leaving queue when film sold out: 10</span></code></pre></div>
+<span class="co"># merge the info  and print</span>
+<span class="kw">invisible</span>(<span class="kw">apply</span>(dplyr<span class="op">::</span><span class="kw">left_join</span>(sold_time, n_reneges), <span class="dv">1</span>, <span class="cf">function</span>(i) {
+  <span class="kw">cat</span>(<span class="st">&quot;Movie '&quot;</span>, i[<span class="st">&quot;resource&quot;</span>], <span class="st">&quot;' was sold out in &quot;</span>, i[<span class="st">&quot;time&quot;</span>], <span class="st">&quot; minutes.</span><span class="ch">\n</span><span class="st">&quot;</span>, 
+      <span class="st">&quot;  Number of people that left the queue: &quot;</span>, i[<span class="st">&quot;n&quot;</span>], <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+}))
+<span class="co">#&gt; Movie 'Pulp Implementation' was sold out in 31.09917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue: 18</span>
+<span class="co">#&gt; Movie 'R Unchained' was sold out in 40.59917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue: 14</span>
+<span class="co">#&gt; Movie 'Kill Process' was sold out in 41.59917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue: 10</span></code></pre></div>
 </div>
 <div id="gas-station-refuelling" class="section level2">
 <h2>Gas Station Refuelling</h2>
@@ -416,59 +414,59 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">GAS_STATION_LEVEL &lt;-<span class="st"> </span>GAS_STATION_SIZE
 signal &lt;-<span class="st"> &quot;gas station refilled&quot;</span>
 
-refuelling &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
+refuelling &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># check if there is enough fuel available</span>
-<span class="st">  </span><span class="kw">branch</span>(function() FUEL_TANK_SIZE -<span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;level&quot;</span>) &gt;<span class="st"> </span>GAS_STATION_LEVEL, 
+<span class="st">  </span><span class="kw">branch</span>(<span class="cf">function</span>() FUEL_TANK_SIZE <span class="op">-</span><span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;level&quot;</span>) <span class="op">&gt;</span><span class="st"> </span>GAS_STATION_LEVEL, 
          <span class="dt">continue =</span> <span class="ot">TRUE</span>,
          <span class="co"># if not, block until the signal &quot;gas station refilled&quot; is received</span>
-         <span class="kw">trajectory</span>() %&gt;%
-<span class="st">           </span><span class="kw">trap</span>(signal) %&gt;%
-<span class="st">           </span><span class="kw">wait</span>() %&gt;%
+         <span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">           </span><span class="kw">trap</span>(signal) <span class="op">%&gt;%</span>
+<span class="st">           </span><span class="kw">wait</span>() <span class="op">%&gt;%</span>
 <span class="st">           </span><span class="kw">untrap</span>(signal)
-  ) %&gt;%
+  ) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># refuel</span>
-<span class="st">  </span><span class="kw">timeout</span>(function() {
-    liters_required &lt;-<span class="st"> </span>FUEL_TANK_SIZE -<span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;level&quot;</span>)
-    GAS_STATION_LEVEL &lt;&lt;-<span class="st"> </span>GAS_STATION_LEVEL -<span class="st"> </span>liters_required
-    <span class="kw">return</span>(liters_required /<span class="st"> </span>REFUELING_SPEED)
+<span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() {
+    liters_required &lt;-<span class="st"> </span>FUEL_TANK_SIZE <span class="op">-</span><span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;level&quot;</span>)
+    GAS_STATION_LEVEL &lt;&lt;-<span class="st"> </span>GAS_STATION_LEVEL <span class="op">-</span><span class="st"> </span>liters_required
+    <span class="kw">return</span>(liters_required <span class="op">/</span><span class="st"> </span>REFUELING_SPEED)
   })</code></pre></div>
 <p>Now a car’s trajectory is straightforward. First, the starting time is saved as well as the tank level. Then, the car seizes a pump, refuels and leaves.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;start&quot;</span>, function() <span class="kw">now</span>(env)) %&gt;%
-<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;level&quot;</span>, function() 
-    <span class="kw">sample</span>(FUEL_TANK_LEVEL[<span class="dv">1</span>]:FUEL_TANK_LEVEL[<span class="dv">2</span>], <span class="dv">1</span>)) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;arriving at gas station&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;pump&quot;</span>, <span class="dv">1</span>) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">car &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;start&quot;</span>, <span class="cf">function</span>() <span class="kw">now</span>(env)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_attribute</span>(<span class="st">&quot;level&quot;</span>, <span class="cf">function</span>() 
+    <span class="kw">sample</span>(FUEL_TANK_LEVEL[<span class="dv">1</span>]<span class="op">:</span>FUEL_TANK_LEVEL[<span class="dv">2</span>], <span class="dv">1</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;arriving at gas station&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;pump&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="co"># 'join()' concatenates the refuelling trajectory here</span>
-<span class="st">  </span><span class="kw">join</span>(refuelling) %&gt;%
-<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;pump&quot;</span>, <span class="dv">1</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function() 
-    <span class="kw">paste0</span>(<span class="st">&quot;finished refuelling in &quot;</span>, <span class="kw">now</span>(env) -<span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;start&quot;</span>), <span class="st">&quot; seconds&quot;</span>))</code></pre></div>
+<span class="st">  </span><span class="kw">join</span>(refuelling) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;pump&quot;</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() 
+    <span class="kw">paste0</span>(<span class="st">&quot;finished refuelling in &quot;</span>, <span class="kw">now</span>(env) <span class="op">-</span><span class="st"> </span><span class="kw">get_attribute</span>(env, <span class="st">&quot;start&quot;</span>), <span class="st">&quot; seconds&quot;</span>))</code></pre></div>
 <p>The tank truck takes some time to arrive. Then, the gas station is completely refilled and the signal “gas station refilled” is sent to the blocked cars.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tank_truck &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">timeout</span>(TANK_TRUCK_TIME) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;tank truck arriving at gas station&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">log_</span>(function() {
-    refill &lt;-<span class="st"> </span>GAS_STATION_SIZE -<span class="st"> </span>GAS_STATION_LEVEL
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tank_truck &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">timeout</span>(TANK_TRUCK_TIME) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">log_</span>(<span class="st">&quot;tank truck arriving at gas station&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() {
+    refill &lt;-<span class="st"> </span>GAS_STATION_SIZE <span class="op">-</span><span class="st"> </span>GAS_STATION_LEVEL
     GAS_STATION_LEVEL &lt;&lt;-<span class="st"> </span>GAS_STATION_SIZE
     <span class="kw">paste0</span>(<span class="st">&quot;tank truck refilling &quot;</span>, refill, <span class="st">&quot; liters&quot;</span>)
-  }) %&gt;%
+  }) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">send</span>(signal)</code></pre></div>
 <p>The controller periodically checks the <code>GAS_STATION_LEVEL</code> and calls the tank truck when needed.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">controller &lt;-<span class="st"> </span><span class="kw">trajectory</span>() %&gt;%
-<span class="st">  </span><span class="kw">branch</span>(function() GAS_STATION_LEVEL /<span class="st"> </span>GAS_STATION_SIZE *<span class="st"> </span><span class="dv">100</span> &lt;<span class="st"> </span>THRESHOLD, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">controller &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">branch</span>(<span class="cf">function</span>() GAS_STATION_LEVEL <span class="op">/</span><span class="st"> </span>GAS_STATION_SIZE <span class="op">*</span><span class="st"> </span><span class="dv">100</span> <span class="op">&lt;</span><span class="st"> </span>THRESHOLD, 
          <span class="dt">continue =</span> <span class="ot">TRUE</span>,
-         <span class="kw">trajectory</span>() %&gt;%
-<span class="st">           </span><span class="kw">log_</span>(<span class="st">&quot;calling the tank truck&quot;</span>) %&gt;%
+         <span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
+<span class="st">           </span><span class="kw">log_</span>(<span class="st">&quot;calling the tank truck&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">           </span><span class="kw">join</span>(tank_truck)
-  ) %&gt;%
-<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">10</span>) %&gt;%
+  ) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">timeout</span>(<span class="dv">10</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">rollback</span>(<span class="dv">2</span>, <span class="ot">Inf</span>)</code></pre></div>
 <p>Finally, we need to add a couple of pumps, a controller worker and a car generator.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env %&gt;%
-<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;pump&quot;</span>, <span class="dv">2</span>) %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;controller&quot;</span>, controller, <span class="kw">at</span>(<span class="dv">0</span>)) %&gt;%
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;car&quot;</span>, car, function() <span class="kw">sample</span>(T_INTER[<span class="dv">1</span>]:T_INTER[<span class="dv">2</span>], <span class="dv">1</span>)) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;pump&quot;</span>, <span class="dv">2</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;controller&quot;</span>, controller, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;car&quot;</span>, car, <span class="cf">function</span>() <span class="kw">sample</span>(T_INTER[<span class="dv">1</span>]<span class="op">:</span>T_INTER[<span class="dv">2</span>], <span class="dv">1</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>(SIM_TIME)
 <span class="co">#&gt; 94: car0: arriving at gas station</span>
 <span class="co">#&gt; 113.5: car0: finished refuelling in 19.5 seconds</span>
