@@ -4,12 +4,42 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
 
 required <- c("simmer.plot")
 
-if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)
 library(simmer.plot)
+
+## ---- error = TRUE-------------------------------------------------------
+t <- trajectory() %>%
+  log_(function() as.character(now(env)))
+
+env <- simmer() %>%
+  add_generator("dummy", t, function() 1) %>%
+  run(4)
+
+## ------------------------------------------------------------------------
+t <- trajectory() %>%
+  log_(function() as.character(now(env)))
+
+env <- simmer() %>%
+  add_generator("dummy", t, function() 1)
+
+env %>% run(4) %>% invisible
+
+## ------------------------------------------------------------------------
+# First, instantiate the environment
+env <- simmer()
+
+# Here I'm using it
+t <- trajectory() %>%
+  log_(function() as.character(now(env)))
+
+# And finally, run it
+env %>%
+  add_generator("dummy", t, function() 1) %>%
+  run(4) %>% invisible
 
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%
@@ -29,9 +59,9 @@ simmer() %>%
 
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%
-  set_attribute(key = "my_key", value = 123) %>%
+  set_attribute(keys = "my_key", values = 123) %>%
   timeout(5) %>%
-  set_attribute(key = "my_key", value = 456)
+  set_attribute(keys = "my_key", values = 456)
 
 env <- simmer() %>%
   add_generator("patient", patient_traj, at(0), mon = 2) %>%
@@ -57,7 +87,7 @@ get_mon_attributes(env)
 
 ## ------------------------------------------------------------------------
 writer <- trajectory() %>%
-  set_attribute(key = "my_key", value = 123)
+  set_attribute(keys = "my_key", values = 123)
 
 reader <- trajectory() %>%
   log_(function() paste0(get_attribute(env, "my_key")))
@@ -71,10 +101,11 @@ get_mon_attributes(env)
 
 ## ------------------------------------------------------------------------
 writer <- trajectory() %>%
-  set_attribute(key = "my_key", value = 123, global = TRUE)
+  set_global(keys = "my_key", values = 123) 
 
 reader <- trajectory() %>%
-  log_(function() paste0(get_attribute(env, "my_key"), ", ", get_attribute(env, "my_key", global = TRUE)))
+  log_(function() paste0(get_attribute(env, "my_key"), ", ", 
+                         get_attribute(env, "my_key", global = TRUE)))
 
 env <- simmer() %>%
   add_generator("writer", writer, at(0), mon = 2) %>%
@@ -861,36 +892,4 @@ t0[[2]]
 ## ------------------------------------------------------------------------
 join(t0, t0)["timeout"]
 join(t0, t0)[["timeout"]]
-
-## ---- error = TRUE-------------------------------------------------------
-remove(env)
-
-t <- trajectory() %>%
-  log_(function() paste(now(env)))
-
-env <- simmer() %>%
-  add_generator("dummy", t, function() 1) %>%
-  run(4)
-
-## ------------------------------------------------------------------------
-t <- trajectory() %>%
-  log_(function() paste(now(env)))
-
-env <- simmer() %>%
-  add_generator("dummy", t, function() 1)
-
-env %>% run(4) %>% invisible
-
-## ------------------------------------------------------------------------
-# First, instantiate the environment
-env <- simmer()
-
-# Here I'm using it
-t <- trajectory() %>%
-  log_(function() paste(now(env)))
-
-# And finally, run it
-env %>%
-  add_generator("dummy", t, function() 1) %>%
-  run(4) %>% invisible
 

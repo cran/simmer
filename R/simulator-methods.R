@@ -7,7 +7,7 @@
 #'
 #' @return Returns a simulation environment.
 #' @seealso Methods for dealing with a simulation environment:
-#' \code{\link{reset}}, \code{\link{now}}, \code{\link{peek}}, \code{\link{onestep}}, \code{\link{run}},
+#' \code{\link{reset}}, \code{\link{now}}, \code{\link{peek}}, \code{\link{stepn}}, \code{\link{run}},
 #' \code{\link{add_resource}}, \code{\link{add_generator}}, \code{\link{get_mon_arrivals}},
 #' \code{\link{get_mon_attributes}}, \code{\link{get_mon_resources}}, \code{\link{get_n_generated}},
 #' \code{\link{get_capacity}}, \code{\link{get_queue_size}},
@@ -46,7 +46,7 @@ simmer <- function(name="anonymous", verbose=FALSE) Simmer$new(name, verbose)
 #' @param .env the simulation environment.
 #'
 #' @return Returns the simulation environment.
-#' @seealso \code{\link{onestep}}, \code{\link{run}}.
+#' @seealso \code{\link{stepn}}, \code{\link{run}}.
 #' @export
 reset <- function(.env) UseMethod("reset")
 
@@ -82,12 +82,25 @@ run.simmer <- function(.env, until=1000, progress=NULL, steps=10) {
   } else .env$run(until=until)
 }
 
+# nocov start
 #' @rdname run
 #' @export
-onestep <- function(.env) UseMethod("onestep")
+onestep <- function(.env) {
+  .Deprecated("stepn")
+  UseMethod("onestep")
+}
 
 #' @export
-onestep.simmer <- function(.env) .env$step()
+onestep.simmer <- function(.env) .env$stepn()
+# nocov end
+
+#' @rdname run
+#' @param n number of events to simulate.
+#' @export
+stepn <- function(.env, n=1) UseMethod("stepn")
+
+#' @export
+stepn.simmer <- function(.env, n=1) .env$stepn(n)
 
 #' Simulation Time
 #'
@@ -237,7 +250,7 @@ get_mon_resources.simmer <- function(.envs, data=c("counts", "limits"))
 #' given generator.
 #'
 #' \code{get_name} returns the number of the running arrival. \code{get_attribute}
-#' returns a running arrival's attribute or a global one. If the provided key was
+#' returns a running arrival's attributes or global ones. If a provided key was
 #' not previously set, it returns a missing value. \code{get_global} is a shortcut
 #' for \code{get_attribute(global=TRUE)}. \code{get_prioritization} returns a
 #' running arrival's prioritization values. \code{get_name}, \code{get_attribute}
@@ -258,19 +271,19 @@ get_name <- function(.env) UseMethod("get_name")
 #' @export
 get_name.simmer <- function(.env) .env$get_name()
 
-#' @param key the attribute name.
+#' @param keys the attribute name(s).
 #' @param global if \code{TRUE}, the attribute will be global instead of per-arrival.
 #'
 #' @rdname get_n_generated
 #' @export
-get_attribute <- function(.env, key, global=FALSE) UseMethod("get_attribute")
+get_attribute <- function(.env, keys, global=FALSE) UseMethod("get_attribute")
 
 #' @export
-get_attribute.simmer <- function(.env, key, global=FALSE) .env$get_attribute(key, global)
+get_attribute.simmer <- function(.env, keys, global=FALSE) .env$get_attribute(keys, global)
 
 #' @rdname get_n_generated
 #' @export
-get_global <- function(.env, key) get_attribute(.env, key, TRUE)
+get_global <- function(.env, keys) get_attribute(.env, keys, TRUE)
 
 #' @rdname get_n_generated
 #' @export

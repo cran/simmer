@@ -15,13 +15,13 @@ test_that("capacity and queue size change as expected (1)", {
 
   expect_equal(env %>% get_capacity("dummy"), 5)
   expect_equal(env %>% get_queue_size("dummy"), 0)
-  env %>% onestep() %>% onestep()
+  env %>% stepn(2)
   expect_equal(env %>% get_capacity("dummy"), 0)
-  env %>% onestep()
+  env %>% stepn()
   expect_equal(env %>% get_capacity("dummy"), Inf)
-  env %>% onestep()
+  env %>% stepn()
   expect_equal(env %>% get_queue_size("dummy"), Inf)
-  env %>% onestep()
+  env %>% stepn()
   expect_equal(env %>% get_queue_size("dummy"), 5)
   expect_warning(env %>% run)
   expect_equal(env %>% get_server_count("dummy"), 10)
@@ -47,13 +47,13 @@ test_that("capacity and queue size change as expected (2)", {
   expect_equal(env %>% get_capacity("dummy1"), 3)
   expect_equal(env %>% get_queue_size("dummy0"), 0)
   expect_equal(env %>% get_queue_size("dummy1"), 0)
-  env %>% onestep() %>% onestep() %>% onestep() %>% onestep()
+  env %>% stepn(4)
   expect_equal(env %>% get_capacity("dummy0"), 0)
-  env %>% onestep()
+  env %>% stepn()
   expect_equal(env %>% get_capacity("dummy1"), Inf)
-  env %>% onestep()
+  env %>% stepn()
   expect_equal(env %>% get_queue_size("dummy1"), Inf)
-  env %>% onestep()
+  env %>% stepn()
   expect_equal(env %>% get_queue_size("dummy0"), 5)
 })
 
@@ -112,4 +112,21 @@ test_that("queue is dropped with queue_size_strict (2)", {
 
   expect_equal(run(env, 1) %>% get_queue_count("res"), 3)
   expect_equal(run(env, 2) %>% get_queue_count("res"), 0)
+})
+
+test_that("self-induced preemption works", {
+  t <- trajectory() %>%
+    seize("res") %>%
+    set_capacity("res", 0) %>%
+    timeout(10) %>%
+    release("res")
+
+  env <- simmer(verbose = TRUE) %>%
+    add_resource("res", preemptive = TRUE) %>%
+    add_generator("dummy", t, at(0)) %>%
+    run(5)
+
+  expect_equal(get_queue_count(env, "res"), 1)
+  expect_equal(now(env), 0)
+  expect_equal(peek(env), numeric(0))
 })

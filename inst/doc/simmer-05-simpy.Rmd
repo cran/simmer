@@ -17,13 +17,13 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
 
 required <- c("dplyr")
 
-if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 ```
 
 ## Introduction
 
-These examples are adapted from the Python package 'SimPy', [here](https://simpy.readthedocs.io/en/latest/examples). Users familiar with SimPy may find these examples helpful for transitioning to `simmer`. Some very basic material is not covered. Beginners should first read the vignettes [_Introduction to simmer_](A-introduction.html), [_Terminology_](B-terminology.html), [_Advanced Trajectory Usage_](C-trajectories.html) and [_The Bank Tutorial_](D-bank-1.html).
+These examples are adapted from the Python package 'SimPy', [here](https://simpy.readthedocs.io/en/latest/examples). Users familiar with SimPy may find these examples helpful for transitioning to `simmer`. Some very basic material is not covered. Beginners should first read the vignettes [_Introduction to simmer_](simmer-01-introduction.html), [_Terminology_](simmer-02-terminology.html), [_Advanced Trajectory Usage_](simmer-03-trajectories.html) and _[The Bank Tutorial: Part I](simmer-04-bank-1.html) & [Part II](simmer-04-bank-2.html)_.
 
 ## Carwash
 
@@ -381,9 +381,8 @@ Now a car's trajectory is straightforward. First, the starting time is saved as 
 
 ```{r, message=FALSE, warning=FALSE}
 car <- trajectory() %>%
-  set_attribute("start", function() now(env)) %>%
-  set_attribute("level", function() 
-    sample(FUEL_TANK_LEVEL[1]:FUEL_TANK_LEVEL[2], 1)) %>%
+  set_attribute(c("start", "level"), function() 
+    c(now(env), sample(FUEL_TANK_LEVEL[1]:FUEL_TANK_LEVEL[2], 1))) %>%
   log_("arriving at gas station") %>%
   seize("pump", 1) %>%
   # 'join()' concatenates the refuelling trajectory here

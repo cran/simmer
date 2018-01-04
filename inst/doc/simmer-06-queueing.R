@@ -4,86 +4,16 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
 
 required <- c("simmer.plot", "dplyr")
 
-if (!all(unlist(lapply(required, function(pkg) requireNamespace(pkg, quietly = TRUE)))))
+if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)
 library(simmer.plot)
-library(parallel)
 set.seed(1234)
 
 ## ------------------------------------------------------------------------
-lambda <- 2
-mu <- 4
-rho <- lambda/mu # = 2/4
-
-mm1.trajectory <- trajectory() %>%
-  seize("resource", amount=1) %>%
-  timeout(function() rexp(1, mu)) %>%
-  release("resource", amount=1)
-
-mm1.env <- simmer() %>%
-  add_resource("resource", capacity=1, queue_size=Inf) %>%
-  add_generator("arrival", mm1.trajectory, function() rexp(1, lambda)) %>% 
-  run(until=2000)
-
-## ------------------------------------------------------------------------
-# Theoretical value
-mm1.N <- rho/(1-rho)
-
-# Evolution of the average number of customers in the system
-plot(mm1.env, "resources", "usage", "resource", items="system") +
-  geom_hline(yintercept=mm1.N)
-
-## ------------------------------------------------------------------------
-plot(mm1.env, "resources", "usage", "resource", items=c("queue", "server"), steps=TRUE) +
-  xlim(0, 20) + ylim(0, 4)
-
-## ------------------------------------------------------------------------
-mm1.arrivals <- get_mon_arrivals(mm1.env)
-mm1.t_system <- mm1.arrivals$end_time - mm1.arrivals$start_time
-
-mm1.T <- mm1.N / lambda
-mm1.T ; mean(mm1.t_system)
-
-## ---- eval=FALSE---------------------------------------------------------
-#  envs <- mclapply(1:100, function(i) {
-#    simmer() %>%
-#      add_resource("resource", capacity=1, queue_size=Inf) %>%
-#      add_generator("arrival", mm1.trajectory, function() rexp(100, lambda)) %>%
-#      run(1000/lambda) %>%
-#      wrap()
-#  }, mc.set.seed=FALSE)
-
-## ---- eval=FALSE---------------------------------------------------------
-#  t_system <- get_mon_arrivals(envs) %>%
-#    dplyr::mutate(t_system = end_time - start_time) %>%
-#    dplyr::group_by(replication) %>%
-#    dplyr::summarise(mean = mean(t_system))
-#  
-#  t.test(t_system$mean)
-#  #>
-#  #> 	One Sample t-test
-#  #>
-#  #> data:  t_system$mean
-#  #> t = 112.35, df = 99, p-value < 2.2e-16
-#  #> alternative hypothesis: true mean is not equal to 0
-#  #> 95 percent confidence interval:
-#  #>  0.4883420 0.5059016
-#  #> sample estimates:
-#  #> mean of x
-#  #> 0.4971218
-
-## ------------------------------------------------------------------------
-lambda; 1/mean(diff(subset(mm1.arrivals, finished==TRUE)$start_time))
-
-## ------------------------------------------------------------------------
-qqplot(mm1.t_system, rexp(1000, 1/mm1.T))
-abline(0, 1, lty=2, col="red")
-
-## ------------------------------------------------------------------------
-lambda <- 2
+lambda <- 3
 mu <- 4
 
 mm23.trajectory <- trajectory() %>%
@@ -98,14 +28,21 @@ mm23.env <- simmer() %>%
 
 ## ------------------------------------------------------------------------
 mm23.arrivals <- get_mon_arrivals(mm23.env)
-mm23.arrivals %>%
-  dplyr::summarise(rejection_rate = sum(!finished)/length(finished))
+
+rejection_rate <- mm23.arrivals %>%
+  dplyr::summarise(rejection_rate = sum(!finished)/length(finished)) %>%
+  dplyr::pull(rejection_rate)
+rejection_rate
 
 ## ------------------------------------------------------------------------
-mm23.t_system <- mm23.arrivals$end_time - mm23.arrivals$start_time
-# Comparison with M/M/1 times
-qqplot(mm1.t_system, mm23.t_system)
-abline(0, 1, lty=2, col="red")
+# Theoretical value
+rho <- lambda/mu
+div <- 1 / c(1, 1, factorial(2) * 2^(2:3-2))
+mm23.N <- sum(0:3 * rho^(0:3) * div) / sum(rho^(0:3) * div)
+
+# Evolution of the average number of customers in the system
+plot(mm23.env, "resources", "usage", "server", items="system") +
+  geom_hline(yintercept=mm23.N)
 
 ## ------------------------------------------------------------------------
 mean_pkt_size <- 100        # bytes
@@ -130,11 +67,11 @@ to_queue_1 <- trajectory() %>%
   md1(1) %>%
   leave(0.25) %>%
   md1(2) %>%
-  branch(function() (runif(1) > 0.65) + 1, c(F, F),
-         trajectory() %>%
-           md1(3),
-         trajectory() %>%
-           md1(4))
+  branch(
+    function() (runif(1) > 0.65) + 1, continue=c(F, F),
+    trajectory() %>% md1(3),
+    trajectory() %>% md1(4)
+  )
 
 to_queue_3 <- trajectory() %>%
   set_msg_size() %>%

@@ -5,6 +5,8 @@ knitr::opts_chunk$set(collapse = T, comment = "#>",
 ## ---- message=FALSE------------------------------------------------------
 library(simmer)
 
+set.seed(42)
+
 env <- simmer("SuperDuperSim")
 env
 
@@ -31,25 +33,27 @@ env %>%
   add_generator("patient", patient, function() rnorm(1, 10, 2))
 
 ## ---- message=FALSE------------------------------------------------------
-env %>% run(until=80)
-env %>% now()
+env %>% 
+  run(80) %>% 
+  now()
 env %>% peek(3)
 
 ## ---- message=FALSE------------------------------------------------------
-env %>% onestep()
-env %>% onestep() %>% onestep() %>% onestep()
-env %>% now()
+env %>%
+  stepn() %>% # 1 step
+  print() %>%
+  stepn(3)    # 3 steps
 env %>% peek(Inf, verbose=TRUE)
 
 ## ---- message=FALSE------------------------------------------------------
 env %>% 
-  run(until=120) %>%
+  run(120) %>%
   now()
 
 ## ---- message=FALSE------------------------------------------------------
 env %>% 
   reset() %>% 
-  run(until=80) %>%
+  run(80) %>%
   now()
 
 ## ------------------------------------------------------------------------
@@ -77,12 +81,12 @@ envs <- mclapply(1:100, function(i) {
 
 ## ---- message=FALSE------------------------------------------------------
 envs[[1]] %>% get_n_generated("patient")
-envs[[1]] %>% get_capacity("doctor")
+envs[[1]] %>% get_queue_count("doctor")
 envs[[1]] %>% get_queue_size("doctor")
-head(
-  envs %>% get_mon_resources()
-)
-head(
-  envs %>% get_mon_arrivals()
-)
+envs %>% 
+  get_mon_resources() %>%
+  head()
+envs %>% 
+  get_mon_arrivals() %>%
+  head()
 

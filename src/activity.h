@@ -46,13 +46,14 @@ public:
    */
   virtual void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     if (!brief) {
-      for (unsigned int i = 0; i < indent; ++i)
-        Rcpp::Rcout << " ";
-      Rcpp::Rcout << "{ Activity: " << FMT(12, left) << name << " | ";
+      std::ios::fmtflags fmt(Rcpp::Rcout.flags());
+      Rcpp::Rcout <<
+        IND(indent) << "{ Activity: " << FMT(12, left) << name << " | ";
       if (verbose) Rcpp::Rcout <<
         FMT(9, right) << prev << " <- " <<
         FMT(9, right) << this << " -> " <<
         FMT(9, left) << next << " | ";
+      Rcpp::Rcout.flags(fmt);
     }
   }
 
@@ -134,8 +135,8 @@ public:
     if (!brief) {
       if (indent > 10) return; // max 6 levels
       for (unsigned int i = 0; i < trj.size(); i++) {
-        for (unsigned int j = 0; j < indent; ++j) Rcpp::Rcout << " ";
-        Rcpp::Rcout << "Fork " << i+1 << (cont[i] ? ", continue," : ", stop,");
+        Rcpp::Rcout <<
+          IND(indent) << "Fork " << i+1 << (cont[i] ? ", continue," : ", stop,");
         Rcpp::Function print(trj[i]["print"]);
         print(indent, verbose);
       }
@@ -301,6 +302,8 @@ public:
     double ret = std::abs(get<double>(value, 0, arrival));
     if (ret == R_PosInf) ret = -1;
     get_resource(arrival)->set_capacity((int)ret);
+    if (arrival->is_paused())
+      return ENQUEUE;
     return 0;
   }
 
@@ -374,32 +377,40 @@ protected:
 /**
  * Set attributes.
  */
-template <typename T>
+template <typename T, typename U>
 class SetAttribute : public Activity {
 public:
-  CLONEABLE(SetAttribute<T>)
+  CLONEABLE(SetAttribute<T COMMA U>)
 
-  SetAttribute(const std::string& key, const T& value, int provide_attrs, bool global)
-    : Activity("SetAttribute", VEC<int>(1, provide_attrs)),
-      key(key), value(value), global(global) {}
+  SetAttribute(const T& keys, const U& values, bool global, const VEC<int>& provide_attrs)
+    : Activity("SetAttribute", provide_attrs), keys(keys), values(values), global(global) {}
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
     Activity::print(indent, verbose, brief);
-    if (!brief) Rcpp::Rcout << LABELC(key) << LABELC(value) << LABELE(global);
-    else Rcpp::Rcout << C(key) << C(value) << E(global);
+    if (!brief) Rcpp::Rcout << LABELC(keys) << LABELC(values) << LABELE(global);
+    else Rcpp::Rcout << C(keys) << C(values) << E(global);
   }
 
   double run(Arrival* arrival) {
-    double ret = get<double>(value, 0, arrival);
-    if (global)
-      arrival->sim->set_attribute(key, ret);
-    else arrival->set_attribute(key, ret);
+    VEC<std::string> ks = get<VEC<std::string> >(keys, 0, arrival);
+    VEC<double> vals = get<VEC<double> >(values, 1, arrival);
+
+    if (ks.size() != vals.size())
+      Rcpp::stop("%s: number of keys and values don't match", name);
+
+    boost::function<void (const std::string&, double)> setter;
+    if (global) setter = boost::bind(&Simulator::set_attribute, arrival->sim, _1, _2);
+    else setter = boost::bind(&Arrival::set_attribute, arrival, _1, _2);
+
+    for (unsigned int i = 0; i < ks.size(); i++)
+      setter(ks[i], vals[i]);
+
     return 0;
   }
 
 protected:
-  std::string key;
-  T value;
+  T keys;
+  U values;
   bool global;
 };
 
@@ -732,7 +743,7 @@ public:
       if (i < heads.size())
         selected = heads[i];
       Arrival* new_arrival = arrival->clone();
-      new_arrival->set_activity(this->get_next());
+      new_arrival->set_activity(get_next());
       new_arrival->activate();
     }
     if (heads.size())
@@ -859,7 +870,7 @@ protected:
     if (!(*ptr) || *ptr != target)
       return;
     if ((*ptr)->size()) {
-      (*ptr)->set_activity(this->get_next());
+      (*ptr)->set_activity(get_next());
       (*ptr)->activate();
       *ptr = init(*ptr);
     } else {
@@ -888,7 +899,7 @@ public:
     Batched* batched = dynamic_cast<Batched*>(arrival);
     if (!batched || batched->is_permanent())
       return 0;
-    batched->pop_all(this->get_next());
+    batched->pop_all(get_next());
     delete batched;
     return REJECT;
   }
@@ -987,7 +998,7 @@ class Send : public Activity {
 public:
   CLONEABLE(Send<T COMMA U>)
 
-  Send(const T& signals,const U& delay, const VEC<int>& provide_attrs)
+  Send(const T& signals, const U& delay, const VEC<int>& provide_attrs)
     : Activity("Send", provide_attrs), signals(signals), delay(delay) {}
 
   void print(unsigned int indent = 0, bool verbose = false, bool brief = false) {
@@ -1057,7 +1068,7 @@ protected:
   UMAP<Arrival*, Activity*> pending;
 
   void launch_handler(Arrival* arrival) {
-    if (!arrival->is_active())
+    if (!arrival->sim->is_scheduled(arrival))
       return;
     arrival->stop();
     if (heads.size()) {
