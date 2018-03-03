@@ -1,0 +1,24 @@
+bibentry(
+  header  = "To cite 'simmer' in publications use:",
+  bibtype = "Article",
+  title   = "{simmer}: Discrete-Event Simulation for {R}",
+  author  = c(person("Iñaki", "Ucar"),
+              person("Bart", "Smeets"),
+              person("Arturo", "Azcorra")),
+  year    = "2018",
+  journal = "Journal of Statistical Software",
+  volume  = "accepted for publication"
+)
+
+bibentry(
+  header  = "If appropriate, use also:",
+  bibtype = "Article",
+  title   = "Design and Analysis of 5G Scenarios with {simmer}: An {R} Package for Fast DES Prototyping",
+  author  = c(person("Iñaki", "Ucar"),
+              person("José Alberto", "Hernández"),
+              person("Pablo", "Serrano"),
+              person("Arturo", "Azcorra")),
+  year    = "2018",
+  journal = "IEEE Communications Magazine",
+  volume  = "accepted for publication"
+)

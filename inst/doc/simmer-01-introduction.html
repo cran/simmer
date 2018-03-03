@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2018-01-04" />
+<meta name="date" content="2018-03-03" />
 
 <title>Introduction to simmer</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to simmer</h1>
 <h4 class="author"><em>Bart Smeets, Iñaki Ucar</em></h4>
-<h4 class="date"><em>2018-01-04</em></h4>
+<h4 class="date"><em>2018-03-03</em></h4>
 
 
 <div id="TOC">
@@ -123,29 +123,29 @@ env
 <span class="st">  </span><span class="kw">now</span>()
 <span class="co">#&gt; [1] 80</span>
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">peek</span>(<span class="dv">3</span>)
-<span class="co">#&gt; [1] 81.18802 81.62105 81.62105</span></code></pre></div>
+<span class="co">#&gt; [1] 81.08101 81.08101 81.37616</span></code></pre></div>
 <p>It is possible to run the simulation step by step, and such a method is chainable too.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">stepn</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># 1 step</span>
 <span class="st">  </span><span class="kw">print</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">stepn</span>(<span class="dv">3</span>)    <span class="co"># 3 steps</span>
-<span class="co">#&gt; simmer environment: SuperDuperSim | now: 81.1880168737284 | next: 81.1880168737284</span>
-<span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: doctor | monitored: TRUE | server status: 1(2) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; simmer environment: SuperDuperSim | now: 81.0810054927203 | next: 81.0810054927203</span>
+<span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 2(Inf) }</span>
+<span class="co">#&gt; { Resource: doctor | monitored: TRUE | server status: 2(2) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: administration | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: patient | monitored: 1 | n_generated: 7 }</span>
-<span class="co">#&gt; simmer environment: SuperDuperSim | now: 81.6210531397386 | next: 81.6210531397386</span>
-<span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
+<span class="co">#&gt; simmer environment: SuperDuperSim | now: 81.3761633133839 | next: 81.3761633133839</span>
+<span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 2(Inf) }</span>
 <span class="co">#&gt; { Resource: doctor | monitored: TRUE | server status: 1(2) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: administration | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Generator: patient | monitored: 1 | n_generated: 8 }</span>
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">peek</span>(<span class="ot">Inf</span>, <span class="dt">verbose=</span><span class="ot">TRUE</span>)
 <span class="co">#&gt;       time  process</span>
-<span class="co">#&gt; 1 81.62105 patient6</span>
-<span class="co">#&gt; 2 87.08210 patient4</span>
-<span class="co">#&gt; 3 94.26128  patient</span>
-<span class="co">#&gt; 4 94.26128 patient7</span>
-<span class="co">#&gt; 5 94.45430 patient3</span></code></pre></div>
+<span class="co">#&gt; 1 81.37616 patient2</span>
+<span class="co">#&gt; 2 85.04420 patient4</span>
+<span class="co">#&gt; 3 86.20007 patient7</span>
+<span class="co">#&gt; 4 86.20007  patient</span>
+<span class="co">#&gt; 5 92.41640 patient3</span></code></pre></div>
 <p>Also, it is possible to resume the automatic execution simply by specifying a longer runtime. Below, we continue the execution until 120 time units.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">run</span>(<span class="dv">120</span>) <span class="op">%&gt;%</span>
@@ -192,12 +192,12 @@ envs <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">get_mon_resources</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">head</span>()
 <span class="co">#&gt;   resource     time server queue capacity queue_size system limit</span>
-<span class="co">#&gt; 1    nurse 11.73526      1     0        1        Inf      1   Inf</span>
-<span class="co">#&gt; 2    nurse 22.40235      1     1        1        Inf      2   Inf</span>
-<span class="co">#&gt; 3    nurse 25.68640      1     0        1        Inf      1   Inf</span>
-<span class="co">#&gt; 4   doctor 25.68640      1     0        2        Inf      1   Inf</span>
-<span class="co">#&gt; 5    nurse 35.57400      1     1        1        Inf      2   Inf</span>
-<span class="co">#&gt; 6    nurse 39.55402      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt; 1    nurse 10.31159      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt; 2    nurse 25.28262      1     1        1        Inf      2   Inf</span>
+<span class="co">#&gt; 3    nurse 26.07916      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt; 4   doctor 26.07916      1     0        2        Inf      1   Inf</span>
+<span class="co">#&gt; 5    nurse 34.68216      1     1        1        Inf      2   Inf</span>
+<span class="co">#&gt; 6    nurse 40.70940      1     0        1        Inf      1   Inf</span>
 <span class="co">#&gt;   replication</span>
 <span class="co">#&gt; 1           1</span>
 <span class="co">#&gt; 2           1</span>
@@ -209,12 +209,12 @@ envs <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">get_mon_arrivals</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">head</span>()
 <span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
-<span class="co">#&gt; 1 patient0   11.73526 48.26652      36.53126     TRUE           1</span>
-<span class="co">#&gt; 2 patient1   22.40235 63.60611      37.91972     TRUE           1</span>
-<span class="co">#&gt; 3 patient2   35.57400 79.69151      40.13748     TRUE           1</span>
-<span class="co">#&gt; 4 patient0   12.36078 53.70147      41.34069     TRUE           2</span>
-<span class="co">#&gt; 5 patient1   22.47304 65.87074      38.60790     TRUE           2</span>
-<span class="co">#&gt; 6 patient0   11.55633 53.06695      41.51062     TRUE           3</span></code></pre></div>
+<span class="co">#&gt; 1 patient0  10.311591 50.53702      40.22543     TRUE           1</span>
+<span class="co">#&gt; 2 patient1  25.282619 67.45094      41.37178     TRUE           1</span>
+<span class="co">#&gt; 3 patient0  13.205302 52.73757      39.53227     TRUE           2</span>
+<span class="co">#&gt; 4 patient1  23.933573 70.23887      41.10905     TRUE           2</span>
+<span class="co">#&gt; 5 patient0   8.729618 48.11152      39.38190     TRUE           3</span>
+<span class="co">#&gt; 6 patient1  18.385708 62.75024      40.29616     TRUE           3</span></code></pre></div>
 <p>Unfortunately, as the C++ simulation cores are destroyed, the downside of this kind of parallelization is that one cannot resume execution of the replicas.</p>
 </div>
 <div id="basic-visualisation-tools" class="section level2">

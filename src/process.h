@@ -25,7 +25,7 @@ protected:
 };
 
 class Manager : public Process {
-  typedef boost::function<void (int)> Setter;
+  typedef Fn<void(int)> Setter;
 
 public:
   Manager(Simulator* sim, const std::string& name, const std::string& param,
@@ -47,8 +47,10 @@ private:
 };
 
 class Task : public Process {
+  typedef Fn<void()> Callback;
+
 public:
-  Task(Simulator* sim, const std::string& name, const BIND(void)& task, int priority = 0)
+  Task(Simulator* sim, const std::string& name, const Callback& task, int priority = 0)
     : Process(sim, name, false, priority), task(task) {}
   ~Task() { reset(); }
 
@@ -56,7 +58,7 @@ public:
   void run();
 
 private:
-  BIND(void) task;
+  Callback task;
 };
 
 struct Order {
@@ -108,7 +110,7 @@ public:
    */
   Generator(Simulator* sim, const std::string& name_prefix, int mon,
             const Rcpp::Environment& trj, const Rcpp::Function& dist, const Order& order)
-    : Process(sim, name_prefix, mon, PRIORITY_GENERATOR), count(0), trj(trj),
+    : Process(sim, name_prefix, mon, PRIORITY_MIN), count(0), trj(trj),
       dist(dist), order(order), first_activity(NULL) { set_first_activity(); }
 
   /**
@@ -188,24 +190,21 @@ public:
   void run();
   void restart();
   void pause();
+  bool is_paused() const { return paused; }
   void stop();
   virtual void terminate(bool finished);
-  virtual void set_attribute(const std::string& key, double value);
-  double get_start(const std::string& name);
 
-  bool is_paused() const { return paused; }
   int get_clones() const { return *clones; }
-  double get_remaining() const { return status.remaining; }
-  void set_activity(Activity* ptr) { activity = ptr; }
+
+  virtual void set_attribute(const std::string& key, double value, bool global=false);
+  double get_attribute(const std::string& key, bool global=false) const;
+
+  double get_start(const std::string& name);
   double get_start() const { return lifetime.start; }
+  double get_remaining() const { return status.remaining; }
+
+  void set_activity(Activity* ptr) { activity = ptr; }
   Activity* get_activity() const { return activity; }
-  Attr* get_attributes() { return &attributes; } // # nocov
-  double get_attribute(const std::string& key) const {
-    Attr::const_iterator search = attributes.find(key);
-    if (search == attributes.end())
-      return NA_REAL;
-    return search->second;
-  }
 
   void set_resource_selected(int id, Resource* res) { selected[id] = res; }
   Resource* get_resource_selected(int id) const {
@@ -222,7 +221,7 @@ public:
   void set_renege(double timeout, Activity* next) {
     cancel_renege();
     timer = new Task(sim, "Renege-Timer",
-                     boost::bind(&Arrival::renege, this, next),
+                     BIND(&Arrival::renege, this, next),
                      PRIORITY_MIN);
     timer->activate(timeout);
   }
@@ -307,7 +306,7 @@ public:
     arrivals.clear();
   }
 
-  void set_attribute(const std::string& key, double value);
+  void set_attribute(const std::string& key, double value, bool global=false);
 
   bool is_permanent() const { return permanent; }
   size_t size() const { return arrivals.size(); }

@@ -40,16 +40,21 @@ std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#define BIND(T) boost::function<T ()>
+#define REnv Rcpp::Environment
+#define RFn Rcpp::Function
+#define Fn boost::function
+#define BIND boost::bind
 
 #define FMT(n, justify) std::setw(n) << std::justify
 #define IND(n) std::string(n, ' ')
 
 #define PRIORITY_MAX            std::numeric_limits<int>::min()
-#define PRIORITY_RELEASE        -4
-#define PRIORITY_MANAGER        -3
-#define PRIORITY_RELEASE_POST   -2
-#define PRIORITY_GENERATOR      -1
+#define PRIORITY_RELEASE        -6
+#define PRIORITY_MANAGER        -5
+#define PRIORITY_RELEASE_POST   -4
+#define PRIORITY_SEND           -3
+#define PRIORITY_SIGNAL         -2
+#define PRIORITY_TRAP           -1
 #define PRIORITY_MIN            std::numeric_limits<int>::max()
 
 #define SUCCESS    0
@@ -59,11 +64,8 @@ std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
 
 #define COMMA ,
 
-#define BASE_CLONEABLE(Type) \
-  virtual Type* clone() const = 0;
-
-#define CLONEABLE(Type) \
-  virtual Type* clone() const { return new Type(*this); }
+#define BASE_CLONEABLE(Type) virtual Type* clone() const = 0;
+#define CLONEABLE(Type) virtual Type* clone() const { return new Type(*this); }
 
 typedef UMAP<std::string, double> Attr;
 

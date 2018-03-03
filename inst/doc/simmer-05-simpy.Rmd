@@ -6,7 +6,7 @@ output:
   rmarkdown::html_vignette:
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{Other SimPy Examples}
+  %\VignetteIndexEntry{05. Other SimPy Examples}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,7 +23,7 @@ if (!all(sapply(required, requireNamespace, quietly = TRUE)))
 
 ## Introduction
 
-These examples are adapted from the Python package 'SimPy', [here](https://simpy.readthedocs.io/en/latest/examples). Users familiar with SimPy may find these examples helpful for transitioning to `simmer`. Some very basic material is not covered. Beginners should first read the vignettes [_Introduction to simmer_](simmer-01-introduction.html), [_Terminology_](simmer-02-terminology.html), [_Advanced Trajectory Usage_](simmer-03-trajectories.html) and _[The Bank Tutorial: Part I](simmer-04-bank-1.html) & [Part II](simmer-04-bank-2.html)_.
+These examples are adapted from the Python package 'SimPy', [here](https://simpy.readthedocs.io/en/latest/examples). Users familiar with SimPy may find these examples helpful for transitioning to `simmer`. Some very basic material is not covered. Beginners should first read _[The Bank Tutorial: Part I](simmer-04-bank-1.html) & [Part II](simmer-04-bank-2.html)_.
 
 ## Carwash
 
@@ -121,7 +121,7 @@ make_parts <- function(machine)
     set_attribute("parts", 0) %>%
     seize(machine, 1) %>%
     timeout(function() rnorm(1, PT_MEAN, PT_SIGMA)) %>%
-    set_attribute("parts", function() get_attribute(env, "parts") + 1) %>%
+    set_attribute("parts", 1, mod="+") %>%
     rollback(2, Inf) # go to 'timeout' over and over
 ```
 

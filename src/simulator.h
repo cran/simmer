@@ -36,7 +36,7 @@ class Simulator {
   typedef UMAP<Arrival*, USET<std::string> > ArrMap;
   typedef UMAP<std::string, Batched*> NamBMap;
   typedef UMAP<Activity*, Batched*> UnnBMap;
-  typedef std::pair<bool, BIND(void)> Handler;
+  typedef std::pair<bool, Fn<void()> > Handler;
   typedef UMAP<Arrival*, Handler> HandlerMap;
   typedef UMAP<std::string, HandlerMap> SigMap;
 
@@ -180,7 +180,7 @@ public:
    * @param   preemptible     maximum priority that cannot cause preemption (>=priority)
    * @param   restart         whether activity must be restarted after preemption
    */
-  bool add_generator(const std::string& name_prefix, Rcpp::Environment trj, Rcpp::Function dist,
+  bool add_generator(const std::string& name_prefix, REnv trj, RFn dist,
                      int mon, int priority, int preemptible, bool restart)
   {
     if (process_map.find(name_prefix) != process_map.end()) {
@@ -247,10 +247,10 @@ public:
     Manager* manager;
     if (param.compare("capacity") == 0)
       manager = new Manager(this, name, param, duration, value, period,
-                            boost::bind(&Resource::set_capacity, res, _1));
+                            BIND(&Resource::set_capacity, res, _1));
     else
       manager = new Manager(this, name, param, duration, value, period,
-                            boost::bind(&Resource::set_queue_size, res, _1));
+                            BIND(&Resource::set_queue_size, res, _1));
     process_map[name + "_" + param] = manager;
     manager->activate();
     return true;
@@ -302,16 +302,16 @@ public:
       foreach_ (const HandlerMap::value_type& itr, signal_map[signal]) {
         if (!itr.second.first)
           continue;
-        Task* task = new Task(this, "Handler", itr.second.second);
+        Task* task = new Task(this, "Handler", itr.second.second, PRIORITY_SIGNAL);
         task->activate();
       }
     }
   }
-  void subscribe(const std::string& signal, Arrival* arrival, BIND(void) handler) {
+  void subscribe(const std::string& signal, Arrival* arrival, Fn<void()> handler) {
     signal_map[signal][arrival] = std::make_pair(true, handler);
     arrival_map[arrival].emplace(signal);
   }
-  void subscribe(const VEC<std::string>& signals, Arrival* arrival, BIND(void) handler) {
+  void subscribe(const VEC<std::string>& signals, Arrival* arrival, Fn<void()> handler) {
     foreach_ (const std::string& signal, signals)
       subscribe(signal, arrival, handler);
   }
@@ -342,7 +342,6 @@ public:
       return NA_REAL;
     return search->second;
   }
-  Attr* get_attributes() { return &attributes; } // # nocov
 
   void register_arrival(Arrival* arrival) { arrival_map[arrival]; }
   void unregister_arrival(Arrival* arrival) {
@@ -463,23 +462,6 @@ public:
       Rcpp::Named("capacity")         = mon_resources.get<int>("capacity"),
       Rcpp::Named("queue_size")       = mon_resources.get<int>("queue_size"),
       Rcpp::Named("stringsAsFactors") = false
-    );
-  }
-  Rcpp::DataFrame get_mon_resources_counts() const {
-    return Rcpp::DataFrame::create(
-      Rcpp::Named("resource")         = mon_resources.get<std::string>("resource"),
-      Rcpp::Named("time")             = mon_resources.get<double>("time"),
-      Rcpp::Named("server")           = mon_resources.get<int>("server"),
-      Rcpp::Named("queue")            = mon_resources.get<int>("queue"),
-      Rcpp::Named("stringsAsFactors") = false
-    );
-  }
-  Rcpp::DataFrame get_mon_resources_limits() const {
-    return Rcpp::DataFrame::create(
-      Rcpp::Named("resource")         = mon_resources.get<std::string>("resource"),
-      Rcpp::Named("time")             = mon_resources.get<double>("time"),
-      Rcpp::Named("server")           = mon_resources.get<int>("capacity"),
-      Rcpp::Named("queue")            = mon_resources.get<int>("queue_size")
     );
   }
 

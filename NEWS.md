@@ -1,3 +1,20 @@
+# simmer 3.7.0
+
+## New features:
+
+* New `timeout_from_attribute()` activity makes it easier to set a timeout based on an attribute (#129).
+* The activities `set_attribute()`, `set_prioritization()`, `set_capacity()` and `set_queue_size()` get a new argument `mod` which, if set to `"+"` or `"*"`, modifies the corresponding value instead of substituting it. This makes it easier to increment, decrement or scale one of these values (#130).
+* New `*_selected()` versions for the already available resource getters: `get_capacity()`, `get_queue seize()`, `get_server_count()` and `get_queue_count()` (#134).
+
+## Minor changes and fixes:
+
+* Broadcast signals with higher priority to prevent an arrival to catch its own signal with a `trap()` after a `send()` (#135).
+* Generate new arrivals with minimum priority to avoid wrong interactions with simultaneous activities (#136).
+* Remove v3.6.x deprecations: the old attribute retrieval system (see notes for v3.6.3), as well as methods `create_trajectory()` and `onestep()` (#117).
+* Remove `get_mon_resources()`'s `data` argument. It was there for historical reasons and probably nobody was using it (851d34b).
+* New vignette, "simmer: Discrete-Event Simuation for R", paper accepted for publication in the Journal of Statistical Software. Remove "Terminology" vignette (#127).
+* New vignette, "Design and Analysis of 5G Scenarios", supplementary materials for a paper accepted for publication in the IEEE Communications Magazine (#137).
+
 # simmer 3.6.5
 
 ## New features:
@@ -13,7 +30,7 @@
 * Update "Queueing Systems" vignette (a0409a0, 8f03f4f).
 * Update "Advanced Trajectory Usage" vignette (4501927).
 * Fix print methods to return the object invisibly (#128).
-* New `Dining Philosophers Problem` vignette (ff6137e).
+* New "Dining Philosophers Problem" vignette (ff6137e).
 
 # simmer 3.6.4
 
