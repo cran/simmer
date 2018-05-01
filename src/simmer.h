@@ -1,14 +1,23 @@
 #ifndef SIMMER_H
 #define SIMMER_H
 
-// [[Rcpp::depends(BH)]]
 #include <Rcpp.h>
+#include <fstream>
 
 #include <boost/container/set.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
 #define VEC std::vector
+
+template <typename T>
+struct vec_of : public VEC<T> {
+  vec_of(const T& t) { (*this)(t); }
+  vec_of& operator()(const T& t) {
+    this->push_back(t);
+    return *this;
+  }
+};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
@@ -22,14 +31,17 @@ std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
 #define MSET boost::container::multiset
 #define USET boost::unordered_set
 #define UMAP boost::unordered_map
+#define MAP  std::map
 
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 #include <boost/typeof/typeof.hpp>
+#include <boost/any.hpp>
 
 #define OPT boost::optional
 #define NONE boost::none
 #define AUTO BOOST_AUTO
+#define ANY boost::any
 
 #include <boost/foreach.hpp>
 
@@ -40,10 +52,30 @@ std::ostream& operator<<(std::ostream& out, const VEC<T>& v) {
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#define REnv Rcpp::Environment
-#define RFn Rcpp::Function
 #define Fn boost::function
 #define BIND boost::bind
+
+#define RFn Rcpp::Function
+#define REnv Rcpp::Environment
+#define RData Rcpp::DataFrame
+#define RNum Rcpp::NumericVector
+#define RStr Rcpp::CharacterVector
+#define RBool Rcpp::LogicalVector
+
+inline std::ostream& operator<<(std::ostream& out, const RData& df) {
+  out << "data.frame";
+  return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const RFn& fn) {
+  out << "function()";
+  return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, const REnv& env) {
+  out << "function()";
+  return out;
+}
 
 #define FMT(n, justify) std::setw(n) << std::justify
 #define IND(n) std::string(n, ' ')

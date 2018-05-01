@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2018-03-03" />
+<meta name="date" content="2018-05-01" />
 
 <title>Queueing Systems</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Queueing Systems</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2018-03-03</em></h4>
+<h4 class="date"><em>2018-05-01</em></h4>
 
 
 <div id="TOC">
@@ -180,14 +180,15 @@ env <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival3_&quot;</span>, to_queue_<span class="dv">3</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda3), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival4_&quot;</span>, to_queue_<span class="dv">4</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda4), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>(<span class="dv">4000</span>)
-<span class="co">#&gt; simmer environment: anonymous | now: 4000 | next: 4000.00438985536</span>
-<span class="co">#&gt; { Resource: md1_1 | monitored: TRUE | server status: 1(1) | queue status: 5(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_2 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_3 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_4 | monitored: TRUE | server status: 1(1) | queue status: 3(Inf) }</span>
-<span class="co">#&gt; { Generator: arrival1_ | monitored: 2 | n_generated: 7974 }</span>
-<span class="co">#&gt; { Generator: arrival3_ | monitored: 2 | n_generated: 2058 }</span>
-<span class="co">#&gt; { Generator: arrival4_ | monitored: 2 | n_generated: 2391 }</span></code></pre></div>
+<span class="co">#&gt; simmer environment: anonymous | now: 4000 | next: 4000.03453604911</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
+<span class="co">#&gt; { Resource: md1_1 | monitored: TRUE | server status: 1(1) | queue status: 21(Inf) }</span>
+<span class="co">#&gt; { Resource: md1_2 | monitored: TRUE | server status: 1(1) | queue status: 3(Inf) }</span>
+<span class="co">#&gt; { Resource: md1_3 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
+<span class="co">#&gt; { Resource: md1_4 | monitored: TRUE | server status: 1(1) | queue status: 4(Inf) }</span>
+<span class="co">#&gt; { Source: arrival1_ | monitored: 2 | n_generated: 8038 }</span>
+<span class="co">#&gt; { Source: arrival3_ | monitored: 2 | n_generated: 2004 }</span>
+<span class="co">#&gt; { Source: arrival4_ | monitored: 2 | n_generated: 2473 }</span></code></pre></div>
 <p>In the analysis, we filter arrivals from generator 1 that reach queues 3 and 4, and we examine the average waiting time and the total number of messages:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env, <span class="dt">per_resource =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(name, resource) <span class="op">%&gt;%</span>
@@ -204,23 +205,23 @@ dplyr<span class="op">::</span><span class="kw">summarise</span>(arr, <span clas
 <span class="co">#&gt; # Groups:   generator [?]</span>
 <span class="co">#&gt;   generator resource average</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 arrival1  md1_3      5.19 </span>
-<span class="co">#&gt; 2 arrival1  md1_4      4.93 </span>
-<span class="co">#&gt; 3 arrival1  &lt;NA&gt;       3.81 </span>
-<span class="co">#&gt; 4 arrival3  md1_3      0.711</span>
-<span class="co">#&gt; 5 arrival4  md1_4      0.522</span>
+<span class="co">#&gt; 1 arrival1  md1_3      7.11 </span>
+<span class="co">#&gt; 2 arrival1  md1_4      7.07 </span>
+<span class="co">#&gt; 3 arrival1  &lt;NA&gt;       5.86 </span>
+<span class="co">#&gt; 4 arrival3  md1_3      0.800</span>
+<span class="co">#&gt; 5 arrival4  md1_4      0.444</span>
 <span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival1_&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival4_&quot;</span>)
-<span class="co">#&gt; [1] 10365</span>
+<span class="co">#&gt; [1] 10511</span>
 dplyr<span class="op">::</span><span class="kw">count</span>(arr)
 <span class="co">#&gt; # A tibble: 5 x 3</span>
 <span class="co">#&gt; # Groups:   generator, resource [5]</span>
 <span class="co">#&gt;   generator resource     n</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 arrival1  md1_3     3838</span>
-<span class="co">#&gt; 2 arrival1  md1_4     2111</span>
-<span class="co">#&gt; 3 arrival1  &lt;NA&gt;      2015</span>
-<span class="co">#&gt; 4 arrival3  md1_3     2056</span>
-<span class="co">#&gt; 5 arrival4  md1_4     2388</span></code></pre></div>
+<span class="co">#&gt; 1 arrival1  md1_3     3951</span>
+<span class="co">#&gt; 2 arrival1  md1_4     2099</span>
+<span class="co">#&gt; 3 arrival1  &lt;NA&gt;      1958</span>
+<span class="co">#&gt; 4 arrival3  md1_3     2003</span>
+<span class="co">#&gt; 5 arrival4  md1_4     2470</span></code></pre></div>
 </div>
 
 

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Duncan Garmonsway" />
 
-<meta name="date" content="2018-03-03" />
+<meta name="date" content="2018-05-01" />
 
 <title>The Bank Tutorial: Part II</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">The Bank Tutorial: Part II</h1>
 <h4 class="author"><em>Duncan Garmonsway</em></h4>
-<h4 class="date"><em>2018-03-03</em></h4>
+<h4 class="date"><em>2018-05-01</em></h4>
 
 
 <div id="TOC">
@@ -154,9 +154,10 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 60: Customer4: Waited 31.9076510670601</span>
 <span class="co">#&gt; 72: Customer4: Completed</span>
 <span class="co">#&gt; simmer environment: bank | now: 72 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
-<span class="co">#&gt; { Generator: Guido | monitored: 1 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span>
+<span class="co">#&gt; { Source: Guido | monitored: 1 | n_generated: 1 }</span>
 bank <span class="op">%&gt;%</span>
 <span class="st">  </span>get_mon_arrivals <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>start_time <span class="op">-</span><span class="st"> </span>activity_time)
@@ -224,9 +225,10 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 60: Customer4: Waited 31.9076510670601</span>
 <span class="co">#&gt; 72: Customer4: Completed</span>
 <span class="co">#&gt; simmer environment: bank | now: 72 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
-<span class="co">#&gt; { Generator: Guido | monitored: 1 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span>
+<span class="co">#&gt; { Source: Guido | monitored: 1 | n_generated: 1 }</span>
 bank <span class="op">%&gt;%</span>
 <span class="st">  </span>get_mon_arrivals <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>start_time <span class="op">-</span><span class="st"> </span>activity_time)
@@ -313,8 +315,9 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 52.5108: Customer6: Waited 28.9769820388615</span>
 <span class="co">#&gt; 55.8923: Customer6: Finished</span>
 <span class="co">#&gt; simmer environment: bank | now: 55.8923309646971 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(1) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 8 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 8 }</span>
 
 number_balked &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="op">!</span><span class="kw">get_mon_arrivals</span>(bank)<span class="op">$</span>finished)
 <span class="kw">paste</span>(<span class="st">&quot;Balking rate is&quot;</span>, number_balked <span class="op">/</span><span class="st"> </span><span class="kw">now</span>(bank), <span class="st">&quot;customers per minute.&quot;</span>)
@@ -376,8 +379,9 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 54.7374: Customer4: Waited 5.37030150208617</span>
 <span class="co">#&gt; 64.6857: Customer4: Completed</span>
 <span class="co">#&gt; simmer environment: bank | now: 64.6856688172597 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span></code></pre></div>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span></code></pre></div>
 <p>Customer1 arrives after Customer0 but has only 12 minutes patience. After that time in the queue (at time 28.5058) he abandons the queue to leave Customer2 to take his place. Customer2 and Customer3 also renege. Customer4 is served within 12 minutes.</p>
 </div>
 </div>
@@ -444,8 +448,9 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 19: Klaus0: Time left: 7</span>
 <span class="co">#&gt; 26: Klaus0: Completed</span>
 <span class="co">#&gt; simmer environment: bank | now: 26 | next: </span>
-<span class="co">#&gt; { Generator: Klaus | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Generator: Phone | monitored: 1 | n_generated: 2 }</span></code></pre></div>
+<span class="co">#&gt; { Monitor: in memory }</span>
+<span class="co">#&gt; { Source: Klaus | monitored: 1 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: Phone | monitored: 1 | n_generated: 2 }</span></code></pre></div>
 <p>As this has no random numbers the results are reasonably clear: the first interrupting call occurs at 9. It takes Klaus 3 minutes to listen to the message and he resumes the conversation with the bank manager at 12. The phone rings again at 16, he listens for three more minutes, and resumes the conversation at 19, finally finishing at 26. The total time of conversation is 9 + 4 + 7 = 20 minutes, the same as it would have been if the interrupt had not occurred.</p>
 </div>
 <div id="wait-until-the-bank-door-opens" class="section level2">
@@ -510,10 +515,11 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 33.3576: Customer4: Here I am and the door is open.</span>
 <span class="co">#&gt; 33.3576: Customer4: I can go in!</span>
 <span class="co">#&gt; simmer environment: bank | now: 79.2542060826083 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: door | monitored: TRUE | server status: 0(Inf) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
-<span class="co">#&gt; { Generator: Doorman | monitored: 1 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span>
+<span class="co">#&gt; { Source: Doorman | monitored: 1 | n_generated: 1 }</span>
 bank <span class="op">%&gt;%</span>
 <span class="st">  </span>get_mon_arrivals <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>start_time <span class="op">-</span><span class="st"> </span>activity_time)
@@ -574,10 +580,11 @@ bank <span class="op">%&gt;%</span>
                 <span class="kw">at</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="kw">cumsum</span>(<span class="kw">rexp</span>(<span class="dv">5</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="fl">0.1</span>))))) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;Doorman&quot;</span>, doorman, <span class="kw">at</span>(<span class="dv">0</span>))
 <span class="co">#&gt; simmer environment: bank | now: 0 | next: 0</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: door | monitored: TRUE | server status: 0(0) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 0 }</span>
-<span class="co">#&gt; { Generator: Doorman | monitored: 1 | n_generated: 0 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 0 }</span>
+<span class="co">#&gt; { Source: Doorman | monitored: 1 | n_generated: 0 }</span>
 
 bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>(<span class="dt">until =</span> maxTime)
 <span class="co">#&gt; 0: Customer0: Here I am, but the door is shut.</span>
@@ -605,10 +612,11 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 90: Doorman0: You may enter.</span>
 <span class="co">#&gt; 120: Doorman0: You may enter.</span>
 <span class="co">#&gt; simmer environment: bank | now: 150 | next: 150</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: door | monitored: TRUE | server status: 0(0) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
-<span class="co">#&gt; { Generator: Doorman | monitored: 1 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span>
+<span class="co">#&gt; { Source: Doorman | monitored: 1 | n_generated: 1 }</span>
 bank <span class="op">%&gt;%</span>
 <span class="st">  </span>get_mon_arrivals <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>start_time <span class="op">-</span><span class="st"> </span>activity_time)
@@ -660,10 +668,11 @@ bank <span class="op">%&gt;%</span>
                 <span class="kw">at</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="kw">cumsum</span>(<span class="kw">rexp</span>(<span class="dv">5</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="fl">0.1</span>))))) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;Doorman&quot;</span>, doorman, <span class="kw">at</span>(<span class="dv">0</span>))
 <span class="co">#&gt; simmer environment: bank | now: 0 | next: 0</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: door | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 0 }</span>
-<span class="co">#&gt; { Generator: Doorman | monitored: 1 | n_generated: 0 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 0 }</span>
+<span class="co">#&gt; { Source: Doorman | monitored: 1 | n_generated: 0 }</span>
 
 bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>(<span class="dt">until =</span> maxTime)
 <span class="co">#&gt; 0: Customer0: Here I am, but the door is shut.</span>
@@ -691,10 +700,11 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 90: Doorman0: You may enter.</span>
 <span class="co">#&gt; 120: Doorman0: You may enter.</span>
 <span class="co">#&gt; simmer environment: bank | now: 150 | next: 150</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: door | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
-<span class="co">#&gt; { Generator: Doorman | monitored: 1 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span>
+<span class="co">#&gt; { Source: Doorman | monitored: 1 | n_generated: 1 }</span>
 bank <span class="op">%&gt;%</span>
 <span class="st">  </span>get_mon_arrivals <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>start_time <span class="op">-</span><span class="st"> </span>activity_time)
@@ -749,8 +759,9 @@ bank &lt;-
 
 bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>(<span class="dv">400</span>)
 <span class="co">#&gt; simmer environment: bank | now: 253.460482171601 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 20 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 20 }</span>
 bank <span class="op">%&gt;%</span>
 <span class="st">  </span>get_mon_arrivals <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(end_time <span class="op">-</span><span class="st"> </span>start_time)) <span class="op">+</span>
@@ -808,8 +819,9 @@ bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run
 <span class="co">#&gt; 61.0176: Customer4: Waited 16.0391307005949</span>
 <span class="co">#&gt; 73.0176: Customer4: Finished</span>
 <span class="co">#&gt; simmer environment: bank | now: 73.0175860496223 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 5 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span>
 customer_monitor &lt;-
 <span class="st">  </span><span class="kw">get_mon_arrivals</span>(bank) <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">wait =</span> end_time <span class="op">-</span><span class="st"> </span>start_time <span class="op">-</span><span class="st"> </span>activity_time)
@@ -858,8 +870,9 @@ bank &lt;-
 
 bank <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>(<span class="dt">until =</span> <span class="dv">400</span>)
 <span class="co">#&gt; simmer environment: bank | now: 248.706140163915 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: Customer | monitored: 1 | n_generated: 20 }</span>
+<span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 20 }</span>
 
 <span class="kw">plot</span>(bank,
      <span class="dt">what =</span> <span class="st">&quot;resources&quot;</span>,

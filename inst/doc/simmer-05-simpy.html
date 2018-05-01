@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2018-03-03" />
+<meta name="date" content="2018-05-01" />
 
 <title>Other SimPy Examples</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Other SimPy Examples</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2018-03-03</em></h4>
+<h4 class="date"><em>2018-05-01</em></h4>
 
 
 <div id="TOC">
@@ -153,9 +153,10 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</code></pre><
 <span class="co">#&gt; 18: car1: arrives at the carwash</span>
 <span class="co">#&gt; 18: car1: enters the carwash</span>
 <span class="co">#&gt; simmer environment: anonymous | now: 20 | next: 23</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: wash | monitored: TRUE | server status: 1(2) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: car_initial | monitored: 1 | n_generated: 4 }</span>
-<span class="co">#&gt; { Generator: car | monitored: 1 | n_generated: 3 }</span></code></pre></div>
+<span class="co">#&gt; { Source: car_initial | monitored: 1 | n_generated: 4 }</span>
+<span class="co">#&gt; { Source: car | monitored: 1 | n_generated: 3 }</span></code></pre></div>
 </div>
 <div id="machine-shop" class="section level2">
 <h2>Machine Shop</h2>
@@ -333,6 +334,7 @@ moviegoer &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <sp
 <span class="co"># add ticket counter with capacity 1 and infinite queue</span>
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_resource</span>(<span class="st">&quot;counter&quot;</span>, <span class="dv">1</span>, <span class="ot">Inf</span>)
 <span class="co">#&gt; simmer environment: anonymous | now: 0 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: R Unchained | monitored: TRUE | server status: 0(50) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: Kill Process | monitored: TRUE | server status: 0(50) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: Pulp Implementation | monitored: TRUE | server status: 0(50) | queue status: 0(0) }</span>
@@ -342,12 +344,13 @@ env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_
 env <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;moviegoer&quot;</span>, moviegoer, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="fl">0.5</span>), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>(SIM_TIME)
-<span class="co">#&gt; simmer environment: anonymous | now: 120 | next: 120.121103789898</span>
-<span class="co">#&gt; { Resource: R Unchained | monitored: TRUE | server status: 50(0) | queue status: 0(0) }</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 120 | next: 120.719252450748</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
+<span class="co">#&gt; { Resource: R Unchained | monitored: TRUE | server status: 49(0) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: Kill Process | monitored: TRUE | server status: 50(0) | queue status: 0(0) }</span>
-<span class="co">#&gt; { Resource: Pulp Implementation | monitored: TRUE | server status: 49(0) | queue status: 0(0) }</span>
+<span class="co">#&gt; { Resource: Pulp Implementation | monitored: TRUE | server status: 50(0) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: moviegoer | monitored: 2 | n_generated: 243 }</span></code></pre></div>
+<span class="co">#&gt; { Source: moviegoer | monitored: 2 | n_generated: 230 }</span></code></pre></div>
 <p>The analysis is performed with the help of <code>dplyr</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># get the three rows with the sold out instants</span>
 sold_time &lt;-<span class="st"> </span><span class="kw">get_mon_resources</span>(env) <span class="op">%&gt;%</span>
@@ -369,12 +372,12 @@ n_reneges &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span cla
   <span class="kw">cat</span>(<span class="st">&quot;Movie '&quot;</span>, i[<span class="st">&quot;resource&quot;</span>], <span class="st">&quot;' was sold out in &quot;</span>, i[<span class="st">&quot;time&quot;</span>], <span class="st">&quot; minutes.</span><span class="ch">\n</span><span class="st">&quot;</span>, 
       <span class="st">&quot;  Number of people that left the queue: &quot;</span>, i[<span class="st">&quot;n&quot;</span>], <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
 }))
-<span class="co">#&gt; Movie 'Pulp Implementation' was sold out in 31.09917 minutes.</span>
-<span class="co">#&gt;   Number of people that left the queue: 16</span>
-<span class="co">#&gt; Movie 'R Unchained' was sold out in 39.09917 minutes.</span>
-<span class="co">#&gt;   Number of people that left the queue: 16</span>
-<span class="co">#&gt; Movie 'Kill Process' was sold out in 45.09917 minutes.</span>
-<span class="co">#&gt;   Number of people that left the queue:  7</span></code></pre></div>
+<span class="co">#&gt; Movie 'Pulp Implementation' was sold out in 33.09917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue:  5</span>
+<span class="co">#&gt; Movie 'Kill Process' was sold out in 34.09917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue:  8</span>
+<span class="co">#&gt; Movie 'R Unchained' was sold out in 38.09917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue: 11</span></code></pre></div>
 </div>
 <div id="gas-station-refuelling" class="section level2">
 <h2>Gas Station Refuelling</h2>
@@ -496,9 +499,10 @@ refuelling &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <s
 <span class="co">#&gt; 953: car11: arriving at gas station</span>
 <span class="co">#&gt; 988: car12: arriving at gas station</span>
 <span class="co">#&gt; simmer environment: anonymous | now: 1000 | next: 1045</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: pump | monitored: TRUE | server status: 2(2) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: controller | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Generator: car | monitored: 1 | n_generated: 14 }</span></code></pre></div>
+<span class="co">#&gt; { Source: controller | monitored: 1 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: car | monitored: 1 | n_generated: 14 }</span></code></pre></div>
 </div>
 
 

@@ -10,8 +10,6 @@ is_string <- function(name, env)
 
 is_string_vector <- function(name, env) is.character(env[[name]])
 
-is_numeric <- function(name, env) is.numeric(env[[name]])
-
 is_number <- function(name, env) {
   if (is.numeric(env[[name]]) && length(env[[name]]) == 1) {
     if (is.infinite(env[[name]]))
@@ -36,17 +34,14 @@ is_function <- function(name, env) {
 }
 
 is_trajectory <- function(name, env) {
+  check_traj <- function(traj) inherits(traj, "trajectory") & length(traj)
   if (name == "dots.")
-    all(sapply(env[[name]], inherits, what="trajectory"))
-  else inherits(env[[name]], "trajectory")
+    all(sapply(env[[name]], check_traj))
+  else check_traj(env[[name]])
 }
 
-is_simmer <- function(name, env) inherits(env[[name]], "simmer")
-
-is_schedule <- function(name, env) inherits(env[[name]], "schedule")
-
+is_numeric <- function(name, env) is.numeric(env[[name]])
 is_NA <- function(name, env) is.na(env[[name]])
-
 is_NULL <- function(name, env) is.null(env[[name]])
 
 get_caller <- function() {
@@ -68,14 +63,17 @@ check_args <- function(..., env.=parent.frame()) {
   msg <- NULL
 
   for (var in names(types)) {
-    funcs <- paste0("is_", sub(" ", "_", types[[var]]))
-    if (!any(sapply(funcs, do.call, args=list(var, env.), envir=env.)))
-      msg <- c(msg, paste0(
-        "'", sub("dots.", "...", var), "' is not a ", paste0(types[[var]], collapse=" or ")))
+    check <- sapply(paste0("is_", sub(" ", "_", types[[var]])), function(func) {
+      if (!exists(func))
+       return(inherits(env.[[var]], sub("is_", "", func)))
+      do.call(func, args=list(var, env.), envir=env.)
+    })
+    if (!any(check)) msg <- c(msg, paste0(
+      "'", sub("dots.", "...", var), "' is not a valid ", paste0(types[[var]], collapse=" or ")))
   }
 
   if (length(msg))
-    stop(paste0(get_caller(), ": ", paste0(msg, collapse=", ")), call. = FALSE)
+    stop(get_caller(), ": ", paste0(msg, collapse=", "), call.=FALSE)
 }
 
 envs_apply <- function(envs, method, ...) {
@@ -114,4 +112,10 @@ magrittr_workaround <- function(func) {
       "." %in% ls(envir=environment(func), all.names=TRUE))
     rm(".", envir=environment(func))
   func
+}
+
+recycle <- function(param, n) {
+  if (length(param) != 1 || n == 1)
+    return(param)
+  rep(param, n)
 }

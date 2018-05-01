@@ -106,7 +106,7 @@ env <- simmer() %>%
   add_generator("patient", patient, at(0, 1)) %>%
   run()
 
-## ---- trajectory-generators----------------------------------------------
+## ---- trajectory-sources-------------------------------------------------
 traj <- trajectory() %>%
   deactivate("dummy") %>%
   timeout(1) %>%

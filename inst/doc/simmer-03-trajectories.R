@@ -336,9 +336,9 @@ get_mon_resources(env)
 
 ## ------------------------------------------------------------------------
 t <- trajectory() %>%
-  deactivate(generator = "dummy") %>%
+  deactivate(source = "dummy") %>%
   timeout(1) %>%
-  activate(generator = "dummy")
+  activate(source = "dummy")
 
 simmer() %>%
   add_generator("dummy", t, function() 1) %>%
@@ -350,7 +350,7 @@ t1 <- trajectory() %>%
   timeout(1)
 
 t2 <- trajectory() %>%
-  set_distribution("dummy", function() 1) %>%
+  set_source("dummy", function() 1) %>%
   set_trajectory("dummy", t1) %>%
   timeout(2)
 

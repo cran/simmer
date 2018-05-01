@@ -83,6 +83,7 @@ Trajectory <- R6Class("trajectory",
     get_n_activities = function() { private$n_activities },
 
     seize = function(resource, amount=1, id=0, continue=NULL, post.seize=NULL, reject=NULL) {
+      continue <- recycle(continue, length(c(post.seize, reject)))
       stopifnot(length(continue) == length(c(post.seize, reject)))
       if (!length(continue)) continue <- TRUE
       check_args(
@@ -151,7 +152,7 @@ Trajectory <- R6Class("trajectory",
     },
 
     timeout = function(task, global=FALSE) {
-      check_args(task=c("number", "function", "string"))
+      check_args(task=c("numeric", "function", "string"))
       if (is.character(task))
         return(private$add_activity(Timeout__new_attr(task, global)))
       switch(
@@ -177,40 +178,41 @@ Trajectory <- R6Class("trajectory",
       )
     },
 
-    activate = function(generator) {
-      check_args(generator=c("string", "function"))
+    activate = function(source) {
+      check_args(source=c("string", "function"))
       switch(
-        binarise(is.function(generator)),
-        private$add_activity(Activate__new(generator)),
-        private$add_activity(Activate__new_func(generator))
+        binarise(is.function(source)),
+        private$add_activity(Activate__new(source)),
+        private$add_activity(Activate__new_func(source))
       )
     },
 
-    deactivate = function(generator) {
-      check_args(generator=c("string", "function"))
+    deactivate = function(source) {
+      check_args(source=c("string", "function"))
       switch(
-        binarise(is.function(generator)),
-        private$add_activity(Deactivate__new(generator)),
-        private$add_activity(Deactivate__new_func(generator))
+        binarise(is.function(source)),
+        private$add_activity(Deactivate__new(source)),
+        private$add_activity(Deactivate__new_func(source))
       )
     },
 
-    set_trajectory = function(generator, trajectory) {
-      check_args(generator=c("string", "function"), trajectory="trajectory")
+    set_trajectory = function(source, trajectory) {
+      check_args(source=c("string", "function"), trajectory="trajectory")
       switch(
-        binarise(is.function(generator)),
-        private$add_activity(SetTraj__new(generator, trajectory[])),
-        private$add_activity(SetTraj__new_func(generator, trajectory[]))
+        binarise(is.function(source)),
+        private$add_activity(SetTraj__new(source, trajectory[])),
+        private$add_activity(SetTraj__new_func(source, trajectory[]))
       )
     },
 
-    set_distribution = function(generator, distribution) {
-      check_args(generator=c("string", "function"), distribution="function")
-      distribution <- make_resetable(distribution)
+    set_source = function(source, object) {
+      check_args(source=c("string", "function"), object=c("function", "data.frame"))
       switch(
-        binarise(is.function(generator)),
-        private$add_activity(SetDist__new(generator, distribution)),
-        private$add_activity(SetDist__new_func(generator, distribution))
+        binarise(is.function(source), is.function(object)),
+        private$add_activity(SetSourceDF__new(source, object)),
+        private$add_activity(SetSourceDF__new_func(source, object)),
+        private$add_activity(SetSourceFn__new(source, make_resetable(object))),
+        private$add_activity(SetSourceFn__new_func(source, make_resetable(object)))
       )
     },
 
@@ -225,8 +227,9 @@ Trajectory <- R6Class("trajectory",
     },
 
     branch = function(option, continue, ...) {
-      dots. <- list(...)
+      dots. <- c(...)
       check_args(option="function", continue="flag", dots.="trajectory")
+      continue <- recycle(continue, length(dots.))
       stopifnot(length(continue) == length(dots.))
       traj <- sapply(dots., `[`)
       private$add_activity(Branch__new(option, continue, traj))
@@ -273,7 +276,7 @@ Trajectory <- R6Class("trajectory",
     renege_abort = function() { private$add_activity(RenegeAbort__new()) },
 
     replicate = function(n, ...) {
-      dots. <- list(...)
+      dots. <- c(...)
       check_args(n=c("number", "function"), dots.="trajectory")
       trj <- sapply(dots., `[`)
       switch(

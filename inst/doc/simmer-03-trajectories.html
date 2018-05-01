@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar, Bart Smeets" />
 
-<meta name="date" content="2018-03-03" />
+<meta name="date" content="2018-05-01" />
 
 <title>Advanced Trajectory Usage</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Advanced Trajectory Usage</h1>
 <h4 class="author"><em>Iñaki Ucar, Bart Smeets</em></h4>
-<h4 class="date"><em>2018-03-03</em></h4>
+<h4 class="date"><em>2018-05-01</em></h4>
 
 
 <div id="TOC">
@@ -84,7 +84,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><a href="#set_capacity-set_queue_size"><code>set_capacity()</code>, <code>set_queue_size()</code></a></li>
 <li><a href="#select"><code>select()</code></a></li>
 <li><a href="#activate-deactivate"><code>activate()</code>, <code>deactivate()</code></a></li>
-<li><a href="#set_trajectory-set_distribution"><code>set_trajectory()</code>, <code>set_distribution()</code></a></li>
+<li><a href="#set_trajectory-set_source"><code>set_trajectory()</code>, <code>set_source()</code></a></li>
 <li><a href="#set_prioritization"><code>set_prioritization()</code></a></li>
 <li><a href="#branch"><code>branch()</code></a></li>
 <li><a href="#rollback"><code>rollback()</code></a></li>
@@ -201,7 +201,8 @@ env&lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="o
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; simmer environment: anonymous | now: 15 | next: </span>
-<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
+<span class="co">#&gt; { Source: patient | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time     name             key       value replication</span>
@@ -222,8 +223,9 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; 1: reader0: NA</span>
 <span class="co">#&gt; simmer environment: anonymous | now: 1 | next: </span>
-<span class="co">#&gt; { Generator: writer | monitored: 2 | n_generated: 1 }</span>
-<span class="co">#&gt; { Generator: reader | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
+<span class="co">#&gt; { Source: writer | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: reader | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time    name    key value replication</span>
@@ -242,8 +244,9 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; 1: reader0: NA, 123</span>
 <span class="co">#&gt; simmer environment: anonymous | now: 1 | next: </span>
-<span class="co">#&gt; { Generator: writer | monitored: 2 | n_generated: 1 }</span>
-<span class="co">#&gt; { Generator: reader | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
+<span class="co">#&gt; { Source: writer | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: reader | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time name    key value replication</span>
@@ -275,7 +278,8 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; simmer environment: anonymous | now: 126.067459125631 | next: </span>
-<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Monitor: in memory }</span>
+<span class="co">#&gt; { Source: patient | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_arrivals</span>(env)
 <span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
@@ -331,8 +335,9 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; simmer environment: anonymous | now: 3 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: doctor | monitored: 1 | server status: 0(2) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 1 }</span>
+<span class="co">#&gt; { Source: patient | monitored: 2 | n_generated: 1 }</span>
 
 <span class="kw">get_mon_resources</span>(env)
 <span class="co">#&gt;   resource time server queue capacity queue_size system limit replication</span>
@@ -563,10 +568,11 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">mon =</span> <span class="dv">2</span>)
 env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>()
 <span class="co">#&gt; simmer environment: anonymous | now: 10 | next: </span>
+<span class="co">#&gt; { Monitor: in memory }</span>
 <span class="co">#&gt; { Resource: doctor1 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: doctor2 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
 <span class="co">#&gt; { Resource: doctor3 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Generator: patient | monitored: 2 | n_generated: 3 }</span>
+<span class="co">#&gt; { Source: patient | monitored: 2 | n_generated: 3 }</span>
 
 <span class="kw">get_mon_attributes</span>(env)
 <span class="co">#&gt;   time     name      key value replication</span>
@@ -590,11 +596,11 @@ env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run<
 </div>
 <div id="activate-deactivate" class="section level3">
 <h3><code>activate()</code>, <code>deactivate()</code></h3>
-<p>The <code>activate(., generator)</code> and <code>deactivate(., generator)</code> methods are able to start or stop, respectively, a generator by name. This name can be supplied as either a string or a function returning a string. In the following simple example, the use of these methods spreads the interarrival times which otherwise would be of 1 unit of time, as defined in the generator:</p>
+<p>The <code>activate(., source)</code> and <code>deactivate(., source)</code> methods are able to start or stop, respectively, a source by name. This name can be supplied as either a string or a function returning a string. In the following simple example, the use of these methods spreads the interarrival times which otherwise would be of 1 unit of time, as defined in the source:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">deactivate</span>(<span class="dt">generator =</span> <span class="st">&quot;dummy&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">deactivate</span>(<span class="dt">source =</span> <span class="st">&quot;dummy&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">activate</span>(<span class="dt">generator =</span> <span class="st">&quot;dummy&quot;</span>)
+<span class="st">  </span><span class="kw">activate</span>(<span class="dt">source =</span> <span class="st">&quot;dummy&quot;</span>)
 
 <span class="kw">simmer</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, t, <span class="cf">function</span>() <span class="dv">1</span>) <span class="op">%&gt;%</span>
@@ -606,15 +612,15 @@ env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run<
 <span class="co">#&gt; 3 dummy2          5        6             1     TRUE           1</span>
 <span class="co">#&gt; 4 dummy3          7        8             1     TRUE           1</span></code></pre></div>
 </div>
-<div id="set_trajectory-set_distribution" class="section level3">
-<h3><code>set_trajectory()</code>, <code>set_distribution()</code></h3>
-<p>The <code>set_trajectory(., generator, trajectory)</code> and <code>set_distribution(., generator, distribution)</code> methods are able to install a new trajectory or distribution, respectively, in a generator by name. This name can be supplied as either a string or a function returning a string.</p>
+<div id="set_trajectory-set_source" class="section level3">
+<h3><code>set_trajectory()</code>, <code>set_source()</code></h3>
+<p>The <code>set_trajectory(., source, trajectory)</code> and <code>set_source(., source, object)</code> methods are able to install a new trajectory or source object (function or data frame, depending on the source type), respectively, in a source by name. This name can be supplied as either a string or a function returning a string.</p>
 <p>In the following distribution, <code>t2</code> changes the distribution and then switches to <code>t1</code>, so that only the first arrival takes <code>t2</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t1 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">1</span>)
 
 t2 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">set_distribution</span>(<span class="st">&quot;dummy&quot;</span>, <span class="cf">function</span>() <span class="dv">1</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">set_source</span>(<span class="st">&quot;dummy&quot;</span>, <span class="cf">function</span>() <span class="dv">1</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">set_trajectory</span>(<span class="st">&quot;dummy&quot;</span>, t1) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">timeout</span>(<span class="dv">2</span>)
 
@@ -779,21 +785,24 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient_traj, <span class="kw">at</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
 <span class="co">#&gt; 3: patient0: before leave</span>
+<span class="co">#&gt; 3: patient0: after leave</span>
 <span class="co">#&gt; 6: patient1: before leave</span>
 <span class="co">#&gt; 6: patient1: after leave</span>
 
 <span class="kw">get_mon_arrivals</span>(env)
 <span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
-<span class="co">#&gt; 1 patient0          0        3             3    FALSE           1</span>
+<span class="co">#&gt; 1 patient0          0        6             6     TRUE           1</span>
 <span class="co">#&gt; 2 patient1          1        9             6     TRUE           1</span>
 <span class="kw">get_mon_resources</span>(env)
 <span class="co">#&gt;   resource time server queue capacity queue_size system limit replication</span>
 <span class="co">#&gt; 1    nurse    0      1     0        1        Inf      1   Inf           1</span>
 <span class="co">#&gt; 2    nurse    1      1     1        1        Inf      2   Inf           1</span>
 <span class="co">#&gt; 3    nurse    3      1     0        1        Inf      1   Inf           1</span>
-<span class="co">#&gt; 4    nurse    6      0     0        1        Inf      0   Inf           1</span>
-<span class="co">#&gt; 5   doctor    6      1     0        1        Inf      1   Inf           1</span>
-<span class="co">#&gt; 6   doctor    9      0     0        1        Inf      0   Inf           1</span></code></pre></div>
+<span class="co">#&gt; 4   doctor    3      1     0        1        Inf      1   Inf           1</span>
+<span class="co">#&gt; 5   doctor    6      0     0        1        Inf      0   Inf           1</span>
+<span class="co">#&gt; 6    nurse    6      0     0        1        Inf      0   Inf           1</span>
+<span class="co">#&gt; 7   doctor    6      1     0        1        Inf      1   Inf           1</span>
+<span class="co">#&gt; 8   doctor    9      0     0        1        Inf      0   Inf           1</span></code></pre></div>
 </div>
 <div id="clone-synchronize" class="section level3">
 <h3><code>clone()</code>, <code>synchronize()</code></h3>
@@ -812,7 +821,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt">verbose =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival&quot;</span>, t, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
-<span class="co">#&gt;          0 | generator: arrival        |       new: arrival0       | 0</span>
+<span class="co">#&gt;          0 |    source: arrival        |       new: arrival0       | 0</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Clone          | 3, 3 paths</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 1</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 2</span>
@@ -838,7 +847,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt">verbose =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival&quot;</span>, t, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
-<span class="co">#&gt;          0 | generator: arrival        |       new: arrival0       | 0</span>
+<span class="co">#&gt;          0 |    source: arrival        |       new: arrival0       | 0</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Clone          | 3, 2 paths</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 1</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 2</span>
@@ -865,7 +874,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt">verbose =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival&quot;</span>, t, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
-<span class="co">#&gt;          0 | generator: arrival        |       new: arrival0       | 0</span>
+<span class="co">#&gt;          0 |    source: arrival        |       new: arrival0       | 0</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Clone          | 3, 3 paths</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 1</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 2</span>
@@ -893,7 +902,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt">verbose =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival&quot;</span>, t, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
-<span class="co">#&gt;          0 | generator: arrival        |       new: arrival0       | 0</span>
+<span class="co">#&gt;          0 |    source: arrival        |       new: arrival0       | 0</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Clone          | 3, 3 paths</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 1</span>
 <span class="co">#&gt;          0 |   arrival: arrival0       |  activity: Timeout        | 2</span>
@@ -998,9 +1007,9 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;t0_&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;t1_&quot;</span>, t1, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
-<span class="co">#&gt;          0 | generator: t0_            |       new: t0_0           | 0</span>
+<span class="co">#&gt;          0 |    source: t0_            |       new: t0_0           | 0</span>
 <span class="co">#&gt;          0 |   arrival: t0_0           |  activity: Batch          | 2, 0, 0, </span>
-<span class="co">#&gt;          0 | generator: t1_            |       new: t1_0           | 0</span>
+<span class="co">#&gt;          0 |    source: t1_            |       new: t1_0           | 0</span>
 <span class="co">#&gt;          0 |   arrival: t1_0           |  activity: Timeout        | 1</span>
 <span class="co">#&gt;          1 |   arrival: t1_0           |  activity: Batch          | 2, 0, 0,</span>
 
@@ -1034,9 +1043,9 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;t0_&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;t1_&quot;</span>, t1, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
-<span class="co">#&gt;          0 | generator: t0_            |       new: t0_0           | 0</span>
+<span class="co">#&gt;          0 |    source: t0_            |       new: t0_0           | 0</span>
 <span class="co">#&gt;          0 |   arrival: t0_0           |  activity: Batch          | 2, 0, 0, mybatch</span>
-<span class="co">#&gt;          0 | generator: t1_            |       new: t1_0           | 0</span>
+<span class="co">#&gt;          0 |    source: t1_            |       new: t1_0           | 0</span>
 <span class="co">#&gt;          0 |   arrival: t1_0           |  activity: Timeout        | 1</span>
 <span class="co">#&gt;          1 |   arrival: t1_0           |  activity: Batch          | 2, 0, 0, mybatch</span>
 <span class="co">#&gt;          1 |   arrival: batch_mybatch  |  activity: Timeout        | 2</span>
@@ -1060,9 +1069,9 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;t0_&quot;</span>, t0, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;t1_&quot;</span>, t1, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>()
-<span class="co">#&gt;          0 | generator: t0_            |       new: t0_0           | 0</span>
+<span class="co">#&gt;          0 |    source: t0_            |       new: t0_0           | 0</span>
 <span class="co">#&gt;          0 |   arrival: t0_0           |  activity: Batch          | 2, 0, 0, mybatch</span>
-<span class="co">#&gt;          0 | generator: t1_            |       new: t1_0           | 0</span>
+<span class="co">#&gt;          0 |    source: t1_            |       new: t1_0           | 0</span>
 <span class="co">#&gt;          0 |   arrival: t1_0           |  activity: Timeout        | 1</span>
 <span class="co">#&gt;          1 |   arrival: t1_0           |  activity: Batch          | 2, 0, 0, mybatch</span>
 <span class="co">#&gt;          1 |   arrival: batch_mybatch  |  activity: Timeout        | 2</span>
@@ -1082,7 +1091,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 <span class="kw">simmer</span>(<span class="dt">verbose =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;signaler&quot;</span>, t, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>() <span class="op">%&gt;%</span><span class="st"> </span>invisible
-<span class="co">#&gt;          0 | generator: signaler       |       new: signaler0      | 0</span>
+<span class="co">#&gt;          0 |    source: signaler       |       new: signaler0      | 0</span>
 <span class="co">#&gt;          0 |   arrival: signaler0      |  activity: Send           | [signal1, signal2, ], 0</span>
 <span class="co">#&gt;          0 |      task: Broadcast      |                           |</span></code></pre></div>
 <p>or after some delay:</p>
@@ -1092,7 +1101,7 @@ env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="dt
 <span class="kw">simmer</span>(<span class="dt">verbose =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;signaler&quot;</span>, t, <span class="kw">at</span>(<span class="dv">0</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>() <span class="op">%&gt;%</span><span class="st"> </span>invisible
-<span class="co">#&gt;          0 | generator: signaler       |       new: signaler0      | 0</span>
+<span class="co">#&gt;          0 |    source: signaler       |       new: signaler0      | 0</span>
 <span class="co">#&gt;          0 |   arrival: signaler0      |  activity: Send           | [signal1, signal2, ], 3</span>
 <span class="co">#&gt;          3 |      task: Broadcast      |                           |</span></code></pre></div>
 <p>Note that both arguments, <code>signals</code> and <code>delay</code>, can be functions, and therefore they can retrieve the arrival’s attributes.</p>
@@ -1131,7 +1140,8 @@ t_signaler &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <s
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;signaler&quot;</span>, t_signaler, <span class="kw">at</span>(<span class="dv">5</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>() <span class="op">%&gt;%</span><span class="st"> </span>invisible
 <span class="co">#&gt; 0: blocked0: waiting inside a batch...</span>
-<span class="co">#&gt; 5: signaler0: you shall pass</span></code></pre></div>
+<span class="co">#&gt; 5: signaler0: you shall pass</span>
+<span class="co">#&gt; inf: batch0: continuing!</span></code></pre></div>
 <p>Upon a signal reception, the arrival stops the current activity and executes the handler if provided. Then, the execution returns to the activity following the point of the interruption:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">t_worker &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">trap</span>(<span class="st">&quot;you are free to go&quot;</span>, 
