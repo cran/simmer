@@ -1,12 +1,31 @@
+# Copyright (C) 2014-2015 Bart Smeets
+# Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 Simmer <- R6Class("simmer",
   public = list(
     name = NA,
 
-    initialize = function(name="anonymous", verbose=FALSE, mon=monitor_mem()) {
-      check_args(name="string", verbose="flag", mon="monitor")
+    initialize = function(name="anonymous", verbose=FALSE, mon=monitor_mem(), log_level=0) {
+      check_args(name="string", verbose="flag", mon="monitor", log_level="number")
       self$name <- name
       private$mon <- mon
-      private$sim_obj <- Simulator__new(name, verbose, mon$get_xptr())
+      private$sim_obj <- Simulator__new(name, verbose, mon$get_xptr(), log_level)
       self
     },
 

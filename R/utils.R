@@ -1,3 +1,21 @@
+# Copyright (C) 2015 Iñaki Ucar and Bart Smeets
+# Copyright (C) 2015-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 .onUnload <- function (libpath) {
   library.dynam.unload("simmer", libpath)
 }
@@ -34,10 +52,9 @@ is_function <- function(name, env) {
 }
 
 is_trajectory <- function(name, env) {
-  check_traj <- function(traj) inherits(traj, "trajectory") & length(traj)
   if (name == "dots.")
-    all(sapply(env[[name]], check_traj))
-  else check_traj(env[[name]])
+    all(sapply(env[[name]], inherits, what="trajectory"))
+  else inherits(env[[name]], "trajectory")
 }
 
 is_numeric <- function(name, env) is.numeric(env[[name]])
@@ -61,12 +78,13 @@ get_caller <- function() {
 check_args <- function(..., env.=parent.frame()) {
   types <- list(...)
   msg <- NULL
+  ns <- getNamespace("simmer")
 
   for (var in names(types)) {
     check <- sapply(paste0("is_", sub(" ", "_", types[[var]])), function(func) {
-      if (!exists(func))
+      if (!exists(func, ns, inherits=FALSE))
        return(inherits(env.[[var]], sub("is_", "", func)))
-      do.call(func, args=list(var, env.), envir=env.)
+      do.call(ns[[func]], args=list(var, env.), envir=env.)
     })
     if (!any(check)) msg <- c(msg, paste0(
       "'", sub("dots.", "...", var), "' is not a valid ", paste0(types[[var]], collapse=" or ")))

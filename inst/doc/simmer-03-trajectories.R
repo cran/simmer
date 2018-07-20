@@ -48,14 +48,22 @@ patient_traj <- trajectory(name = "patient_trajectory") %>%
   release(resource = "doctor", amount = 1)
 
 ## ------------------------------------------------------------------------
-set.seed(1234)
-
 t <- trajectory() %>%
-  log_("hello world!")
+  log_("this is always printed") %>% # level = 0 by default
+  log_("this is printed if `log_level>=1`", level = 1) %>%
+  log_("this is printed if `log_level>=2`", level = 2)
 
 simmer() %>%
-  add_generator("dummy", t, function() rexp(1, 1)) %>%
-  run(5) %>% invisible
+  add_generator("dummy", t, at(0)) %>%
+  run() %>% invisible
+
+simmer(log_level = 1) %>%
+  add_generator("dummy", t, at(0)) %>%
+  run() %>% invisible
+
+simmer(log_level = Inf) %>%
+  add_generator("dummy", t, at(0)) %>%
+  run() %>% invisible
 
 ## ------------------------------------------------------------------------
 patient_traj <- trajectory(name = "patient_trajectory") %>%

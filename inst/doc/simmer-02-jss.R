@@ -197,15 +197,14 @@ simmer() %>%
   run() %>% invisible
 
 ## ---- simmer-1-----------------------------------------------------------
-env <- simmer()
-
-env %>%
+env <- simmer() %>%
   add_resource("res_name", 1) %>%
-  add_generator("arrival", traj0, function() 25)
+  add_generator("arrival", traj0, function() 25) %>%
+  print()
 
 ## ---- simmer-2-----------------------------------------------------------
 env %>%
-  run(until=40)
+  run(until=30)
 
 ## ---- mm1-simulation-----------------------------------------------------
 library("simmer")

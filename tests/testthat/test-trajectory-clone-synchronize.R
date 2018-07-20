@@ -1,15 +1,31 @@
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 context("clone/synchronize")
 
-test_that("each clone follows a trajectory 1", {
+test_that("each clone follows a trajectory (1)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(3,
-          trajectory("original") %>%
-            timeout(1),
+          trajectory("original"),
           trajectory("clone 1") %>%
-            timeout(2),
+            timeout(1),
           trajectory("clone 2") %>%
-            timeout(3)) %>%
+            timeout(2)) %>%
     timeout(0.5)
 
   arrivals <- simmer(verbose = TRUE) %>%
@@ -17,11 +33,11 @@ test_that("each clone follows a trajectory 1", {
     run() %>%
     get_mon_arrivals()
 
-  expect_equal(arrivals$activity_time, c(1.5, 2.5, 3.5))
+  expect_equal(arrivals$activity_time, c(0.5, 1.5, 2.5))
   expect_equal(arrivals$finished, rep(TRUE, 3))
 })
 
-test_that("each clone follows a trajectory 2", {
+test_that("each clone follows a trajectory (2)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(function() 3,
@@ -40,7 +56,7 @@ test_that("each clone follows a trajectory 2", {
   expect_equal(arrivals$finished, rep(TRUE, 3))
 })
 
-test_that("each clone follows a trajectory 3", {
+test_that("each clone follows a trajectory (3)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(3,
@@ -57,7 +73,7 @@ test_that("each clone follows a trajectory 3", {
   expect_equal(arrivals$finished, rep(TRUE, 3))
 })
 
-test_that("each clone follows a trajectory 4", {
+test_that("each clone follows a trajectory (4)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(function() 3) %>%
@@ -72,7 +88,7 @@ test_that("each clone follows a trajectory 4", {
   expect_equal(arrivals$finished, rep(TRUE, 3))
 })
 
-test_that("clones synchonize with the last 1", {
+test_that("clones synchonize with the last (1)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(3,
@@ -94,7 +110,7 @@ test_that("clones synchonize with the last 1", {
   expect_equal(arrivals$finished, TRUE)
 })
 
-test_that("clones synchonize with the last 2", {
+test_that("clones synchonize with the last (2)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(3,
@@ -116,7 +132,7 @@ test_that("clones synchonize with the last 2", {
   expect_equal(arrivals$finished, rep(TRUE, 3))
 })
 
-test_that("clones synchonize with the first 1", {
+test_that("clones synchonize with the first (1)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(3,
@@ -138,7 +154,7 @@ test_that("clones synchonize with the first 1", {
   expect_equal(arrivals$finished, TRUE)
 })
 
-test_that("clones synchonize with the first 2", {
+test_that("clones synchonize with the first (2)", {
   t <- trajectory() %>%
     batch(1) %>%
     clone(3,
@@ -199,7 +215,8 @@ test_that("attributes are copied over", {
 })
 
 test_that("accepts a list of trajectories", {
-  t1 <- trajectory() %>% timeout(1)
+  t1 <- trajectory() %>%
+    timeout(1)
 
   t2 <- trajectory() %>%
     clone(10, replicate(10, t1))

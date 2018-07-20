@@ -1,101 +1,71 @@
-#include "simulator.h"
-#include "resource.h"
+// Copyright (C) 2014 Bart Smeets
+// Copyright (C) 2015 Iñaki Ucar and Bart Smeets
+// Copyright (C) 2015-2018 Iñaki Ucar
+//
+// This file is part of simmer.
+//
+// simmer is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// simmer is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with simmer. If not, see <http://www.gnu.org/licenses/>.
 
-void Resource::set_capacity(int value) {
-  if (capacity == value)
-    return;
-  int last = capacity;
-  capacity = value;
-  if (last >= 0  && (capacity > last || capacity < 0)) {
-    // serve another
-    while (queue_count)
-      if (!try_serve_from_queue(sim->verbose, sim->now()))
-        break;
-  } else if (last < 0 || capacity < last) {
-    while (server_count > capacity)
-      if (!try_free_server(sim->verbose, sim->now()))
-        break;
-  }
-  if (is_monitored())
-    sim->mon->record_resource(name, sim->now(), server_count, queue_count, capacity, queue_size);
+#include <simmer.h>
+
+using namespace Rcpp;
+using namespace simmer;
+
+//[[Rcpp::export]]
+int get_capacity_(SEXP sim_, const std::string& name) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_resource(name)->get_capacity();
 }
 
-void Resource::set_queue_size(int value) {
-  if (queue_size == value)
-    return;
-  int last = queue_size;
-  queue_size = value;
-  if (queue_size_strict && (last < 0 || (queue_size < last && queue_size >= 0))) {
-    while (queue_count > queue_size)
-      try_free_queue(sim->verbose, sim->now());
-  }
-  if (is_monitored())
-    sim->mon->record_resource(name, sim->now(), server_count, queue_count, capacity, queue_size);
+//[[Rcpp::export]]
+int get_capacity_selected_(SEXP sim_, int id) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_running_arrival()->get_resource_selected(id)->get_capacity();
 }
 
-int Resource::seize(Arrival* arrival, int amount) {
-  int status;
-  // serve now
-  if (first_in_line(arrival->order.get_priority()) &&
-      room_in_server(amount, arrival->order.get_priority()))
-  {
-    insert_in_server(sim->verbose, sim->now(), arrival, amount);
-    status = SUCCESS;
-  }
-  // enqueue
-  else if (room_in_queue(amount, arrival->order.get_priority())) {
-    insert_in_queue(sim->verbose, sim->now(), arrival, amount);
-    status = ENQUEUE;
-  }
-  // reject
-  else {
-    if (sim->verbose) verbose_print(sim->now(), arrival->name, "REJECT");
-    return REJECT;
-  }
-
-  arrival->register_entity(this);
-  if (is_monitored())
-    sim->mon->record_resource(name, sim->now(), server_count, queue_count, capacity, queue_size);
-  return status;
+//[[Rcpp::export]]
+int get_queue_size_(SEXP sim_, const std::string& name) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_resource(name)->get_queue_size();
 }
 
-int Resource::release(Arrival* arrival, int amount) {
-  remove_from_server(sim->verbose, sim->now(), arrival, amount);
-  arrival->unregister_entity(this);
-
-  // serve another
-  Task* task = new Task(sim, "Post-Release",
-                        BIND(&Resource::post_release, this),
-                        PRIORITY_RELEASE_POST);
-  task->activate();
-
-  return SUCCESS;
+//[[Rcpp::export]]
+int get_queue_size_selected_(SEXP sim_, int id) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_running_arrival()->get_resource_selected(id)->get_queue_size();
 }
 
-int Resource::post_release() {
-  // serve another
-  while (queue_count)
-    if (!try_serve_from_queue(sim->verbose, sim->now()))
-      break;
-
-  if (is_monitored())
-    sim->mon->record_resource(name, sim->now(), server_count, queue_count, capacity, queue_size);
-  return SUCCESS;
+//[[Rcpp::export]]
+int get_server_count_(SEXP sim_, const std::string& name) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_resource(name)->get_server_count();
 }
 
-bool Resource::erase(Arrival* arrival, bool stay) {
-  if (stay) {
-    int amount = remove_from_server(false, sim->now(), arrival, -1);
-    server_count += amount;
-    return false;
-  }
+//[[Rcpp::export]]
+int get_server_count_selected_(SEXP sim_, int id) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_running_arrival()->get_resource_selected(id)->get_server_count();
+}
 
-  if (!remove_from_queue(sim->verbose, sim->now(), arrival)) {
-    release(arrival, -1);
-    return false;
-  }
+//[[Rcpp::export]]
+int get_queue_count_(SEXP sim_, const std::string& name) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_resource(name)->get_queue_count();
+}
 
-  if (is_monitored())
-    sim->mon->record_resource(name, sim->now(), server_count, queue_count, capacity, queue_size);
-  return true;
+//[[Rcpp::export]]
+int get_queue_count_selected_(SEXP sim_, int id) {
+  XPtr<Simulator> sim(sim_);
+  return sim->get_running_arrival()->get_resource_selected(id)->get_queue_count();
 }

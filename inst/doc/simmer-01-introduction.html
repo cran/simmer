@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2018-05-01" />
+<meta name="date" content="2018-07-10" />
 
 <title>Introduction to simmer</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to simmer</h1>
 <h4 class="author"><em>Bart Smeets, Iñaki Ucar</em></h4>
-<h4 class="date"><em>2018-05-01</em></h4>
+<h4 class="date"><em>2018-07-10</em></h4>
 
 
 <div id="TOC">
@@ -187,7 +187,7 @@ envs &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class=
 })</code></pre></div>
 <p>This helper function brings the simulation data back to R and makes it accessible through the same methods that would ordinarily be used for a <code>simmer</code> environment.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">envs[[<span class="dv">1</span>]] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">get_n_generated</span>(<span class="st">&quot;patient&quot;</span>)
-<span class="co">#&gt; [1] 8</span>
+<span class="co">#&gt; [1] 9</span>
 envs[[<span class="dv">1</span>]] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">get_queue_count</span>(<span class="st">&quot;doctor&quot;</span>)
 <span class="co">#&gt; [1] 0</span>
 envs[[<span class="dv">1</span>]] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">get_queue_size</span>(<span class="st">&quot;doctor&quot;</span>)
@@ -195,13 +195,13 @@ envs[[<span class="dv">1</span>]] <span class="op">%&gt;%</span><span class="st"
 envs <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">get_mon_resources</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">head</span>()
-<span class="co">#&gt;   resource     time server queue capacity queue_size system limit</span>
-<span class="co">#&gt; 1    nurse 10.73500      1     0        1        Inf      1   Inf</span>
-<span class="co">#&gt; 2    nurse 22.22673      1     1        1        Inf      2   Inf</span>
-<span class="co">#&gt; 3    nurse 26.99587      1     0        1        Inf      1   Inf</span>
-<span class="co">#&gt; 4   doctor 26.99587      1     0        2        Inf      1   Inf</span>
-<span class="co">#&gt; 5    nurse 29.90179      1     1        1        Inf      2   Inf</span>
-<span class="co">#&gt; 6    nurse 40.31951      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt;   resource      time server queue capacity queue_size system limit</span>
+<span class="co">#&gt; 1    nurse  8.469257      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt; 2    nurse 16.552399      1     1        1        Inf      2   Inf</span>
+<span class="co">#&gt; 3    nurse 23.871192      1     0        1        Inf      1   Inf</span>
+<span class="co">#&gt; 4   doctor 23.871192      1     0        2        Inf      1   Inf</span>
+<span class="co">#&gt; 5    nurse 29.002876      1     1        1        Inf      2   Inf</span>
+<span class="co">#&gt; 6    nurse 38.732630      1     2        1        Inf      3   Inf</span>
 <span class="co">#&gt;   replication</span>
 <span class="co">#&gt; 1           1</span>
 <span class="co">#&gt; 2           1</span>
@@ -213,12 +213,12 @@ envs <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">get_mon_arrivals</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">head</span>()
 <span class="co">#&gt;       name start_time end_time activity_time finished replication</span>
-<span class="co">#&gt; 1 patient0  10.734996 52.01489      41.27990     TRUE           1</span>
-<span class="co">#&gt; 2 patient1  22.226731 67.69988      40.70401     TRUE           1</span>
-<span class="co">#&gt; 3 patient2  29.901788 79.83616      39.51665     TRUE           1</span>
-<span class="co">#&gt; 4 patient0   8.033507 47.05143      39.01793     TRUE           2</span>
-<span class="co">#&gt; 5 patient1  18.712198 61.52651      39.98463     TRUE           2</span>
-<span class="co">#&gt; 6 patient2  26.686417 77.00445      41.22490     TRUE           2</span></code></pre></div>
+<span class="co">#&gt; 1 patient0   8.469257 48.87382      40.40457     TRUE           1</span>
+<span class="co">#&gt; 2 patient1  16.552399 62.32899      38.45780     TRUE           1</span>
+<span class="co">#&gt; 3 patient0  12.017545 49.17478      37.15723     TRUE           2</span>
+<span class="co">#&gt; 4 patient1  20.385985 68.52117      42.22913     TRUE           2</span>
+<span class="co">#&gt; 5 patient0  12.068860 49.86362      37.79476     TRUE           3</span>
+<span class="co">#&gt; 6 patient1  22.302837 64.21734      39.08047     TRUE           3</span></code></pre></div>
 <p>Unfortunately, as the C++ simulation cores are destroyed, the downside of this kind of parallelization is that one cannot resume execution of the replicas.</p>
 </div>
 <div id="basic-visualisation-tools" class="section level2">

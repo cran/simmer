@@ -1,3 +1,22 @@
+# Copyright (C) 2014-2015 Bart Smeets
+# Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 Trajectory <- R6Class("trajectory",
   public = list(
     name = NA,
@@ -162,19 +181,20 @@ Trajectory <- R6Class("trajectory",
       )
     },
 
-    set_attribute = function(keys, values, global=FALSE, mod=c(NA, "+", "*")) {
+    set_attribute = function(keys, values, global=FALSE, mod=c(NA, "+", "*"), init=0) {
       check_args(
         keys = c("string vector", "function"),
         values = c("numeric", "function"),
-        global = "flag"
+        global = "flag",
+        init = "numeric"
       )
       mod <- match.arg(mod)
       switch(
         binarise(is.function(keys), is.function(values)),
-        private$add_activity(SetAttribute__new(keys, values, global, mod)),
-        private$add_activity(SetAttribute__new_func1(keys, values, global, mod)),
-        private$add_activity(SetAttribute__new_func2(keys, values, global, mod)),
-        private$add_activity(SetAttribute__new_func3(keys, values, global, mod))
+        private$add_activity(SetAttribute__new(keys, values, global, mod, init)),
+        private$add_activity(SetAttribute__new_func1(keys, values, global, mod, init)),
+        private$add_activity(SetAttribute__new_func2(keys, values, global, mod, init)),
+        private$add_activity(SetAttribute__new_func3(keys, values, global, mod, init))
       )
     },
 
@@ -346,12 +366,12 @@ Trajectory <- R6Class("trajectory",
 
     wait = function() { private$add_activity(Wait__new()) },
 
-    log = function(message) {
-      check_args(message=c("string", "function"))
+    log = function(message, level=0) {
+      check_args(message=c("string", "function"), level="number")
       switch(
         binarise(is.function(message)),
-        private$add_activity(Log__new(message)),
-        private$add_activity(Log__new_func(message))
+        private$add_activity(Log__new(message, level)),
+        private$add_activity(Log__new_func(message, level))
       )
     }
   ),

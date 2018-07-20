@@ -1,23 +1,42 @@
+# Copyright (C) 2015-2016 Iñaki Ucar
+# Copyright (C) 2016 Iñaki Ucar and Bart Smeets
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 context("rollback")
 
 test_that("a rollback points to the correct activity", {
   t0 <- trajectory() %>%
     seize("nurse", 1) %>%
     timeout(function() rnorm(1, 15)) %>%
-    branch(function() 1, T, trajectory() %>% timeout(function() 1)) %>%
+    branch(function() 1, TRUE, trajectory() %>% timeout(function() 1)) %>%
     rollback(3)
   expect_output(activity_print_(t0$tail(), 0, 0), "Seize")
 
   t0 <- trajectory() %>%
     seize("nurse", 1) %>%
     timeout(function() rnorm(1, 15)) %>%
-    branch(function() 1, T, trajectory() %>% timeout(function() 1)) %>%
+    branch(function() 1, TRUE, trajectory() %>% timeout(function() 1)) %>%
     rollback(30)
   expect_output(activity_print_(t0$tail(), 0, 0), "Seize")
 
   t0 <- trajectory() %>%
     seize("dummy", 1) %>%
-    branch(function() 1, T,
+    branch(function() 1, TRUE,
            trajectory() %>%
              rollback(2))
 

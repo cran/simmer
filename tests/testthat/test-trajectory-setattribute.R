@@ -1,3 +1,21 @@
+# Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 context("set attributes")
 
 test_that("only valid types can be passed to functions", {
@@ -100,4 +118,17 @@ test_that("arrival attributes are returned empty when mon level is < 2", {
   expect_equal(attributes[1, ]$name, "")
   expect_equal(attributes[1, ]$key, "test")
   expect_equal(attributes[1, ]$value, 456)
+})
+
+test_that("attributes are automatically initialised with modifiers", {
+  t <- trajectory() %>%
+    set_attribute("asdf", 1, mod="+") %>%
+    set_global("fdsa", 2, mod="+", init=3)
+
+  attr <- simmer() %>%
+    add_generator("dummy", t, at(0), mon=2) %>%
+    run() %>%
+    get_mon_attributes()
+
+  expect_equal(attr$value, c(1, 5))
 })

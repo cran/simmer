@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2018-05-01" />
+<meta name="date" content="2018-07-10" />
 
 <title>Other SimPy Examples</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Other SimPy Examples</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2018-05-01</em></h4>
+<h4 class="date"><em>2018-07-10</em></h4>
 
 
 <div id="TOC">
@@ -234,16 +234,16 @@ failure &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span
 <span class="co">#&gt; # Groups:   name [10]</span>
 <span class="co">#&gt;      time name             key   value replication</span>
 <span class="co">#&gt;     &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt; &lt;dbl&gt;       &lt;int&gt;</span>
-<span class="co">#&gt;  1 40314. machine0_worker0 parts 3073.           1</span>
-<span class="co">#&gt;  2 40310. machine1_worker0 parts 3281.           1</span>
-<span class="co">#&gt;  3 40315. machine2_worker0 parts 3284.           1</span>
-<span class="co">#&gt;  4 40308. machine3_worker0 parts 3241.           1</span>
-<span class="co">#&gt;  5 40256. machine4_worker0 parts 3288.           1</span>
-<span class="co">#&gt;  6 40232. machine5_worker0 parts 3377.           1</span>
-<span class="co">#&gt;  7 40230. machine6_worker0 parts 3362.           1</span>
-<span class="co">#&gt;  8 40320. machine7_worker0 parts 3429.           1</span>
-<span class="co">#&gt;  9 40275. machine8_worker0 parts 3443.           1</span>
-<span class="co">#&gt; 10 40311. machine9_worker0 parts 3323.           1</span></code></pre></div>
+<span class="co">#&gt;  1 40314. machine0_worker0 parts  3073           1</span>
+<span class="co">#&gt;  2 40310. machine1_worker0 parts  3281           1</span>
+<span class="co">#&gt;  3 40315. machine2_worker0 parts  3284           1</span>
+<span class="co">#&gt;  4 40308. machine3_worker0 parts  3241           1</span>
+<span class="co">#&gt;  5 40256. machine4_worker0 parts  3288           1</span>
+<span class="co">#&gt;  6 40232. machine5_worker0 parts  3377           1</span>
+<span class="co">#&gt;  7 40230. machine6_worker0 parts  3362           1</span>
+<span class="co">#&gt;  8 40320. machine7_worker0 parts  3429           1</span>
+<span class="co">#&gt;  9 40275. machine8_worker0 parts  3443           1</span>
+<span class="co">#&gt; 10 40311. machine9_worker0 parts  3323           1</span></code></pre></div>
 </div>
 <div id="movie-renege" class="section level2">
 <h2>Movie Renege</h2>
@@ -344,13 +344,13 @@ env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_
 env <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;moviegoer&quot;</span>, moviegoer, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="fl">0.5</span>), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">run</span>(SIM_TIME)
-<span class="co">#&gt; simmer environment: anonymous | now: 120 | next: 120.719252450748</span>
+<span class="co">#&gt; simmer environment: anonymous | now: 120 | next: 120.121103789898</span>
 <span class="co">#&gt; { Monitor: in memory }</span>
-<span class="co">#&gt; { Resource: R Unchained | monitored: TRUE | server status: 49(0) | queue status: 0(0) }</span>
+<span class="co">#&gt; { Resource: R Unchained | monitored: TRUE | server status: 50(0) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: Kill Process | monitored: TRUE | server status: 50(0) | queue status: 0(0) }</span>
-<span class="co">#&gt; { Resource: Pulp Implementation | monitored: TRUE | server status: 50(0) | queue status: 0(0) }</span>
+<span class="co">#&gt; { Resource: Pulp Implementation | monitored: TRUE | server status: 49(0) | queue status: 0(0) }</span>
 <span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Source: moviegoer | monitored: 2 | n_generated: 230 }</span></code></pre></div>
+<span class="co">#&gt; { Source: moviegoer | monitored: 2 | n_generated: 243 }</span></code></pre></div>
 <p>The analysis is performed with the help of <code>dplyr</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># get the three rows with the sold out instants</span>
 sold_time &lt;-<span class="st"> </span><span class="kw">get_mon_resources</span>(env) <span class="op">%&gt;%</span>
@@ -372,12 +372,12 @@ n_reneges &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span cla
   <span class="kw">cat</span>(<span class="st">&quot;Movie '&quot;</span>, i[<span class="st">&quot;resource&quot;</span>], <span class="st">&quot;' was sold out in &quot;</span>, i[<span class="st">&quot;time&quot;</span>], <span class="st">&quot; minutes.</span><span class="ch">\n</span><span class="st">&quot;</span>, 
       <span class="st">&quot;  Number of people that left the queue: &quot;</span>, i[<span class="st">&quot;n&quot;</span>], <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
 }))
-<span class="co">#&gt; Movie 'Pulp Implementation' was sold out in 33.09917 minutes.</span>
-<span class="co">#&gt;   Number of people that left the queue:  5</span>
-<span class="co">#&gt; Movie 'Kill Process' was sold out in 34.09917 minutes.</span>
-<span class="co">#&gt;   Number of people that left the queue:  8</span>
-<span class="co">#&gt; Movie 'R Unchained' was sold out in 38.09917 minutes.</span>
-<span class="co">#&gt;   Number of people that left the queue: 11</span></code></pre></div>
+<span class="co">#&gt; Movie 'Pulp Implementation' was sold out in 31.09917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue: 16</span>
+<span class="co">#&gt; Movie 'R Unchained' was sold out in 39.09917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue: 16</span>
+<span class="co">#&gt; Movie 'Kill Process' was sold out in 45.09917 minutes.</span>
+<span class="co">#&gt;   Number of people that left the queue:  7</span></code></pre></div>
 </div>
 <div id="gas-station-refuelling" class="section level2">
 <h2>Gas Station Refuelling</h2>

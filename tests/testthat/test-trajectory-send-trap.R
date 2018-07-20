@@ -1,3 +1,20 @@
+# Copyright (C) 2016,2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 context("send/trap/untrap/wait")
 
 test_that("an arrival waits", {
@@ -56,6 +73,23 @@ test_that("a signal is received while blocked", {
   t <- trajectory() %>%
     send("signal", 3) %>%
     trap("signal") %>%
+    wait() %>%
+    timeout(1)
+
+  env <- simmer(verbose = TRUE) %>%
+    add_generator("dummy", t, at(0, 1, 2)) %>%
+    run()
+  arr <- get_mon_arrivals(env)
+
+  expect_equal(arr$start_time, c(0, 1, 2))
+  expect_equal(arr$end_time, c(4, 4, 4))
+  expect_equal(arr$activity_time, c(1, 1, 1))
+})
+
+test_that("an empty handler is equivalent to NULL", {
+  t <- trajectory() %>%
+    send("signal", 3) %>%
+    trap("signal", handler=trajectory()) %>%
     wait() %>%
     timeout(1)
 

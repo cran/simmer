@@ -1,3 +1,22 @@
+# Copyright (C) 2015-2016 Iñaki Ucar
+# Copyright (C) 2016 Iñaki Ucar and Bart Smeets
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 context("basic simmer functionality")
 
 test_that("an empty environment behaves as expected", {
@@ -81,13 +100,11 @@ test_that("the simulator is reset (2)", {
 })
 
 test_that("the progress is reported", {
-  t1 <- trajectory() %>% timeout(1)
-
   progress <- NULL
   record <- function(x) progress <<- c(progress, x)
 
   env <- simmer() %>%
-    add_generator("dummy", t1, at(0)) %>%
+    add_generator("dummy", trajectory(), at(0)) %>%
     run(progress=record)
 
   expect_equal(progress, seq(0, 1, 0.1))
@@ -145,7 +162,7 @@ test_that("we can force some errors (just to complete coverage)", {
 
   env <- simmer(verbose = TRUE) %>%
     add_resource("dummy") %>%
-    add_generator("dummy", trajectory() %>% timeout(0), function() 1, mon = 1000)
+    add_generator("dummy", trajectory(), function() 1, mon = 1000)
   env$.__enclos_env__$private$sim_obj <- NULL
   env$.__enclos_env__$private$mon$.__enclos_env__$private$xptr <- NULL
 

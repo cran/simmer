@@ -1,3 +1,22 @@
+# Copyright (C) 2014-2015 Bart Smeets
+# Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 #' Seize/Release Resources
 #'
 #' Activities for seizing/releasing a resource, by name or a previously selected one.
@@ -176,22 +195,24 @@ timeout_from_global <- function(.trj, key) timeout_from_attribute(.trj, key, TRU
 #' must return numeric value(s).
 #' @param global if \code{TRUE}, the attribute will be global instead of per-arrival.
 #' @param mod if set, \code{values} modify the attributes rather than substituting them.
+#' @param init initial value, applied if \code{mod} is set and the attribute was
+#' not previously initialised. Useful for counters or indexes.
 #'
 #' @return Returns the trajectory object.
 #' @seealso \code{\link{get_attribute}}.
 #' @export
-set_attribute <- function(.trj, keys, values, global=FALSE, mod=c(NA, "+", "*"))
+set_attribute <- function(.trj, keys, values, global=FALSE, mod=c(NA, "+", "*"), init=0)
   UseMethod("set_attribute")
 
 #' @export
-set_attribute.trajectory <- function(.trj, keys, values, global=FALSE, mod=c(NA, "+", "*"))
-  .trj$set_attribute(keys, values, global, mod=mod)
+set_attribute.trajectory <- function(.trj, keys, values, global=FALSE, mod=c(NA, "+", "*"), init=0)
+  .trj$set_attribute(keys, values, global, mod, init)
 
 #' @rdname set_attribute
 #' @details \code{set_global} is a shortcut for \code{set_attribute(global=TRUE)}.
 #' @export
-set_global <- function(.trj, keys, values, mod=c(NA, "+", "*"))
-  set_attribute(.trj, keys, values, TRUE, mod=mod)
+set_global <- function(.trj, keys, values, mod=c(NA, "+", "*"), init=0)
+  set_attribute(.trj, keys, values, TRUE, mod, init)
 
 #' Activate/Deactivate Sources
 #'
@@ -483,10 +504,13 @@ wait.trajectory <- function(.trj) .trj$wait()
 #' @inheritParams seize
 #' @param message the message to display, accepts either a string or a callable object
 #' (a function) which must return a string.
+#' @param level debugging level. The \code{message} will be printed if, and only if,
+#' the \code{level} provided is less or equal to the \code{log_level} defined in the
+#' simulation environment (see \code{\link{simmer}}).
 #'
 #' @return Returns the trajectory object.
 #' @export
-log_ <- function(.trj, message) UseMethod("log_")
+log_ <- function(.trj, message, level=0) UseMethod("log_")
 
 #' @export
-log_.trajectory <- function(.trj, message) .trj$log(message)
+log_.trajectory <- function(.trj, message, level=0) .trj$log(message, level)

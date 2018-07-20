@@ -1,3 +1,20 @@
+# Copyright (C) 2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 context("monitor")
 
 test_that("delim monitors create new files with right headers", {
@@ -71,7 +88,7 @@ test_that("delim monitors collect the same values as in-memory monitors", {
   expect_equal(get_mon_attributes(env_csv)[,seq_len(ncol(atr))], atr)
   expect_equal(get_mon_resources(env_csv)[,seq_len(ncol(res))], res)
 
-  reset(env_csv)
+  expect_output(print(reset(env_csv)), "^.*Monitor:.*disk.*delimited")
 
   expect_equal(nrow(get_mon_arrivals(env_csv)), 0)
   expect_equal(nrow(get_mon_arrivals(env_csv, TRUE)), 0)

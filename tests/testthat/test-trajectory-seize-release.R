@@ -1,3 +1,20 @@
+# Copyright (C) 2015-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 context("seize/release")
 
 test_that("resources are seized/released as expected (1)", {
@@ -104,6 +121,23 @@ test_that("arrivals perform a post.seize and then stop", {
   expect_equal(arrs$activity_time, 2)
 })
 
+test_that("arrivals perform a post.seize and then stop (2)", {
+  t <- trajectory() %>%
+    seize("dummy", 1, continue = FALSE, post.seize = trajectory()) %>%
+    timeout(1)
+
+  env <- simmer(verbose = TRUE) %>%
+    add_resource("dummy", 1, 0) %>%
+    add_generator("arrival", t, at(0))
+
+  expect_warning(run(env))
+
+  arrs <- env %>% get_mon_arrivals()
+
+  expect_true(arrs$finished)
+  expect_equal(arrs$activity_time, 0)
+})
+
 test_that("arrivals can retry a seize", {
   t <- trajectory() %>%
     seize("dummy", 1, continue = FALSE,
@@ -122,6 +156,24 @@ test_that("arrivals can retry a seize", {
   expect_equal(arrs$start_time, c(0, 1))
   expect_equal(arrs$finished, c(TRUE, TRUE))
   expect_equal(arrs$activity_time, c(2, 3))
+})
+
+test_that("an empty reject + continue=FALSE rejects but sets finished to TRUE", {
+  t <- trajectory() %>%
+    seize("dummy", 1, continue = FALSE, reject = trajectory()) %>%
+    timeout(2) %>%
+    release("dummy", 1)
+
+  env <- simmer(verbose = TRUE) %>%
+    add_resource("dummy", 1, 0) %>%
+    add_generator("arrival", t, at(0, 1)) %>%
+    run()
+  arrs <- env %>% get_mon_arrivals()
+  arrs <- arrs[order(arrs$start_time), ]
+
+  expect_equal(arrs$start_time, c(0, 1))
+  expect_equal(arrs$finished, c(TRUE, TRUE))
+  expect_equal(arrs$activity_time, c(2, 0))
 })
 
 test_that("arrivals go through post.seize or reject and then continue", {

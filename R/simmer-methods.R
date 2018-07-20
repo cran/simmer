@@ -1,3 +1,22 @@
+# Copyright (C) 2014-2015 Bart Smeets
+# Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
+# Copyright (C) 2016-2018 Iñaki Ucar
+#
+# This file is part of simmer.
+#
+# simmer is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# simmer is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with simmer. If not, see <http://www.gnu.org/licenses/>.
+
 #' Create a Simulator
 #'
 #' This method initialises a simulation environment.
@@ -6,6 +25,7 @@
 #' @param verbose enable showing activity information.
 #' @param mon monitor (in memory by default); see \code{\link{monitor}} for
 #' other options.
+#' @param log_level debugging level (see \code{\link{log_}}).
 #'
 #' @return Returns a simulation environment.
 #' @seealso
@@ -49,8 +69,8 @@
 #' env %>% peek()          # time for the next event
 #' env %>% stepn()         # execute next event
 #'
-simmer <- function(name="anonymous", verbose=FALSE, mon=monitor_mem())
-  Simmer$new(name, verbose, mon)
+simmer <- function(name="anonymous", verbose=FALSE, mon=monitor_mem(), log_level=0)
+  Simmer$new(name, verbose, mon, log_level)
 
 #' Reset a Simulator
 #'
