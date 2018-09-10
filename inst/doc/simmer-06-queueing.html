@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2018-07-10" />
+<meta name="date" content="2018-09-10" />
 
 <title>Queueing Systems</title>
 
@@ -20,46 +20,256 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 </head>
 
@@ -70,7 +280,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Queueing Systems</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2018-07-10</em></h4>
+<h4 class="date"><em>2018-09-10</em></h4>
 
 
 <div id="TOC">
@@ -80,33 +290,33 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul>
 </div>
 
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simmer)
-<span class="kw">library</span>(simmer.plot)
-<span class="kw">set.seed</span>(<span class="dv">1234</span>)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(simmer)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(simmer.plot)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">set.seed</span>(<span class="dv">1234</span>)</a></code></pre></div>
 <div id="mmck-systems" class="section level2">
 <h2>M/M/c/k systems</h2>
 <p>In Kendall’s notation, an M/M/c/k system has exponential arrivals (<strong>M</strong>/M/c/k), a <span class="math inline">\(c\)</span> servers (M/M/<strong>c</strong>/k) with exponential service time (M/<strong>M</strong>/c/k) and an <span class="math inline">\(k-c\)</span> positions in queue (M/M/c/<strong>k</strong>). For instance, a router may have several processors to handle packets, and the in/out queues are necessarily finite.</p>
 <p>This is the simulation of an M/M/2/3 system (2 server, 1 position in queue). Note that the trajectory is identical to an M/M/1 system (one server, infinite queue).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">lambda &lt;-<span class="st"> </span><span class="dv">3</span>
-mu &lt;-<span class="st"> </span><span class="dv">4</span>
-
-mm23.trajectory &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;server&quot;</span>, <span class="dt">amount=</span><span class="dv">1</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, mu)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;server&quot;</span>, <span class="dt">amount=</span><span class="dv">1</span>)
-
-mm23.env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;server&quot;</span>, <span class="dt">capacity=</span><span class="dv">2</span>, <span class="dt">queue_size=</span><span class="dv">1</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival&quot;</span>, mm23.trajectory, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">run</span>(<span class="dt">until=</span><span class="dv">2000</span>)</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">lambda &lt;-<span class="st"> </span><span class="dv">3</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">mu &lt;-<span class="st"> </span><span class="dv">4</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">mm23.trajectory &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="st">  </span><span class="kw">seize</span>(<span class="st">&quot;server&quot;</span>, <span class="dt">amount=</span><span class="dv">1</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, mu)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="st">  </span><span class="kw">release</span>(<span class="st">&quot;server&quot;</span>, <span class="dt">amount=</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">mm23.env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="st">  </span><span class="kw">add_resource</span>(<span class="st">&quot;server&quot;</span>, <span class="dt">capacity=</span><span class="dv">2</span>, <span class="dt">queue_size=</span><span class="dv">1</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival&quot;</span>, mm23.trajectory, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="st">  </span><span class="kw">run</span>(<span class="dt">until=</span><span class="dv">2000</span>)</a></code></pre></div>
 <p>There are rejections when the queue is full.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mm23.arrivals &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(mm23.env)
-
-rejection_rate &lt;-<span class="st"> </span>mm23.arrivals <span class="op">%&gt;%</span>
-<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">summarise</span>(<span class="dt">rejection_rate =</span> <span class="kw">sum</span>(<span class="op">!</span>finished)<span class="op">/</span><span class="kw">length</span>(finished)) <span class="op">%&gt;%</span>
-<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(rejection_rate)
-rejection_rate
-<span class="co">#&gt; [1] 0.04714804</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">mm23.arrivals &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(mm23.env)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">rejection_rate &lt;-<span class="st"> </span>mm23.arrivals <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">summarise</span>(<span class="dt">rejection_rate =</span> <span class="kw">sum</span>(<span class="op">!</span>finished)<span class="op">/</span><span class="kw">length</span>(finished)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">pull</span>(rejection_rate)</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">rejection_rate</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co">#&gt; [1] 0.04714804</span></a></code></pre></div>
 <p>By solving the balance equations for this system, we obtain the following:</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -115,18 +325,18 @@ N &amp;= \sum_{n=0}^{\infty}nP_n = p_0\left(\sum_{n=0}^{c-n}\frac{nr^n}{n!} + \s
 \end{aligned}
 \]</span></p>
 <p>where <span class="math inline">\(r=\lambda/\mu\)</span>. Finally, we can see how the simulation quickly converges to the theoretical average number of customers in the system <span class="math inline">\(N\)</span>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Theoretical value</span>
-rho &lt;-<span class="st"> </span>lambda<span class="op">/</span>mu
-div &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="kw">factorial</span>(<span class="dv">2</span>) <span class="op">*</span><span class="st"> </span><span class="dv">2</span><span class="op">^</span>(<span class="dv">2</span><span class="op">:</span><span class="dv">3</span><span class="op">-</span><span class="dv">2</span>))
-mm23.N &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">3</span> <span class="op">*</span><span class="st"> </span>rho<span class="op">^</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">3</span>) <span class="op">*</span><span class="st"> </span>div) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(rho<span class="op">^</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">3</span>) <span class="op">*</span><span class="st"> </span>div)
-
-<span class="co"># Evolution of the average number of customers in the system</span>
-<span class="kw">plot</span>(mm23.env, <span class="st">&quot;resources&quot;</span>, <span class="st">&quot;usage&quot;</span>, <span class="st">&quot;server&quot;</span>, <span class="dt">items=</span><span class="st">&quot;system&quot;</span>) <span class="op">+</span>
-<span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept=</span>mm23.N)
-<span class="co">#&gt; Warning: 'plot.simmer' is deprecated.</span>
-<span class="co">#&gt; Use 'plot(get_mon_resources(x))' instead.</span>
-<span class="co">#&gt; See help(&quot;Deprecated&quot;)</span></code></pre></div>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAGACAIAAADK+EpIAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO3daXgUVboH8PfU0ls6nQSyscQAwQBhX8IaEARFUJBNHHCuIl6cy/igwnBHRh4YcBlRQcUVrtuAMuKoI8PIMiKoLAKjIhlBIATCYliSEJJOJ73XuR/K6SyEBJpOqor8f5+qazn11kml/13V1VWMc04AAABGI2hdAAAAQDgQYAAAYEgIMAAAMCQEGAAAGBICDAAADAkBBgAAhqRlgK1atYpVJ0lSWlrajBkz8vPzNSwMAAD0T9K6AHrwwQfT09PVYbfb/cMPP7z99tu7d+/+/vvvzWaztrUBAIBuaR9gkydPHj58eNUxDz300Ouvv/7VV1+NHDlSq6qqcjqdDodD6yoAAKAaPX4HdssttxDRsWPHQmP2799/++23JyYmJiQk3HXXXTk5OaFJhYWFM2fObNOmjc1m69y584oVK6o29cUXXwwbNiwuLq59+/YPPPBAcXFxaNKNN944c+bMqjPLsvzss8+qw5mZmbNnz/7666/79u370EMPqSM3bNgwdOjQ2NjY7t27L1q0KBgMXkmFNdS93ro359133+3bt29MTEx8fPyIESO++eabqlPXrVs3YMCAuLi4ESNG7N+/v0WLFsuWLQujQgAAQ9BjgBUUFBBR69at1Zfbt2/v379/YWHh448/Pnv27D179vTv3z83N1edOm7cuLVr144ZM+bpp59OTEycOXPmRx99pE766KOPRo4c6Xa7Fy1adPfdd3/00Ue9evVyuVxXWMbRo0fvueeerKys++67j4jee++9MWPGWCyWp59++qabbnr66aenTp16JRVelTo2Z8mSJdOnT2/Xrt3zzz//3//938ePHx81alQokj/++OOJEyfGx8c/+eSTzZs3z8rKunjxYqjZCFYIAKAXXDt//vOfieiLL74IjXG73Tt27Gjbtm3Pnj19Pp86slevXn379g0EAurLs2fPxsbGTp06lXN++vRpInrxxRfVSYFAoGfPno899hjn3O/3t23btk+fPl6vV526c+dOIvrTn/6kvmzfvv3//M//VK1HkqQlS5aow3369CGiL7/8MlRYy5Ytb7/9dkVR1DHz588notOnT9dd4aXqWG8dm8M579ev38CBA0NL7dq1K9R7wWAwPT391ltvDZV3zz33ENHSpUvr7UMAAIPS/juwESNG1BjTq1evrVu3yrJMRGfPnt23b98777wjiqI6NTk5+bbbbvvyyy+JyGw2M8bWrVs3fvz41NRUURT37dunznbo0KG8vLw//vGPJpNJHTNo0KDMzMxNmzb94Q9/uJLC0tPThw4dqg7v3r37zJkz77zzDmNMHTNz5syUlBRRFOuu8KrUsTlEtH37dkGoPGLOy8sjIo/HQ0QHDx7Mycl56qmnQuU9+OCDa9asUYcjWCEAgH5oH2BVr0L0+Xzffvvtp59+unDhwpdffpmIjh49SkTTp0+fPn161aXUeEtISFi8ePGiRYvatWuXmZl58803T5kypWvXrvSf9/dOnTpVXapTp05bt269wsLatGkTGj5+/DgRdezYMTSmVatWv/nNb4ho+/btdVR4VerYHCIymUzbt2/fvXv3/v379+7dq25g1fLat28fGpOWlhYarrsPAQAMSvsAu/QqxMmTJ69cufLZZ5+1Wq0Wi4WI3njjjczMzFoXX7Bgwa9+9atPPvlky5Yty5YtW7JkydKlS+fMmcNre0yMKIqBQOBylSiKUvWlzWYLDft8PnXxS5eqt8J6VV3v5TaHiP73f/936dKlGRkZEydOnDZtWkxMzIABA6qWFzr8qlHqtVcIAKBDeryIY8CAAT6fT72Uo127dkTEGOtdxYULFy5cuEBEFy9ePHjw4A033DBv3rytW7eePHkyMzNzwYIFiqK0bduWiI4cOVK15cOHD1c9NKkacvn5+TUCrCr14EY9lAnNP3PmzP3799ddYa0ut946Nqe4uPiFF15YuHDhwYMHn3jiiZEjR1a9sl/dqKrXbVYdDqNCAAD902OAqb9fLioqIqL4+PhBgwYtX768pKREnfrDDz+MHj36iy++IKK9e/d26dJl7dq16qTk5OTMzExBEDjnnTp1Sk1NffXVV/1+vzp19+7du3fvvu2220JrqRpI7777bh0l9evXr1mzZq+88kpozKpVq1asWBEbG1t3hbVu3eXWW8fmHDt2TFGU0OlEIlq/fn1ouHPnzq1bt37nnXdCY958883Q8NVWCABgCNqfQrxUy5YtiejkyZO9e/cmomeeeeaWW27Jysq69957ZVlevnx5fHz8I488QkQDBw5s1arVnDlz8vLyWrRosWvXrg8++GDGjBmiKIqiuGTJ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" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># Theoretical value</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">rho &lt;-<span class="st"> </span>lambda<span class="op">/</span>mu</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">div &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="kw">factorial</span>(<span class="dv">2</span>) <span class="op">*</span><span class="st"> </span><span class="dv">2</span><span class="op">^</span>(<span class="dv">2</span><span class="op">:</span><span class="dv">3-2</span>))</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">mm23.N &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">3</span> <span class="op">*</span><span class="st"> </span>rho<span class="op">^</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">3</span>) <span class="op">*</span><span class="st"> </span>div) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(rho<span class="op">^</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">3</span>) <span class="op">*</span><span class="st"> </span>div)</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co"># Evolution of the average number of customers in the system</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="kw">plot</span>(mm23.env, <span class="st">&quot;resources&quot;</span>, <span class="st">&quot;usage&quot;</span>, <span class="st">&quot;server&quot;</span>, <span class="dt">items=</span><span class="st">&quot;system&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept=</span>mm23.N)</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt; Warning: 'plot.simmer' is deprecated.</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt; Use 'plot(get_mon_resources(x))' instead.</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt; See help(&quot;Deprecated&quot;)</span></a></code></pre></div>
+<p><img src="data:image/png;base64,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yCOyLL/zzju1tbUnTpwYN24cY2znzp3au2PGjElISDhw4ADn/NChQ5mZmVarteFFHHfddVfDqiZNmuR2u5cvXx4IBA4fPty/f/+MjAy/399yhedrYbktrM6JEycYYw8++GBlZSXnfP369dovyZYsWaI1O2PGDKfTuWrVKm3G9PR0Inr55Zdb7UMAAJMyYoAdOXKEiLKysrSXPp/voYceIiLGGGPMYrE0vNxu/vz5kiQRkfbTqO7du0euLK+qqpo0aRIRaSfKHA7H+++/H5lx3bp1LpeLMZacnKxdYt6nT58WAqykpOTGG2+MLCgtLW3z5s0XU2ETLS+3hdWZPXs2Y0ySJJfLlZKS8vHHH6emplqt1o8++ohzXllZqV1jIgiCoigff/wxEf31r3+NokIAAFNgnPPLecAXtcLCwl27dkmSNGzYsCbfYxUVFe3cudPj8WRkZIwYMUILgIiDBw/u2bMnISFh6NChTe6dUVJSsn79ekmScnJymr1AowlVVfft27d3796OHTvm5OQ4HI6LrLCJlpfbwuocOHBg165dnTp1ys7Odrlcx44d27Rp08iRI7t27aqVt23btpMnT44aNaqysrJ3797/+te/br/99igqBAAwPtMEGLRAVdXu3btPnTp1/vz52pj58+e/8MILx48fj/wSAADgCqP/ZfTw0wmCMG3atAULFpw4cWLIkCH5+fnvvvvuH/7wB6QXAFzBcAR2heCcL1myZOnSpcXFxT169Jg4ceLdd9+td1EAAG0IAQYAAKZkxN+BAQAAtAoBBgAApoQAAwAAU0KAAQCAKSHAAADAlBBgAABgSggwAAAwJd3uxPH999/rtWgAAOPo1auX3iWYFY7AAADAlBBgAABgSggwAAAwJQQYAACYEgIMAABMCQEGAACmhAADAABTQoABAIApIcDgyuHz+Xbs2LFnz55wOBwZefz48by8vFAopL0MBoMlJSU+n+/gwYNnzpzx+/3aeK/XW1ZW1uosl3FtAKAVut2JAyC2zp07N3PmzN69e5eVlcmy/PrrrxPRa6+9duDAgW7dus2bN++ll17q1q1bUVHRa6+9Fg6HMzMzq6ur+/TpM3HiRCJ64403evTocc8997Q8S2Zmpt4rCgA/QIDBFWLbtm1XX331888/HwqF3nnnHZ/PV1BQsHXr1iVLloiiuHnz5tdff/2///u/iSg/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4jBULxn2ThzV1dW4E0cLtDtxeL1eve7EoapqbW3tT2nBarWa8S7trQTYb37zmyYXcVgslt/+9rcDBgxoy6oAAABa0UqAffjhh+FwuOEYRVEMdSIIAADap1aiyGq1Xp46AAAALknrzwMDAAAwIAQYAACYEgIMAABMqfXLMQKBwIkTJ5qMvPrqq9umHgAAML2BAwfm5eW19VJaCbA1a9bcfffd5/8wBfdCBABoD7xe75YtWxRFGTFihCiKJ06cSEhIcDqdRFRWVhYKhTp27NhkmqNHj+bn5x86dKh3795EdPDgwZKSkuHDh1ssFiIKBALFxcUul+u7777LzMzs0qXL7t27S0tLR48efam/RWslwObMmTNq1KiXXnoJN44CADAyoegY8zT6YT5PSqaG99cIBJpO4HRyl5snpVyozaKiouuuu27o0KFnzpyxWCzr1q1buHChy+WaM2cOEU2fPn3ixImjR49uMs2f//znUCj0/PPPL1my5Ne//vXmzZv79+8/derUr776ql+/focPH548eXJSUlKXLl2++uqrW2+9taam5ujRo1dfffU///nPS1rlVgKsoqJiwYIFffv2vaRGAQDgMhOX/4NVVV7qXDwtPfj/fnWhd7/44ouBAwcuW7YsEAg89dRTXq938uTJDz300Jw5cyoqKjZs2LBkyZLc3Nwm07z88suLFi1asmTJxo0b//Wvfx05ckQUxVWrVs2YMWP9+vVEVFBQsGHDhsTExHHjxtnt9r///e8FBQXDhw+/1OJbCbAbbrjh4MGDo0aNutR2AQDgcgrf9HMqL204hnfs3PAIjAUCTSdwx7Gklm5kNWrUqBdffPGOO+647bbbnnnmGafTOWzYMI/Hc/jw4bVr144bN87hcJw/TWT2zZs3x8XFPfnkk0Tk8/ny8/O18ZmZmYmJiUTUuXPna6+9VhtoctOMi9FKgM2aNev+++8vKioaPny43W6PjB87duylLgkAANqO2qeVU2XNXrnQ8uUMmZmZhw8f/vzzz1euXPnss8/m5eV16tRp8uTJn3766Zdffvn0009faJofGue8R48e48aN017ec8892kDDGwf/lJsItxJgs2fP3rNnz549e5qM9/l8US8SAABM4Y033qiqqvqv//qv8ePH79u3b/PmzRMmTJg8efLkyZODweANN9xwoWm0C/2GDx/+t7/9LTs722az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" style="display: block; margin: auto;" /></p>
 </div>
 <div id="queueing-networks" class="section level2">
 <h2>Queueing Networks</h2>
@@ -137,91 +347,91 @@ mm23.N &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="dv
 </div>
 <p>There are three exponential generators (<span class="math inline">\(\lambda_1\)</span>, <span class="math inline">\(\lambda_2\)</span>, <span class="math inline">\(\lambda_4\)</span>) that inject messages with exponential size of mean 100 bytes. There are four M/D/1 queues with a deterministic rate equal to 220 bytes/s. There is a 25% probability that messages from <span class="math inline">\(\lambda_1\)</span> are dropped before the second queue, and a fork 35/65% for the output of the second queue to reach queues 3 and 4. We are interested, for instance, in the accumulated waiting time for messages entering queue 1 and exiting queue 3 or 4.</p>
 <p>The original author of this example, Greg M. Bernstein, simulated this problem with <a href="http://www.grotto-networking.com/files/DESPython/QueueNet2.py">this Python code</a>. We’ll start by setting up the main constants and a couple of functions to set the message size and seize an M/D/1 queue:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mean_pkt_size &lt;-<span class="st"> </span><span class="dv">100</span>        <span class="co"># bytes</span>
-lambda1 &lt;-<span class="st"> </span><span class="dv">2</span>                <span class="co"># pkts/s</span>
-lambda3 &lt;-<span class="st"> </span><span class="fl">0.5</span>              <span class="co"># pkts/s</span>
-lambda4 &lt;-<span class="st"> </span><span class="fl">0.6</span>              <span class="co"># pkts/s</span>
-rate &lt;-<span class="st"> </span><span class="fl">2.2</span> <span class="op">*</span><span class="st"> </span>mean_pkt_size <span class="co"># bytes/s</span>
-
-<span class="co"># set an exponential message size of mean mean_pkt_size</span>
-set_msg_size &lt;-<span class="st"> </span><span class="cf">function</span>(.)
-  <span class="kw">set_attribute</span>(., <span class="st">&quot;size&quot;</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span><span class="op">/</span>mean_pkt_size))
-
-<span class="co"># seize an M/D/1 queue by id; the timeout is function of the message size</span>
-md1 &lt;-<span class="st"> </span><span class="cf">function</span>(., id)
-  <span class="kw">seize</span>(., <span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, id), <span class="dv">1</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">get_attribute</span>(env, <span class="st">&quot;size&quot;</span>) <span class="op">/</span><span class="st"> </span>rate) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">release</span>(<span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, id), <span class="dv">1</span>)</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">mean_pkt_size &lt;-<span class="st"> </span><span class="dv">100</span>        <span class="co"># bytes</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">lambda1 &lt;-<span class="st"> </span><span class="dv">2</span>                <span class="co"># pkts/s</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">lambda3 &lt;-<span class="st"> </span><span class="fl">0.5</span>              <span class="co"># pkts/s</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">lambda4 &lt;-<span class="st"> </span><span class="fl">0.6</span>              <span class="co"># pkts/s</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">rate &lt;-<span class="st"> </span><span class="fl">2.2</span> <span class="op">*</span><span class="st"> </span>mean_pkt_size <span class="co"># bytes/s</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co"># set an exponential message size of mean mean_pkt_size</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">set_msg_size &lt;-<span class="st"> </span><span class="cf">function</span>(.)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">  <span class="kw">set_attribute</span>(., <span class="st">&quot;size&quot;</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span><span class="op">/</span>mean_pkt_size))</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co"># seize an M/D/1 queue by id; the timeout is function of the message size</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12">md1 &lt;-<span class="st"> </span><span class="cf">function</span>(., id)</a>
+<a class="sourceLine" id="cb5-13" data-line-number="13">  <span class="kw">seize</span>(., <span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, id), <span class="dv">1</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">get_attribute</span>(env, <span class="st">&quot;size&quot;</span>) <span class="op">/</span><span class="st"> </span>rate) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15"><span class="st">  </span><span class="kw">release</span>(<span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, id), <span class="dv">1</span>)</a></code></pre></div>
 <p>The next step is to set up the three points of attachment for our generators:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">to_queue_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">set_msg_size</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">md1</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">leave</span>(<span class="fl">0.25</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">md1</span>(<span class="dv">2</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">branch</span>(
-    <span class="cf">function</span>() (<span class="kw">runif</span>(<span class="dv">1</span>) <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.65</span>) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">continue=</span><span class="kw">c</span>(F, F),
-    <span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">md1</span>(<span class="dv">3</span>),
-    <span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">md1</span>(<span class="dv">4</span>)
-  )
-
-to_queue_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">set_msg_size</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">md1</span>(<span class="dv">3</span>)
-
-to_queue_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">set_msg_size</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">md1</span>(<span class="dv">4</span>)</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">to_queue_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">  </span><span class="kw">set_msg_size</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="st">  </span><span class="kw">md1</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="st">  </span><span class="kw">leave</span>(<span class="fl">0.25</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="st">  </span><span class="kw">md1</span>(<span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="st">  </span><span class="kw">branch</span>(</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">    <span class="cf">function</span>() (<span class="kw">runif</span>(<span class="dv">1</span>) <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.65</span>) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">continue=</span><span class="kw">c</span>(F, F),</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">md1</span>(<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">    <span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">md1</span>(<span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10">  )</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12">to_queue_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="st">  </span><span class="kw">set_msg_size</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="st">  </span><span class="kw">md1</span>(<span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb6-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb6-16" data-line-number="16">to_queue_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-17" data-line-number="17"><span class="st">  </span><span class="kw">set_msg_size</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="st">  </span><span class="kw">md1</span>(<span class="dv">4</span>)</a></code></pre></div>
 <p>Finally, we prepare and run the simulation environment with the resources and generators required:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">env &lt;-<span class="st"> </span><span class="kw">simmer</span>()
-<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>) env <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">add_resource</span>(<span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, i))
-env <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival1_&quot;</span>, to_queue_<span class="dv">1</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda1), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival3_&quot;</span>, to_queue_<span class="dv">3</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda3), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival4_&quot;</span>, to_queue_<span class="dv">4</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda4), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">run</span>(<span class="dv">4000</span>)
-<span class="co">#&gt; simmer environment: anonymous | now: 4000 | next: 4000.06543005082</span>
-<span class="co">#&gt; { Monitor: in memory }</span>
-<span class="co">#&gt; { Resource: md1_1 | monitored: TRUE | server status: 1(1) | queue status: 16(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_2 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_3 | monitored: TRUE | server status: 1(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Resource: md1_4 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Source: arrival1_ | monitored: 2 | n_generated: 7978 }</span>
-<span class="co">#&gt; { Source: arrival3_ | monitored: 2 | n_generated: 1978 }</span>
-<span class="co">#&gt; { Source: arrival4_ | monitored: 2 | n_generated: 2395 }</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>) env <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="st">  </span><span class="kw">add_resource</span>(<span class="kw">paste0</span>(<span class="st">&quot;md1_&quot;</span>, i))</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">env <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival1_&quot;</span>, to_queue_<span class="dv">1</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda1), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival3_&quot;</span>, to_queue_<span class="dv">3</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda3), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;arrival4_&quot;</span>, to_queue_<span class="dv">4</span>, <span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, lambda4), <span class="dt">mon=</span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="st">  </span><span class="kw">run</span>(<span class="dv">4000</span>)</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#&gt; simmer environment: anonymous | now: 4000 | next: 4000.06543005082</span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co">#&gt; { Monitor: in memory }</span></a>
+<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co">#&gt; { Resource: md1_1 | monitored: TRUE | server status: 1(1) | queue status: 16(Inf) }</span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co">#&gt; { Resource: md1_2 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></a>
+<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co">#&gt; { Resource: md1_3 | monitored: TRUE | server status: 1(1) | queue status: 0(Inf) }</span></a>
+<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co">#&gt; { Resource: md1_4 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></a>
+<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co">#&gt; { Source: arrival1_ | monitored: 2 | n_generated: 7978 }</span></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co">#&gt; { Source: arrival3_ | monitored: 2 | n_generated: 1978 }</span></a>
+<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="co">#&gt; { Source: arrival4_ | monitored: 2 | n_generated: 2395 }</span></a></code></pre></div>
 <p>In the analysis, we filter arrivals from generator 1 that reach queues 3 and 4, and we examine the average waiting time and the total number of messages:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env, <span class="dt">per_resource =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(name, resource) <span class="op">%&gt;%</span>
-<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(resource <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;md1_3&quot;</span>, <span class="st">&quot;md1_4&quot;</span>))
-arr &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env) <span class="op">%&gt;%</span>
-<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>(start_time <span class="op">+</span><span class="st"> </span>activity_time),
-                <span class="dt">generator =</span> <span class="kw">regmatches</span>(name, <span class="kw">regexpr</span>(<span class="st">&quot;arrival[[:digit:]]&quot;</span>, name))) <span class="op">%&gt;%</span>
-<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(res) <span class="op">%&gt;%</span>
-<span class="st">  </span>dplyr<span class="op">::</span><span class="kw">group_by</span>(generator, resource)
-<span class="co">#&gt; Joining, by = &quot;name&quot;</span>
-
-dplyr<span class="op">::</span><span class="kw">summarise</span>(arr, <span class="dt">average =</span> <span class="kw">sum</span>(waiting_time) <span class="op">/</span><span class="st"> </span><span class="kw">n</span>())
-<span class="co">#&gt; # A tibble: 5 x 3</span>
-<span class="co">#&gt; # Groups:   generator [?]</span>
-<span class="co">#&gt;   generator resource average</span>
-<span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 arrival1  md1_3      5.16 </span>
-<span class="co">#&gt; 2 arrival1  md1_4      4.93 </span>
-<span class="co">#&gt; 3 arrival1  &lt;NA&gt;       3.83 </span>
-<span class="co">#&gt; 4 arrival3  md1_3      0.704</span>
-<span class="co">#&gt; 5 arrival4  md1_4      0.434</span>
-<span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival1_&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival4_&quot;</span>)
-<span class="co">#&gt; [1] 10373</span>
-dplyr<span class="op">::</span><span class="kw">count</span>(arr)
-<span class="co">#&gt; # A tibble: 5 x 3</span>
-<span class="co">#&gt; # Groups:   generator, resource [5]</span>
-<span class="co">#&gt;   generator resource     n</span>
-<span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;    &lt;int&gt;</span>
-<span class="co">#&gt; 1 arrival1  md1_3     3838</span>
-<span class="co">#&gt; 2 arrival1  md1_4     2164</span>
-<span class="co">#&gt; 3 arrival1  &lt;NA&gt;      1958</span>
-<span class="co">#&gt; 4 arrival3  md1_3     1976</span>
-<span class="co">#&gt; 5 arrival4  md1_4     2394</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">res &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env, <span class="dt">per_resource =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(name, resource) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(resource <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;md1_3&quot;</span>, <span class="st">&quot;md1_4&quot;</span>))</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">arr &lt;-<span class="st"> </span><span class="kw">get_mon_arrivals</span>(env) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>(start_time <span class="op">+</span><span class="st"> </span>activity_time),</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">                <span class="dt">generator =</span> <span class="kw">regmatches</span>(name, <span class="kw">regexpr</span>(<span class="st">&quot;arrival[[:digit:]]&quot;</span>, name))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(res) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">group_by</span>(generator, resource)</a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt; Joining, by = &quot;name&quot;</span></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">dplyr<span class="op">::</span><span class="kw">summarise</span>(arr, <span class="dt">average =</span> <span class="kw">sum</span>(waiting_time) <span class="op">/</span><span class="st"> </span><span class="kw">n</span>())</a>
+<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co">#&gt; # A tibble: 5 x 3</span></a>
+<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="co">#&gt; # Groups:   generator [?]</span></a>
+<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="co">#&gt;   generator resource average</span></a>
+<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb8-16" data-line-number="16"><span class="co">#&gt; 1 arrival1  md1_3      5.16 </span></a>
+<a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co">#&gt; 2 arrival1  md1_4      4.93 </span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co">#&gt; 3 arrival1  &lt;NA&gt;       3.83 </span></a>
+<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co">#&gt; 4 arrival3  md1_3      0.704</span></a>
+<a class="sourceLine" id="cb8-20" data-line-number="20"><span class="co">#&gt; 5 arrival4  md1_4      0.434</span></a>
+<a class="sourceLine" id="cb8-21" data-line-number="21"><span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival1_&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">get_n_generated</span>(env, <span class="st">&quot;arrival4_&quot;</span>)</a>
+<a class="sourceLine" id="cb8-22" data-line-number="22"><span class="co">#&gt; [1] 10373</span></a>
+<a class="sourceLine" id="cb8-23" data-line-number="23">dplyr<span class="op">::</span><span class="kw">count</span>(arr)</a>
+<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="co">#&gt; # A tibble: 5 x 3</span></a>
+<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co">#&gt; # Groups:   generator, resource [5]</span></a>
+<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co">#&gt;   generator resource     n</span></a>
+<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;    &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co">#&gt; 1 arrival1  md1_3     3838</span></a>
+<a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co">#&gt; 2 arrival1  md1_4     2164</span></a>
+<a class="sourceLine" id="cb8-30" data-line-number="30"><span class="co">#&gt; 3 arrival1  &lt;NA&gt;      1958</span></a>
+<a class="sourceLine" id="cb8-31" data-line-number="31"><span class="co">#&gt; 4 arrival3  md1_3     1976</span></a>
+<a class="sourceLine" id="cb8-32" data-line-number="32"><span class="co">#&gt; 5 arrival4  md1_4     2394</span></a></code></pre></div>
 </div>
 
 

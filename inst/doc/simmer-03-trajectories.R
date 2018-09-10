@@ -113,7 +113,7 @@ writer <- trajectory() %>%
 
 reader <- trajectory() %>%
   log_(function() paste0(get_attribute(env, "my_key"), ", ", 
-                         get_attribute(env, "my_key", global = TRUE)))
+                         get_global(env, "my_key")))
 
 env <- simmer() %>%
   add_generator("writer", writer, at(0), mon = 2) %>%

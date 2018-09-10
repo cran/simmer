@@ -1,13 +1,16 @@
 ## ---- setup, include=FALSE-----------------------------------------------
 knitr::opts_chunk$set(fig.width=5, fig.height=3, warning=FALSE, message=FALSE)
 
-knitr::knit_hooks$set(chunk = function(x, options) {
+knitr::knit_hooks$set(document = function(x, options) {
   # fix line width
   x <- gsub("queue status: 0(Inf) }", "queue... }", x, fixed=TRUE)
   x
 })
 
 Sys.setlocale("LC_ALL", "en_GB.UTF-8")
+
+## ----job-shop, out.width='80%', echo=FALSE, fig.cap='The job shop activity cycle diagram.'----
+knitr::include_graphics("includes/jss-job-shop.pdf")
 
 ## ---- job-shop-1---------------------------------------------------------
 library("simmer")

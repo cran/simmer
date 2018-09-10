@@ -1,3 +1,22 @@
+# simmer 4.0.1
+
+## New features:
+
+* New getters (#159):
+    * `get_sources()` and `get_resources()` retrieve a character vector of source/resource names defined in a simulation environment.
+    * `get_trajectory()` retrieves a trajectory to which a given source is attached.
+* New resource selection policies: `shortest-queue-available`, `round-robin-available`, `random-available` (#156). These are the same as the existing non-`available` ones, but they exclude unavailable resources (capacity set to zero). Thus, if all resources are unavailable, an error is raised.
+
+## Minor changes and fixes:
+
+* Rename `-DRCPP_PROTECTED_EVAL` (Rcpp >= 0.12.17.4) as `-DRCPP_USE_UNWIND_PROTECT` (6d27671).
+* Keep compilation quieter with `-DBOOST_NO_AUTO_PTR` (70328b6).
+* Improve `log_` print (7c2e3b1).
+* Add `when_activated()` convenience function to easily generate arrivals on demand from trajectories (#161 closing #160).
+* Enhance `schedule` printing (9c66285).
+* Fix generator-manager name clashing (#163).
+* Deprecate `set_attribute(global=TRUE)`, `get_attribute(global=TRUE)` and `timeout_from_attribute(global=TRUE)` (#164), the `*_global` versions should be used instead.
+
 # simmer 4.0.0
 
 * The `simmer` license has been changed to GPL >= 2.
@@ -14,7 +33,7 @@
 * Enhanced exception handling, with more informative error messages (#148).
 * Refactorisation of the printing methods and associated code (#149).
 * Allow empty trajectories in sources and activities with sub-trajectories (#151 closing #150).
-* Enable `RCPP_PROTECTED_EVAL` (Rcpp >= 0.12.17.3), which provides fast evaluation of R expressions by leveraging the new stack unwinding protection API (R >= 3.5.0).
+* Enable `-DRCPP_PROTECTED_EVAL` (Rcpp >= 0.12.17.3), which provides fast evaluation of R expressions by leveraging the new stack unwinding protection API (R >= 3.5.0).
 * Replace backspace usage in vector's `ostream` method (2b2f43e).
 * Fix namespace clashes with `rlang` and `purrr` (#154).
 
