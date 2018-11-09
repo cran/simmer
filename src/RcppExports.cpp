@@ -956,26 +956,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_n_generated_
-int get_n_generated_(SEXP sim_, const std::string& name);
-RcppExport SEXP _simmer_get_n_generated_(SEXP sim_SEXP, SEXP nameSEXP) {
+std::vector<int> get_n_generated_(SEXP sim_, const std::vector<std::string>& names);
+RcppExport SEXP _simmer_get_n_generated_(SEXP sim_SEXP, SEXP namesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_n_generated_(sim_, name));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_n_generated_(sim_, names));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_trajectory_
-Environment get_trajectory_(SEXP sim_, const std::string& name);
-RcppExport SEXP _simmer_get_trajectory_(SEXP sim_SEXP, SEXP nameSEXP) {
+std::vector<Environment> get_trajectory_(SEXP sim_, const std::vector<std::string>& names);
+RcppExport SEXP _simmer_get_trajectory_(SEXP sim_SEXP, SEXP namesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_trajectory_(sim_, name));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_trajectory_(sim_, names));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1015,19 +1015,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_capacity_
-int get_capacity_(SEXP sim_, const std::string& name);
-RcppExport SEXP _simmer_get_capacity_(SEXP sim_SEXP, SEXP nameSEXP) {
+std::vector<int> get_capacity_(SEXP sim_, const std::vector<std::string>& names);
+RcppExport SEXP _simmer_get_capacity_(SEXP sim_SEXP, SEXP namesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_capacity_(sim_, name));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_capacity_(sim_, names));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_capacity_selected_
-int get_capacity_selected_(SEXP sim_, int id);
+std::vector<int> get_capacity_selected_(SEXP sim_, int id);
 RcppExport SEXP _simmer_get_capacity_selected_(SEXP sim_SEXP, SEXP idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -1039,19 +1039,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_queue_size_
-int get_queue_size_(SEXP sim_, const std::string& name);
-RcppExport SEXP _simmer_get_queue_size_(SEXP sim_SEXP, SEXP nameSEXP) {
+std::vector<int> get_queue_size_(SEXP sim_, const std::vector<std::string>& names);
+RcppExport SEXP _simmer_get_queue_size_(SEXP sim_SEXP, SEXP namesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_queue_size_(sim_, name));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_queue_size_(sim_, names));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_queue_size_selected_
-int get_queue_size_selected_(SEXP sim_, int id);
+std::vector<int> get_queue_size_selected_(SEXP sim_, int id);
 RcppExport SEXP _simmer_get_queue_size_selected_(SEXP sim_SEXP, SEXP idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -1063,19 +1063,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_server_count_
-int get_server_count_(SEXP sim_, const std::string& name);
-RcppExport SEXP _simmer_get_server_count_(SEXP sim_SEXP, SEXP nameSEXP) {
+std::vector<int> get_server_count_(SEXP sim_, const std::vector<std::string>& names);
+RcppExport SEXP _simmer_get_server_count_(SEXP sim_SEXP, SEXP namesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_server_count_(sim_, name));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_server_count_(sim_, names));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_server_count_selected_
-int get_server_count_selected_(SEXP sim_, int id);
+std::vector<int> get_server_count_selected_(SEXP sim_, int id);
 RcppExport SEXP _simmer_get_server_count_selected_(SEXP sim_SEXP, SEXP idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -1087,19 +1087,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_queue_count_
-int get_queue_count_(SEXP sim_, const std::string& name);
-RcppExport SEXP _simmer_get_queue_count_(SEXP sim_SEXP, SEXP nameSEXP) {
+std::vector<int> get_queue_count_(SEXP sim_, const std::vector<std::string>& names);
+RcppExport SEXP _simmer_get_queue_count_(SEXP sim_SEXP, SEXP namesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_queue_count_(sim_, name));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_queue_count_(sim_, names));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_queue_count_selected_
-int get_queue_count_selected_(SEXP sim_, int id);
+std::vector<int> get_queue_count_selected_(SEXP sim_, int id);
 RcppExport SEXP _simmer_get_queue_count_selected_(SEXP sim_SEXP, SEXP idSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -1107,6 +1107,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
     Rcpp::traits::input_parameter< int >::type id(idSEXP);
     rcpp_result_gen = Rcpp::wrap(get_queue_count_selected_(sim_, id));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_selected_
+std::vector<std::string> get_selected_(SEXP sim_, int id);
+RcppExport SEXP _simmer_get_selected_(SEXP sim_SEXP, SEXP idSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    Rcpp::traits::input_parameter< int >::type id(idSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_selected_(sim_, id));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1237,18 +1249,35 @@ BEGIN_RCPP
 END_RCPP
 }
 // add_resource_manager_
-bool add_resource_manager_(SEXP sim_, const std::string& name, const std::string& param, const std::vector<double>& intervals, const std::vector<int>& values, int period);
-RcppExport SEXP _simmer_add_resource_manager_(SEXP sim_SEXP, SEXP nameSEXP, SEXP paramSEXP, SEXP intervalsSEXP, SEXP valuesSEXP, SEXP periodSEXP) {
+bool add_resource_manager_(SEXP sim_, const std::string& name, const std::string& param, int init, const std::vector<double>& intervals, const std::vector<int>& values, int period);
+RcppExport SEXP _simmer_add_resource_manager_(SEXP sim_SEXP, SEXP nameSEXP, SEXP paramSEXP, SEXP initSEXP, SEXP intervalsSEXP, SEXP valuesSEXP, SEXP periodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type param(paramSEXP);
+    Rcpp::traits::input_parameter< int >::type init(initSEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type intervals(intervalsSEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type values(valuesSEXP);
     Rcpp::traits::input_parameter< int >::type period(periodSEXP);
-    rcpp_result_gen = Rcpp::wrap(add_resource_manager_(sim_, name, param, intervals, values, period));
+    rcpp_result_gen = Rcpp::wrap(add_resource_manager_(sim_, name, param, init, intervals, values, period));
+    return rcpp_result_gen;
+END_RCPP
+}
+// add_global_manager_
+bool add_global_manager_(SEXP sim_, const std::string& key, double init, const std::vector<double>& intervals, const std::vector<double>& values, int period);
+RcppExport SEXP _simmer_add_global_manager_(SEXP sim_SEXP, SEXP keySEXP, SEXP initSEXP, SEXP intervalsSEXP, SEXP valuesSEXP, SEXP periodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type key(keySEXP);
+    Rcpp::traits::input_parameter< double >::type init(initSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type intervals(intervalsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type values(valuesSEXP);
+    Rcpp::traits::input_parameter< int >::type period(periodSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_global_manager_(sim_, key, init, intervals, values, period));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1355,6 +1384,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_simmer_get_server_count_selected_", (DL_FUNC) &_simmer_get_server_count_selected_, 2},
     {"_simmer_get_queue_count_", (DL_FUNC) &_simmer_get_queue_count_, 2},
     {"_simmer_get_queue_count_selected_", (DL_FUNC) &_simmer_get_queue_count_selected_, 2},
+    {"_simmer_get_selected_", (DL_FUNC) &_simmer_get_selected_, 2},
     {"_simmer_Simulator__new", (DL_FUNC) &_simmer_Simulator__new, 4},
     {"_simmer_reset_", (DL_FUNC) &_simmer_reset_, 1},
     {"_simmer_now_", (DL_FUNC) &_simmer_now_, 1},
@@ -1364,7 +1394,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_simmer_add_generator_", (DL_FUNC) &_simmer_add_generator_, 8},
     {"_simmer_add_dataframe_", (DL_FUNC) &_simmer_add_dataframe_, 11},
     {"_simmer_add_resource_", (DL_FUNC) &_simmer_add_resource_, 8},
-    {"_simmer_add_resource_manager_", (DL_FUNC) &_simmer_add_resource_manager_, 6},
+    {"_simmer_add_resource_manager_", (DL_FUNC) &_simmer_add_resource_manager_, 7},
+    {"_simmer_add_global_manager_", (DL_FUNC) &_simmer_add_global_manager_, 6},
     {"_simmer_record_ongoing_", (DL_FUNC) &_simmer_record_ongoing_, 2},
     {NULL, NULL, 0}
 };
