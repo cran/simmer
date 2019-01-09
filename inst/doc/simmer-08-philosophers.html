@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2019-01-08" />
+<meta name="date" content="2019-01-09" />
 
 <title>Dining Philosophers Problem</title>
 
@@ -20,41 +20,67 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 
 </style>
 <script>
@@ -81,7 +107,189 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 </head>
 
@@ -92,7 +300,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Dining Philosophers Problem</h1>
 <h4 class="author"><em>Iñaki Ucar</em></h4>
-<h4 class="date"><em>2019-01-08</em></h4>
+<h4 class="date"><em>2019-01-09</em></h4>
 
 
 
@@ -124,85 +332,85 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>Put both forks down and go back to 1.</li>
 </ol>
 <p>The following function sets up a simulation of <span class="math inline">\(N\)</span> dining philosophers as established above:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(simmer)
-<span class="kw">library</span>(simmer.plot)
-
-simulate &lt;-<span class="st"> </span><span class="cf">function</span>(fork_seq, time, <span class="dt">thinking=</span><span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>),
-                     <span class="dt">eating=</span><span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="dt">lag=</span><span class="fl">0.1</span>, <span class="dt">seed=</span><span class="dv">333</span>)
-{
-  <span class="kw">set.seed</span>(seed)
-
-  env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="st">&quot;Dining philosophers&quot;</span>)
-
-  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(fork_seq)) {
-    philosopher &lt;-<span class="st"> </span><span class="kw">names</span>(fork_seq)[[i]]
-    forks &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;fork_&quot;</span>, fork_seq[[i]])
-
-    dining &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">timeout</span>(thinking) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">seize</span>(forks[[<span class="dv">1</span>]]) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">timeout</span>(lag) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">seize</span>(forks[[<span class="dv">2</span>]]) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">timeout</span>(eating) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">release</span>(forks[[<span class="dv">1</span>]]) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">release</span>(forks[[<span class="dv">2</span>]]) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">rollback</span>(<span class="dv">7</span>) <span class="co"># back to think</span>
-
-    env <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">add_resource</span>(<span class="kw">paste0</span>(<span class="st">&quot;fork_&quot;</span>, i)) <span class="op">%&gt;%</span>
-<span class="st">      </span><span class="kw">add_generator</span>(<span class="kw">paste0</span>(philosopher, <span class="st">&quot;_&quot;</span>), dining, <span class="kw">at</span>(<span class="dv">0</span>))
-  }
-
-  <span class="kw">run</span>(env, time)
-}</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(simmer)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(simmer.plot)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">simulate &lt;-<span class="st"> </span><span class="cf">function</span>(fork_seq, time, <span class="dt">thinking=</span><span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">                     <span class="dt">eating=</span><span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="dt">lag=</span><span class="fl">0.1</span>, <span class="dt">seed=</span><span class="dv">333</span>)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">{</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="kw">set.seed</span>(seed)</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">  env &lt;-<span class="st"> </span><span class="kw">simmer</span>(<span class="st">&quot;Dining philosophers&quot;</span>)</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(fork_seq)) {</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">    philosopher &lt;-<span class="st"> </span><span class="kw">names</span>(fork_seq)[[i]]</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">    forks &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;fork_&quot;</span>, fork_seq[[i]])</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">    dining &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="st">      </span><span class="kw">timeout</span>(thinking) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="st">      </span><span class="kw">seize</span>(forks[[<span class="dv">1</span>]]) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="st">      </span><span class="kw">timeout</span>(lag) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="st">      </span><span class="kw">seize</span>(forks[[<span class="dv">2</span>]]) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="st">      </span><span class="kw">timeout</span>(eating) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="st">      </span><span class="kw">release</span>(forks[[<span class="dv">1</span>]]) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="st">      </span><span class="kw">release</span>(forks[[<span class="dv">2</span>]]) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23"><span class="st">      </span><span class="kw">rollback</span>(<span class="dv">7</span>) <span class="co"># back to think</span></a>
+<a class="sourceLine" id="cb1-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb1-25" data-line-number="25">    env <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-26" data-line-number="26"><span class="st">      </span><span class="kw">add_resource</span>(<span class="kw">paste0</span>(<span class="st">&quot;fork_&quot;</span>, i)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb1-27" data-line-number="27"><span class="st">      </span><span class="kw">add_generator</span>(<span class="kw">paste0</span>(philosopher, <span class="st">&quot;_&quot;</span>), dining, <span class="kw">at</span>(<span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb1-28" data-line-number="28">  }</a>
+<a class="sourceLine" id="cb1-29" data-line-number="29"></a>
+<a class="sourceLine" id="cb1-30" data-line-number="30">  <span class="kw">run</span>(env, time)</a>
+<a class="sourceLine" id="cb1-31" data-line-number="31">}</a></code></pre></div>
 <p>The <code>fork_seq</code> argument consists of a named list of fork sequences. For instance, given the numbering conventions in the image above, if we decide that philosopher 1, Socrates, must take fork 1 first and then fork 2, his fork sequence would be <code>Socrates = c(1, 2)</code>. This function also expects the simulation <code>time</code>, and there are other arguments to play with, such as the <code>thinking</code> and <code>eating</code> random processes, the <code>lag</code> between forks, and the seed.</p>
 <p>The following function would allow us to plot a kind of Gantt chart of the simulation:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;hungry&quot;</span>, <span class="st">&quot;eating&quot;</span>)
-
-philosophers_gantt &lt;-<span class="st"> </span><span class="cf">function</span>(env, <span class="dt">size=</span><span class="dv">15</span>) env <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">get_mon_arrivals</span>(<span class="dt">per_resource=</span><span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">transform</span>(<span class="dt">philosopher =</span> <span class="kw">sub</span>(<span class="st">&quot;_[0-9]*&quot;</span>, <span class="st">&quot;&quot;</span>, name),
-            <span class="dt">state =</span> <span class="kw">factor</span>(states, states)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">y=</span>philosopher, <span class="dt">yend=</span>philosopher)) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;time&quot;</span>) <span class="op">+</span>
-<span class="st">  </span><span class="kw">geom_segment</span>(<span class="kw">aes</span>(<span class="dt">x=</span>start_time, <span class="dt">xend=</span>end_time, <span class="dt">color=</span>state), <span class="dt">size=</span>size)</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;hungry&quot;</span>, <span class="st">&quot;eating&quot;</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">philosophers_gantt &lt;-<span class="st"> </span><span class="cf">function</span>(env, <span class="dt">size=</span><span class="dv">15</span>) env <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="st">  </span><span class="kw">get_mon_arrivals</span>(<span class="dt">per_resource=</span><span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="st">  </span><span class="kw">transform</span>(<span class="dt">philosopher =</span> <span class="kw">sub</span>(<span class="st">&quot;_[0-9]*&quot;</span>, <span class="st">&quot;&quot;</span>, name),</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">            <span class="dt">state =</span> <span class="kw">factor</span>(states, states)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">y=</span>philosopher, <span class="dt">yend=</span>philosopher)) <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;time&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="st">  </span><span class="kw">geom_segment</span>(<span class="kw">aes</span>(<span class="dt">x=</span>start_time, <span class="dt">xend=</span>end_time, <span class="dt">color=</span>state), <span class="dt">size=</span>size)</a></code></pre></div>
 <p>With the simplest algorithm, each philosopher would take, for example, the right fork first and then the left one. But it is easy to see that this policy may result in starvation:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fork_seq &lt;-<span class="st"> </span><span class="kw">list</span>(
-  <span class="dt">Socrates   =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),
-  <span class="dt">Pythagoras =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>),
-  <span class="dt">Plato      =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>),
-  <span class="dt">Aristotle  =</span> <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">1</span>)
-)
-
-<span class="kw">simulate</span>(fork_seq, <span class="dt">time=</span><span class="dv">50</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">print</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">philosophers_gantt</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
-<span class="co">#&gt; simmer environment: Dining philosophers | now: 3.89681179066325 | next: </span>
-<span class="co">#&gt; { Monitor: in memory }</span>
-<span class="co">#&gt; { Resource: fork_1 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: fork_2 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: fork_3 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: fork_4 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Source: Socrates_ | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Source: Pythagoras_ | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Source: Plato_ | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Source: Aristotle_ | monitored: 1 | n_generated: 1 }</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">fork_seq &lt;-<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="dt">Socrates   =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">  <span class="dt">Pythagoras =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  <span class="dt">Plato      =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>),</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  <span class="dt">Aristotle  =</span> <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">)</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="kw">simulate</span>(fork_seq, <span class="dt">time=</span><span class="dv">50</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="st">  </span><span class="kw">print</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="st">  </span><span class="kw">philosophers_gantt</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt; simmer environment: Dining philosophers | now: 3.89681179066325 | next: </span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt; { Monitor: in memory }</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt; { Resource: fork_1 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt; { Resource: fork_2 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></a>
+<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; { Resource: fork_3 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></a>
+<a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; { Resource: fork_4 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; { Source: Socrates_ | monitored: 1 | n_generated: 1 }</span></a>
+<a class="sourceLine" id="cb3-18" data-line-number="18"><span class="co">#&gt; { Source: Pythagoras_ | monitored: 1 | n_generated: 1 }</span></a>
+<a class="sourceLine" id="cb3-19" data-line-number="19"><span class="co">#&gt; { Source: Plato_ | monitored: 1 | n_generated: 1 }</span></a>
+<a class="sourceLine" id="cb3-20" data-line-number="20"><span class="co">#&gt; { Source: Aristotle_ | monitored: 1 | n_generated: 1 }</span></a></code></pre></div>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAGACAIAAADK+EpIAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO3deVyU5f7/8WtmWJVlQEFFERXFI4YbikvocS3Fg4Zpm+egprac3CA0W7Sj9j2UQqXZOdrhWC4Hc8lHmR5bDDey3DKzIBO3kkJkHZBtlvv3x/yaQ4iMbDNz5ev51z33fc11fWaAeXPfc9/3pVIURQAAIBu1vQsAAKAhCDAAgJQIMACAlAgwAICUCDAAgJQIMACAlJzsXYDjOnjw4J49e9RqtVrtcDFvNBo1Go29q6jJaDQqiuLk5HC/VCaTSaVSqVQqexfyG4qimH+ODliYyWRyzF8wIYSNC5s/f367du1sOSJun8N91jiOy5cvjx8/fsiQIa6urvaupSadTufl5WXvKmoqLS01GAxardbehdR048YNNzc3R/tENhgMRUVFWq3W0SLfaDSWl5d7eHjYu5CaiouL1Wq1p6enbYY7ffr07NmzH330UQLMYTncvgUAALeDAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIiQADAEiJAAMASIkAAwBIycneBcDOlBulVateapKunBTFSYhKlapJemtCGkUxqFQGe5dxMw9FMapURnuXcTMnRWmSn+N595bD+g1tfD9mihBCiMaU1d5QdXbcPU1TDRwAAXbHUxRRXtYkPTlccP2KwuqrqQozapwKnZ2bqLMm4KE44H8LaDgOIQIApESAAQCkRIABAKREgAEApESAAQCkRIABAKREgAEApESAAQCkRIABAKREgAEApESAAQCkRIABAKREgAEApESAAQCkRIABAKRkz/nALly4sGHDhsuXL3t5efXo0WPatGne3t5N1bmiKCtXrnzmmWeaqkMAgEOx2x6Y0Whcvnz5iBEjNmzYsHr1ajc3tzfeeKMB/RgMtU+0qyjKiRMnGlcjAMBx2W0PLD8/v7S0dNiwYS4uLkKIhx9++O233zZvOnTo0NatWysqKvr27fv444+7ubkJIdLS0rZt21ZVVTVs2LBp06ZdvHgxNTW1Xbt2P/7444oVK3bt2rV3797y8vLOnTsvXLhQq9UmJibq9fqEhISkpKSvv/763//+d3l5eVhY2MyZMz08PIxG49q1a0+ePKlSqaZMmRIdHW2v9wEA0DB2CzB/f39/f/9ly5b96U9/6t27t6en57x584QQ2dnZKSkpiYmJbdu2TU5O3r59e2xs7JUrV7Zs2bJy5UpnZ+fnnnuuX79+LVu2/OabbyIiImbOnKnT6Xbs2LF69WpfX9/XXntt//79kydPfvbZZx944IGkpKTi4uKVK1cmJiYGBgauW7cuJSVlwYIF6enp5oFyc3Pj4uLGjBljjsmKior09HRzhXl5eUFBQbfaw7Mvk8lUWVnZNH1VVTVNP4AMbv8PR6/XN2slaDx7fgeWnJz8wQcf7NixY9WqVb169Xr00Uc7dux4/PjxyMjIDh06CCGmTJmSnJwcGxt79OjRUaNGtW7dWggRHx/v4uJSWVnp5eU1duxYIUTLli3feustT0/P4uJiIURZWVn1UY4dOxYWFhYUFCSEmDx58pIlS8zrS0pKLl++HBISsnPnTkvjoqKixYsXm5f79OkTHh5eXl5ui/ei/kpKSpqkH1XZDY8m6QiQwe3/4dT4JIEDsmeAtWjR4uGHH3744YeLi4vff//9RYsWbd68ubCw0M/Pz9zAz8+voKBACJGfn9+tWzfzyuDgYCFEVlaWr6+vpavt27d/9dVXvr6+JpOpTZs21UfJz8/PzMxcsGCB+aGnp6cQIjIyUqfTJSUlVVVVTZo0aeLEiZYRP/jgA/Pynj17hBAtW7Y0H+R0KKWlpR4eTZM7irOTsUk6AmTg4+Nzmy3NnxVwZHYLsP379588edK8u+Pt7T1t2rS0tLTLly/7+Pjk5eWZ2+Tn55t/27y9vQsLC80rv/32W6PR2LJlS5VKZV5z+PDhH374YeXKlS1btty1a1dpaWn1gbRabZ8+feLj44UQlZWVV69eFUIUFhYOGzYsOjr64sWLiYmJoaGh5oDUaDTt27c3P9HV1VUIoVarNRpN878f9aNSqZqqKkWjIcBw57j9Pxy1mquMHJ3dfkJ9+/b95ptvDh06VFVVVVJSsn//fiFEUFDQgAEDjhw5kpOTYzQad+7cGRERIYQYOHDgZ599VlhYWFJSsn79+hoRpdPpvL29W7RoodPp0tLSLN9aGY1GRVHCw8O//vrrK1euGAyGDRs27N27Vwhx4MCBNWvWGI1Gf39/tVpdUVFh8zcAANAodtsDa9WqVWJiYkpKSkpKislk6tq164svvuji4tKhQ4cZM2YsXbpUr9f37t37oYceEkKEhIRMmjRp0aJFVVVVQ4cOHTJkyIULFyxdjRw58ssvv5w1a1ZAQEB0dHRqauqwYcO6du3aq1evOXPmvPnmm0888cTLL79cWlravXv3+fPnCyGioqIyMjKmT5+uVqtHjx4dFhZmr/cBANAwKkVR7F2Dg3rnnXeCgoKGDBliPpboUHQ6nZeXV5N0pZSWVK14vkm6Amr43sOrz9Bx9q7ifwKrKn68Z9RtNj59+vTs2bNTU1NDQkKatSo0GAd5AQBSIsAAAFIiwAAAUiLAAABSIsAAAFIiwAAAUiLAAABSIsAAAFIiwAAAUiLAAABSIsAAAFIiwAAAUiLAAABSIsAAAFIiwAAAUrLbhJZwECqNRt2te5N0ZZ4C28nJ4X6pjEajWq1WqVT2LuQ3FEUxGAxOTk4OWJjJZNJoNI3vytPJZVRZSeP7MVMURTTuzfJTO9ZbjUZyuM8a2Jp7C+dZTzVJT5WlpQaDwV2rbZLemlDVjRvObm5N8onchAwGQ1lRkVardbTINxqNVeXlbh4eje+qixD7G9/Lr4qLi9VqtaenZ9N1CblxCBEAICUCDAAgJQIMACAlAgwAICUCDAAgJQIMACAlAgwAICUCDAAgJQIMACAlAgwAICUCDAAgJQIMACAlAgwAICUCDAAgJQIMACAlAgwAbO369eulpaWNb3OHI8AAwNYmTZq0fv36xre5wxFgAAApEWAA0Iw+/PDDvn37tmjRonPnzq+//roQYsCAAenp6QkJCePGjRNCZGVl3XfffW3atPHy8ho+fPiZM2dubqPT6Z588smgoCBvb+8JEyacP3/evi/KQRBgANBcfvzxx8mTJ48dO/bw4cN//etf4+LivvjiixMnTkRGRiYlJe3bt08IMWHCBJ1Ot3Xr1g8++EBRlNmzZwsharSJiYn5/vvvN23atH//fk9Pz6FDhxYUFNj5tTkAJ3sXAAC/W+fPn9fr9bNmzQoODu7fv39oaGhAQED1BoqizJw5c9KkSZ07dxZCXL16NT4+vkYnx44dO3LkSG5urlarFUJs2rSpffv26enpEyZMsNkLcUwEGAA0lyFDhowePfquu+4aO3bsmDFj/vznP3t5eVVvoFKpnnrqqQMHDmzbtu3UqVOfffaZRqOp0UlmZqZer/fz87OsMRgMFy5csMULcGwcQgSA5uLu7v7JJ5+cOnXqrrvuSklJCQwM/OCDD6o3KC0tHTx48MKFCw0Gw5w5c958882bO/H29m7btq2+GkVR4uLibPUiHBcBBgDNJS0tbdmyZaGhoStWrPjqq69Gjx69cePG6g0OHDiQkZFx5MiRF1544Y9//KPJZLq5k549e167di0zM9P8MDs7e9CgQWfPnrXFC3BsHEIEgOaiUqn+9re/abXa0aNHZ2RknDhx4oknnhBCqNXqS5cuFRUV+fr6VlVV7dq165577jlx4sTzzz9fVlaWl5fXunVrS5uQkJCYmJj77rtv9erVLi4uy5cvLy0tDQ0NtfeLsz/2wACguYwYMeL1119fs2ZNeHj4woUL//znPy9atEgIERsb++67786cOfPuu+9+6aWXXnjhhT59+mzduvXjjz8OCgqKioqq3kYIsXnz5lGjRs2ePfv+++/38fHZu3fvzV+V3YFUiqLYuwYH9c477wQFBQ0ZMsTV1dXetdSk0+lqfBXsCEpLSw0Gg/lEKYdy48YNNzc3R/uDNxgMRUVFWq3WycmxDoQYjcby8nIPDw97F1JTcXGxWq329PS0zXCnT5+ePXt2ampqSEiIbUZEfbEHBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkJJjTUQEAL9vhu1bFL3e3lUIzYDB6pA/2LuKxiLAAMB2jN+dFRXl9q5CqLt0FUL6AKvrEGJZWdnEiROzs7NtVg0AALeprgBr0aJFWVnZ4cOHbVYNAAC3ycohxJdeeik+Pv7KlSt9+/b18PCwrL/77rubuTAAAOpiJcAGDRokhDh69GiN9YqiNFdFAADcBisBRlABAByT9evACgoKdu/e/dprrwkhzp49azQam78qAACssLIH9sMPPwwbNkylUuXk5MTFxc2ePbu0tHTv3r1BQUG2qQ8AgFpZ2QOLj48fPXr01atXnZychBDvvfde69at4+LibFIbAAC3ZGUP7PDhw2lpaRqNxvywffv2S5YsmTJlSvMXBgBAXazsgXl7e5eX/+ai8aqqqurn0wMAYBdWAiwqKurFF18sKioyP8zMzJw/f/6ECROavzAAAOpiJcBWrlwphPD39zcYDO3atevZs2dYWJh5JQAAdmTlOzBvb++0tLRjx45lZmZ6e3vfdddd3bp1s01lAADUwfrd6Kuqqtq2bdu2bVvzwytXrgghOI0eAGBfVgJsx44d06ZNq3Eeh+AOHQAAe7MSYM8888wjjzzywgsvuLu726YgeRm/TBcVFbfaul1oLgtVY/of2b7DwG5dG9PD75JSXGw6feJWW8uEaq3QGI1GtVqtUjXq/W9yiqIY9HonZ2fbF/YHL8+YfuE2HhQyOnPmzBNPPPHFF1/Yu5DaWQmw/Pz8hISETp062aQYuRkP7lcKC261NWXA8LTWbRrT/8s/ZxNgN1MK8w37dt9qa7GL23OjJgqNsy1Lul0qIVxc7DJyzLXrMXYZGKimqqrKpXF/AlbOQoyMjMzMzGzMAAAAeRkMhnnz5gUHB//hD384ffq0EOLQoUNjxowxb33vvff+8pe/CCHOnDkzYsSImJiY9u3b9+jR4+uvvzY32LhxY6dOnXr06BEfH29ueerUqT/96U/z588fP378jBkz1q9fb245e/bsNWvW1Ku22gPs81/NmDFj7ty5L7/88v79+z+vpkHvAwBAMidPnhwxYkRWVtaUKVNef/31OloePHhw6tSpV69eveeee5KSkoQQFy5cWLp06dGjRw8fPvzhhx9aWqalpYWGhn700UdRUVH79u0TQiiKsmfPnokTJ9arttoPIQ4fPrz6wyVLltRooNfr6zUMAEBGQUFBMTExQoghQ4Z8++23dbQMDAycPHmyEGL8+PFvvPGGEGLXrl0PPPBAQECAECI2NvaHH34wt2zVqtXjjz8uhBgzZsxjjz2m1+tPnToVEBBQ3/Pbaw8w8gkAIISwXEOlVtdyxK76Gen+/v7mBcvtc7Ozsy2ZFBAQYAkwc6QJIbRabVhYWHp6+qeffmqOyXqxfh2YTqfbtGlTRkaGXq/v2bPn9OnTtVptfYcBAMio1rNkTSaTeSE/P7+Olv7+/jk5Oebla9euWdZXz0LzUcT//ve/27Ztq29tVk7iyMjI6NKly4oVK3JycgoKCl555ZXg4ODvvvuuvsMAAH4fPD09T506lZeXd+PGjZSUlDpaRkdHb9u2LTc3t7CwcPPmzbVm4bhx4zZt2lRVVdWzZ8/6VmJlD2zOnDmDBg3asWOH+TqwioqKBx98cO7cuWlpafUdCQDwO9C3b9+YmJiQkBAhxMSJEw0Gw61ahoWFJSQk9OvXLyAgIDo6utYvp3r37u3k5NSA44fCaoCdOHFi3759lquY3dzcFi9ePHbs2AaMBACQS+/evS1XMd9777333nuvEEKlUr399ts3tzxx4v/fUmDUqFGjRo0SQpw5c+batWtXr15VFGXq1Knjxo0TQoSHh9e4MtrX17dZAszDw6P6gUshxLVr1zp37tyAkQAAd5TQ0NDc3Nzu3bt7enoOHz586tSpNRoYDIbjx48XFxcPHDiwAf1bCbDly5fPmzdP/Hpi/cGDB+Pi4tavX280Gs0NLGebAABQnbOzs+U65Vrt3r07Pj5+3bp1DbuhmpUAe+655woKCsyn9ltERUWZFzp16nTp0qUGjAoAwKRJkyZNmtTgp1sJsD179tSx1dXVtcEDAwDQGFYCzHxc8vDhw5mZmQaDoWfPnn/84x8d7a7eAIA7kJUAy8vLi4qK+uqrrzp27KjRaC5fvty3b999+/a1atXKNvUBAFArKxcyz58/X61WX7hw4eLFi+fPn7948aJGo4mLi7NNcQAA3IqVPbDPPvts27ZtlptZBQYGrlq1asqUKXU85eGHH66srFSr1YqitGnTZtq0abWeH6koysqVK5955plLly794x//WLVqVYNfAwDgDmT9Xog3q373xlq98cYb7du3r6ysPHDgQHJy8saNG2+e0FlRFMtVb83HYDA4OTXkNQIAHJyVD/dRo0Y988wzO3bsCAwMFEL89NNPixYtGj169O107erqOnbs2A0bNvzyyy8ffvhh9+7dzbfwWLt2bVBQ0DfffKPX6xMSEp566imj0fjWW2+dPHlSo9EsXLiwS5cuQohdu3bt3bu3vLy8c+fOCxcuNN9BOC0tLTU11cXFJTw8vLi4OD4+Xghx6NChrVu3VlRU9O3b9/HHH3dzc8vKykpNTW3Xrt2PP/64YsWKm7syGo1r1649efKkSqWaMmVKdHR0I99HAICNWfkObPXq1SaTqUuXLiEhId26devSpYter697TjOLqqqq/fv3m0wmf3///v37nzp1Svy64zVw4MBnn33W2dnZPOlZVlZWWFjY+vXrIyMjd+/eLYTQ6XQ7duxITEzctGmTVqvdv3+/ECInJ+c///nPypUrExMTjx8/bh4lOzs7JSXlhRdeSElJqaio2L59u3n9N998ExgYuGzZslq7Sk9PNz/x//7v/zZu3FhRUdHA9w8AYCdW9sBat2597NixQ4cOZWRkCCF69OgxfPhwq6fRL1iwQKVSGQwGHx+f+Ph4Dw+PPn36rF271mg0ZmVl+fr6+vv7W+7GL4Tw9/cfPHiwEOIPf/jDlStXhBAtW7Z86623PD09i4uLhRBlZWVCiKNHj0ZGRvr6+gohRo4cmZ2dLYQ4fvx4ZGRkhw4dhBBTpkxJTk6OjY0VQnh5eZl3+GrtSghRUlJy+fLlkJCQnTt3WirJz89fsGCBeblVq1ZBQUFlZWXl5eW381a6mUzNenmBQa8vKioyLxuNRsuy4zCZTIqi2LgwdWkpVyPWl2Iy1fFjUhTF9j/H22G+AZDNCistLbXNQGgw698PffHFF507dx4+fPgHH3zwxhtvfPHFF4sWLar7i6XXX3+9ffv21de0bNmyU6dOGRkZp0+fHjRoUI32lgnGqkfj9u3bv/rqK19fX5PJ1KZNGyFEfn6+ZcI0X19fc4AVFhb6+fmZV/r5+RUUFFga1NFVZGSkTqdLSkqqqqqaNGmSZR5rZ2fnHj16mJdv3LghhFCr1bd5u6zmvjxOpVZZ3naTyeSA3+2ZbzVt48JU3MysAVSqOn5MiqI45pfHJpNJVWflTYv75Dk+K78Kr7766tNPP71nzx4fH5/Y2NgxY8asW7eurKzspZdequ9I4eHhp06dOnny5KJFi2psuvmj//Dhwz/88MPKlStbtmy5a9cu879CWq22sLDQ3MDyX5iPj09eXp55OT8/38fHp0aftXZVWFg4bNiw6OjoixcvJiYmhoaGduvWTQjh5eX13HPPmZ/4zjvvCCHc3Nxu84YjVSqVlZNbGkejcfLw8DAv63Q6y7LjKC0tNRgMNi7M5O7O9OH1pVKp6vgxGY3G8vJyB/wFKy4uVqvVNivs5lPP4Gisfwe2atWq8ePHb9myJTg4eOfOnUlJSampqQ0YKTw8PC0tzWAwdOzY0bzGaDTe6oRGnU7n7e3dokULnU5nfpYQIiIiIj09vbi4uLS09MCBA+aIGjBgwJEjR3JycoxG486dOyMiIm6nqwMHDqxZs8ZoNPr7+6vVar4DAwDpWNkDu379uvk+9J988sn48eOFED179vzll18aMFLnzp01Go3l+KFare7Vq9ecOXMSEhJubjxy5Mgvv/xy1qxZ5mnQUlNThw0b1rVr15iYmAULFvj6+kZERJijqEOHDjNmzFi6dKler+/du/dDDz10O11FRUVlZGRMnz5drVaPHj06LCysAa8IAGBHVgKse/fu7733nlar/fjjj//+978LIT799NMa32/VsHXr1ltt8vDwMJ+sYbZs2TLzguUq5n79+vXr108I4enpmZiYaGlpnkXt0qVLRUVFb7/9tqIoycnJ4eHh5q0jRowYMWJE9YG6du1q6bPWroQQL774Yp0vHQCanuuyV+xdwu+HlUOIy5cvT05ODgkJGTp0aGho6LJly+Li4swzhNWL0Wj8/vvvy8rKzLNQN0zHjh2LioqefPLJp59+2tfX17xrCAC4M1nZA4uOjs7Kyjp//vyQIUOEEEOHDk1LS6uxu3M7jh8//u9///uvf/1rY07V02g0Tz31VIOfDgD4PbF+QmrHjh0vX768adMmy3QqDRhm8ODB1Q8eAgDQSEynAgCQEtOpAACk1PTTqQAAYANW9sBqZXU6FQAAmpuVADNPp/LTTz+ZH9ZrOhUAAJpPM06nAgBA82mW6VQAAGhutQfYsWPHqj90d3e33LfJPJPkwIEDm7syAADqUHuA3TxlVw2cxwEAsK/aA8x8o3cAABxW7QH27bff+vn5BQQEnDlzptYGvXv3bs6qAOD3qdOXJ3UGo72rEKuCO81s18beVTRW7QHWp0+fhISEVatW9enTp9YGHEIEgAYoMhiKHSDAKk0me5fQBGoPsIqKCo1GY16wbT0AANyW2gPM1dXVslBVVXXzFMyWm0vBwnn6Y8J4y3+s/qnX64yN2m3t4OvbmKf/XqkD2rvMW3irrW0U5USlvrKy0sXFWaVqyH1nmo/JZLxRVtayRQu1WmPjoX1aBNt4RKA5WLkObMeOHdOmTSsvL6+xnkOIN1O1Dahja8Pn8UTdXFxV7QNvtdFZiP5C3Lhxw83NzXxQwXEYDIaioiKtVuvkZH1WIwA3s/KX88wzzzzyyCMvvPCCu7u7bQoCAOB2WAmw/Pz8hISETp062aQYAABul5VvBSIjIzMzM21TCgAAt6/2PbDPP//cvDBjxoy5c+eeO3euf//+1Y8i3n333baoDgCAW6g9wIYPH1794ZIlS2o00Ov1zVQQAAC3o/YAI58AAA7O+vm7Op1u06ZNGRkZer2+Z8+e06dP12q1NqgMAIA6WDmJIyMjo0uXLitWrMjJySkoKHjllVeCg4O/++472xQHAMCtWNkDmzNnzqBBg3bs2GE+g6OiouLBBx+cO3duWlqaTcoDAKB2VgLsxIkT+/bts5x/6Obmtnjx4rFjxzZ/YQAA1MXKIUQPD49r165VX3Pt2rXOnTs3Z0kAAFhnZQ9s+fLl8+bNE7+eWH/w4MG4uLj169cbf71rraPdXw4AcIewsgf23HPP5eTkTJ48uXXr1q1bt548efJPP/0UFRXl5OTk5OTUtWtX21QJAHBkJpPpgQceEEJ8/vnnI0aMsM2gVvbA9uzZU8dWy6wrAIA7maIoH374oRAiLCzsjTfesM2gVgJs4MCBtqkDAOCAPv300/j4+JKSkhEjRrz66qs+Pj5CiFWrVq1du7akpKR3797vvvtumzZt7r///srKyoEDB65Zs2bx4sUHDhw4c+bMggULtFrt8ePHvby8tm7d2qdPHyHExo0bX3zxRXd393Hjxl2/fn3z5s0Nrs2xpvgDADiO3NzcBx98MDU19cKFC66urgsWLBBC5OXl/f3vfz98+HBOTk6bNm02bNgghHjvvfdcXV2PHTtW/ekHDx6cOnXq1atX77nnnqSkJCHEhQsXli5devTo0cOHD5v32BqDAAMA1G737t0jRowICwvTaDSLFy8+evSoEMLb2/vChQtBQUHFxcUqlUqn093q6YGBgZMnT1apVOPHjy8uLhZC7Nq164EHHggICPDz84uNjW1keUwFCwCoXXZ29ueff963b1/zw1atWpkXXnrppY8//rhdu3ZGo7GOCSP9/f3NC5bz1bOzs4OCgszLAQEBP/zwQ2PKI8AAALXz9/cfPXr0li1bhBBlZWXff/+9EOLdd989fvz4559/rtVqV61aVVBQcKunq1SqmzvMyckxL9e4yLgBOIQIAKhdVFTU/v37z549W1VV9fTTT7/55ptCiLy8PD8/Py8vr7y8vI0bN1pmLzEYDCaTqe4Oo6Ojt23blpubW1hYuHnz5psTrl4IMABA7YKCgt58883Jkyd36NDh559/XrVqlRBi2rRpBQUFnTt3fuihh+bNm5eamnrq1CmNRjNy5MiwsLC6OwwLC0tISOjXr9+9994bHR1tOSbZMBxCBADc0v3333///fdXX+Pr63vo0CHLw8cee8y88PHHH5sXDhw4IITo3bv3iRMnzGtGjRo1atQoIcSZM2euXbt29epVRVGmTp06bty4xtRGgAEAbCQ0NDQ3N7d79+6enp7Dhw+fOnVqY3ojwAAANuLs7Lx+/fqm6o3vwAAAUiLAAABSIsAAAFIiwAAAUiLAAABSIsAAAM5bOgkAAA0CSURBVFIiwAAAUiLAAABSIsAAAFIiwAAAUiLAAABSIsAAAFIiwAAAUuJu9ABgO8O13jeMVqYttoFAN1d7l9AECDAAsJ337+ph7xJ+PziECACQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJASAQYAkBIBBgCQEgEGAJCSk70LwG2pWvasoiiWhy6KUqlSWR7eHT70oltLe9T1G+b6VFZa2YHikFWJ30Vh9xgq3x13b/NWA9wCASYHpbxMVAuwGh8uOo2m0NnZxiUBQohSfYW9S8Cdi0OIAAApEWAAACkRYAAAKRFgAAApEWAAACkRYAAAKRFgAAApEWAAACkRYAAAKRFgAAApEWAAACkRYAAAKRFgAAApEWAAACkRYAAAKTlQgJlMptjY2Hnz5tW6NTMz8/nnn691k6Ior7zyyq26tWzNyspauHBhk5QKALA7Bwqws2fPenp6Xr9+PTs7u8Ymg8EQFBT02GOP1fpERVFOnDhxq27r3goAkJQDBVh6evqoUaMGDRqUnp5uXpOVlbV8+fJ//etfy5Ytu3r16ltvvSWEMBqNq1ev/stf/hIbG/vhhx8KIRITE/V6fUJCghDi0KFDTzzxxPTp01evXl1RUVFjq8XXX389d+7cWbNmrV69urS01NYvFQDQaE72LuD/MxqNX3755WuvvXblypWNGzc++OCD5vXffPNNRETEzJkzs7KyzGvS09Ozs7NTUlJyc3Pj4uLGjBnz7LPPPvDAA0lJSeb1iYmJbdu2TU5O3r59e2xsrGWrpYfi4uKVK1cmJiYGBgauW7cuJSVlwYIF5k0VFRWW+MzLywsKCjIYDLZ9JwCpKKKystI2Q5lMJiFsN5xer7fNQGgwRwmwM2fOBAUFtW7d2sfHJzk5OTs7u3379kIILy+vsWPH1mhcUlJy+fLlkJCQnTt3il9/rYUQx48fj4yM7NChgxBiypQpycnJsbGxN4917NixsLCwoKAgIcTkyZOXLFli2VRUVLR48WLzcp8+fcLDw8vLy5v+1dafp70LAGqlKKaSkhKbDWc0Gm2WK2VlZbYZCA3mKAF25MiRc+fOTZs2TQhRXl6enp5u3gnz9fWt0TIyMlKn0yUlJVVVVU2aNGnixImWTYWFhX5+fuZlPz+/goKCWsfKz8/PzMy07HV5ev4vHfz9/dPS0szL27dvF0J4eHi4uro2yWtsjCp7FwDUSqVWt2rVyjZj6XQ6tVrt4eFhm+G8vLxsMxAazCECzGAwHDt2bP369ea4On78+JYtW8wBplKpajQuLCwcNmxYdHT0xYsXExMTQ0NDg4ODzZt8fHzy8vLMy/n5+T4+PrUOp9Vq+/TpEx8fL4SorKy8evWqZZNarbb81jo5OZkLuLkGABY2/gOx2XD84Ts+hziJ46uvvmrbtq1lZ6t3794///zzzecimh04cGDNmjVGo9Hf31+tVpvP1DAajYqiDBgw4MiRIzk5OUajcefOnREREeanmLdaeggPD//666+vXLliMBg2bNiwd+/eZn59AICm5xABlp6e3r9/f8tDV1fXsLAwy8kUNURFRZlMpunTpz/11FORkZFhYWFqtbpXr15z5szp0KHDjBkzli5dOmvWLCcnp4ceekgIYdlq6cHf3/+JJ554+eWXZ8yYkZ+fP2PGjOZ+gQCAJqeqvmuC6t55552goKAhQ4Y4wndglYvni1v/pML+GHW+Bed5wA7Gl5Xsiap5mlUzKS4uVqvV1b+0blanT5+ePXt2ampqSEiIbUZEfTnEHhgAAPVFgAEApESAAQCkRIABAKREgAEApESAAQCkRIABAKREgAEApESAAQCkRIABAKREgAEApESAAQCkRIABAKREgAEApESAAQCk5GTvAnBb1F27C/G/+cAMBoOT0/9+doMN+o5lJfao6zcUIYSiOOBE7OY3ztHKUoRQFEXleO9Xvd6u3q4uzVgKUCcCTA7Os/5a/WG5Tufu5WV5uNHm9dSqtLTUYDBotVp7F1LTjRs33NzcNBqNvQv5DYPBUFRUpNVqq/8v4giMRmN5ebmHh4e9CwGs4BAiAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEpO9i7AoZ0/f97FxcXZ2dnehdRUVlbWokULe1dRU3l5udFo9PDwsHchNVVUVLi4uKjVjvXvmtFoLC0t9fDw0Gg09q7lN0wmU2Vlpbu7u70LqenGjRsqlcpmv/lZWVm2GQgNRoDdktFofOutt+xdBQC7sWVeogFUiqLYuwYH9dNPP8XExDz++OORkZH2rkUO//rXv65evbps2TJ7FyKHS5cuLV26dOnSpd26dbN3LXJYvny5n5/fk08+abMRPTw8AgMDbTYc6os9sFvy9fUVQgQEBPTo0cPetcjB29s7Ly+Pt6teOnXqxDt2m9zd3b28vHi7YOFY3woAAHCbOIR4SyaT6ZdffvHx8eEg+G0qLCzU6/X+/v72LkQOVVVV169f9/Pzc3FxsXctcrh+/bpGozEfGgEEAQYAkBSHEAEAUuIkjtp9991369at0+l0Q4cOffTRRx3tEiKHdeTIkUGDBjnglXOO5ssvv/zPf/5TVFTUuXPnuXPn+vn52bsih7Z79+73339fr9f36tVr7ty5bm5u9q4IDoHP5VoYjcbk5OTZs2evX7/+/Pnzhw8ftndFcsjKynr11Vf1er29C3F0ubm5r7/++ty5czdt2hQcHPzPf/7T3hU5tIsXL77//vsrV6785z//WVRU9P7779u7IjgKAqwWZ86cad26da9evdzc3KKjow8ePGjviiSwYsWKxYsXG41GexcigYyMjO7du4eEhKhUqqioqHPnztm7Iod27dq14cOHt27d2sPDIyIi4tq1a/auCI6CQ4i1yM3NtVy9GBgYeP36dfvWI4UlS5YIISZPnmzvQiQwaNCg/v37m5czMjKCg4PtW4+DGzx48ODBg4uLi8+dO3fo0KGHH37Y3hXBUbAHVouSkhLLjeDc3d11Op1968HvjJubm/mOkUeOHHn77bcfeeQRe1ckgXPnzm3cuLGiooJbY8CCPbBaeHh4WA5TlJeXO+DdaSG7kpKS1atX5+XlLVu2LCgoyN7lSCAiIiIiIiItLW3dunV/+9vf7F0OHAJ7YLVo06ZNdna2efnnn39u06aNfevB74xer1+6dGlAQMBrr71Gelm1Z8+ePXv2mJeDg4N//vln+9YDx0GA1aJ3796//PLLxYsXTSbTRx99NGzYMHtXhN+VL774wt3d/dFHH1WpVPauRQL+/v579+4tKytTFOWTTz4JDQ21d0VwFBxCrIVGo1m8ePHq1asrKysjIiJGjBhh74rwu5KVlfXtt99OmDDB/NDLy2vLli32LcmRRUREXLp0KS4urrKyMjQ01JZ3o4eD41ZSAAApcQgRACAlAgwAICUCDAAgJQIMACAlAgwAICUCDAAgJQIMACAlAgx3qOvXr5eWlgohKisrVSrVmTNn7F0RgPohwHCHmjRp0vr164UQGo0mISGBOZEB6XArKdzpnJycVq1aZe8qANQbe2C4Ew0YMCA9PT0hIWHcuHHVDyE6Ozv/4x//CAwMbNmy5ciRI7OzsxcsWNC2bVt/f/81a9aYn6vT6Z588smgoCBvb+8JEyacP3/eri8FuHMRYLgTnThxIjIyMikpad++fTU2JScnb9269b///e+5c+e6devm5eV16NChiRMnxsfHFxUVCSFiYmK+//77TZs27d+/39PTc+jQoQUFBfZ4EcCdjkOIwG8sW7YsMjJSCBETE/PZZ58tX75cCPH888+npKRkZ2efO3fuyJEjubm5Wq1WCLFp06b27dunp6dbbi0PwGYIMOA3LDPW+/j4WGab9PHxMS9kZmbq9frqZ3wYDIYLFy7YuEgAggAD6nDzhJPe3t5t27b95Zdf7FIPgOr4Dgyoh549e167di0zM9P8MDs7e9CgQWfPnrVvVcCdiQDDHUqtVl+6dMl8XsbtCwkJiYmJue+++z766KO0tLSpU6eWlpYyyT1gFwQY7lCxsbHvvvvuzJkz6/vEzZs3jxo1avbs2ffff7+Pj8/evXs1Gk1zVAigbipFUexdAwAA9cYeGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASgQYAEBKBBgAQEoEGABASv8PII87A4lRNKoAAAAASUVORK5CYII=" style="display: block; margin: auto;" /></p>
 <p>As we can see, the simulation stopped very soon at a point in which every philosopher holds one fork and waits for the other to be available. The solution originally proposed by Dijkstra establishes the convention that all resources must be requested in order. This means that, in our simulation, Aristotle should pick fork 1 first instead:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fork_seq<span class="op">$</span>Aristotle &lt;-<span class="st"> </span><span class="kw">rev</span>(fork_seq<span class="op">$</span>Aristotle)
-
-<span class="kw">simulate</span>(fork_seq, <span class="dt">time=</span><span class="dv">50</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">print</span>() <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">philosophers_gantt</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
-<span class="co">#&gt; simmer environment: Dining philosophers | now: 50 | next: 50.8938627796418</span>
-<span class="co">#&gt; { Monitor: in memory }</span>
-<span class="co">#&gt; { Resource: fork_1 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: fork_2 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: fork_3 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span>
-<span class="co">#&gt; { Resource: fork_4 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span>
-<span class="co">#&gt; { Source: Socrates_ | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Source: Pythagoras_ | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Source: Plato_ | monitored: 1 | n_generated: 1 }</span>
-<span class="co">#&gt; { Source: Aristotle_ | monitored: 1 | n_generated: 1 }</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">fork_seq<span class="op">$</span>Aristotle &lt;-<span class="st"> </span><span class="kw">rev</span>(fork_seq<span class="op">$</span>Aristotle)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw">simulate</span>(fork_seq, <span class="dt">time=</span><span class="dv">50</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="st">  </span><span class="kw">print</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="st">  </span><span class="kw">philosophers_gantt</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt; simmer environment: Dining philosophers | now: 50 | next: 50.8938627796418</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt; { Monitor: in memory }</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co">#&gt; { Resource: fork_1 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#&gt; { Resource: fork_2 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="co">#&gt; { Resource: fork_3 | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="co">#&gt; { Resource: fork_4 | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co">#&gt; { Source: Socrates_ | monitored: 1 | n_generated: 1 }</span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co">#&gt; { Source: Pythagoras_ | monitored: 1 | n_generated: 1 }</span></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co">#&gt; { Source: Plato_ | monitored: 1 | n_generated: 1 }</span></a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co">#&gt; { Source: Aristotle_ | monitored: 1 | n_generated: 1 }</span></a></code></pre></div>
 <p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
 <p>There are multiple solutions to this starvation problem, but this is probably the most straightforward way to break the <em>circularity</em> of the initial algorithm by making one philosopher pick the left fork first.</p>
 </div>
