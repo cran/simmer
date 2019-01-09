@@ -2,7 +2,7 @@
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
-required <- c("simmer.plot", "dplyr")
+required <- c("simmer.plot")
 
 if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
@@ -34,8 +34,8 @@ bank <-
 
 bank %>% run(until = 400)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -64,8 +64,8 @@ bank <-
 
 bank %>% run(until = 400)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ------------------------------------------------------------------------
 library(simmer)
@@ -204,16 +204,11 @@ bank <- simmer()
 
 customer <-
   trajectory("Customer's path") %>%
-  log_(function() {
-         capacity <-
-           get_mon_resources(bank) %>%
-           dplyr::filter(resource == "door") %>%
-           .$capacity
-         if (length(capacity) == 0 || tail(capacity, 1) == 0) {
-           return("Here I am but the door is shut.")
-         }
-         "Here I am and the door is open."
-       }) %>%
+  log_(function()
+    if (get_capacity(bank, "door") == 0)
+      "Here I am but the door is shut."
+    else "Here I am and the door is open."
+  ) %>%
   seize("door") %>%
   log_("I can go in!") %>%
   release("door") %>%
@@ -241,8 +236,8 @@ bank <-
 
 bank %>% run(until = maxTime)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -282,8 +277,8 @@ bank %>%
 
 bank %>% run(until = maxTime)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -321,8 +316,8 @@ bank %>%
 
 bank %>% run(until = maxTime)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  get_capacity
@@ -390,7 +385,7 @@ bank <-
 bank %>% run(until = 400)
 customer_monitor <-
   get_mon_arrivals(bank) %>%
-  dplyr::mutate(wait = end_time - start_time - activity_time)
+  transform(wait = end_time - start_time - activity_time)
 mean_waiting_time <- mean(customer_monitor$wait)
 
 resource_monitor <- get_mon_resources(bank)

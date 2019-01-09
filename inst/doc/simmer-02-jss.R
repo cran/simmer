@@ -256,13 +256,12 @@ mm1.envs <- mclapply(1:100, function(i) {
     wrap()
 }, mc.set.seed=FALSE)
 
-## ---- mm1-replication-test, eval=requireNamespace("dplyr", quietly=TRUE)----
+## ---- mm1-replication-test-----------------------------------------------
 mm1.data <-
   get_mon_arrivals(mm1.envs) %>%
-  dplyr::group_by(replication) %>%
-  dplyr::summarise(mean = mean(end_time - start_time))
+  aggregate(end_time - start_time ~ replication, data=., mean)
 
-t.test(mm1.data[["mean"]])
+t.test(mm1.data[[2]])
 
 ## ---- beep-1-------------------------------------------------------------
 beep <- trajectory() %>%

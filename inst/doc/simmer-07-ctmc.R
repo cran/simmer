@@ -2,7 +2,7 @@
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
-required <- c("simmer.plot", "dplyr", "tidyr")
+required <- c("simmer.plot")
 
 if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
@@ -84,7 +84,7 @@ option.3 <- function(t) {
 gas.station <- option.3(5000)
 
 # Evolution + theoretical value
-plot(gas.station, "resources", "usage", "pump", items="system") +
+plot(get_mon_resources(gas.station), "usage", "pump", items="system") +
   geom_hline(yintercept=N_average_theor)
 
 ## ---- eval=FALSE---------------------------------------------------------
@@ -214,27 +214,18 @@ option.5 <- function(t) {
 gas.station <- option.1(5000)
 
 # Evolution + theoretical value
-plot(gas.station, "resources", "usage", "pump", items="system") + 
+plot(get_mon_resources(gas.station), "usage", "pump", items="system") + 
   geom_hline(yintercept=N_average_theor)
 
 ## ------------------------------------------------------------------------
 gas.station <- option.5(5000)
 
-limits <- data.frame(item = c("system"), value = c(2))
-
-get_mon_resources(gas.station) %>% 
-  tidyr::gather(item, value, server, queue, system) %>%
-  dplyr::mutate(value = round(value * 2/5),                  # rescaling here <------
-         item = factor(item)) %>%
-  dplyr::filter(item %in% "system") %>%
-  dplyr::group_by(resource, replication, item) %>%
-  dplyr::mutate(mean = c(0, cumsum(head(value, -1) * diff(time))) / time) %>% 
-  dplyr::ungroup() %>%
-  ggplot() + aes(x=time, color=item) +
-  geom_line(aes(y=mean, group=interaction(replication, item))) +
-  ggtitle("Resource usage: pump") +
-  ylab("in use") + xlab("time") + expand_limits(y=0) +
-  geom_hline(aes(yintercept=value, color=item), limits, lty=2) + 
+get_mon_resources(gas.station) %>%
+  transform(system = round(system * 2/5)) %>% # rescaling
+  transform(avg = c(0, cumsum(head(system, -1) * diff(time))) / time) %>%
+  ggplot(aes(time, avg)) + geom_line(color="red") + expand_limits(y=0) +
+  labs(title="Resource usage: pump", x="time", y="in use") +
+  geom_hline(yintercept=2, lty=2, color="red") + 
   geom_hline(yintercept=N_average_theor)
 
 ## ---- eval=FALSE---------------------------------------------------------

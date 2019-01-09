@@ -2,11 +2,6 @@
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
-required <- c("dplyr")
-
-if (!all(sapply(required, requireNamespace, quietly = TRUE)))
-  knitr::opts_chunk$set(eval = FALSE)
-
 ## ------------------------------------------------------------------------
 library(simmer)
 
@@ -21,7 +16,7 @@ bank <-
   add_generator("Customer", customer, at(5))
 
 bank %>% run(until = 100)
-bank %>% get_mon_arrivals
+bank %>% get_mon_arrivals()
 
 ## ------------------------------------------------------------------------
 library(simmer)
@@ -39,7 +34,7 @@ bank <-
   add_generator("Customer", customer, at(rexp(1, 1/5)))
 
 bank %>% run(until = 100)
-bank %>% get_mon_arrivals
+bank %>% get_mon_arrivals()
 
 ## ------------------------------------------------------------------------
 # Function to specify a series of waiting times, that loop around
@@ -88,7 +83,7 @@ bank <-
   add_generator("Customer", customer, at(2, 5, 12))
 
 bank %>% run(until = 400)
-bank %>% get_mon_arrivals
+bank %>% get_mon_arrivals()
 
 ## ------------------------------------------------------------------------
 library(simmer)
@@ -122,7 +117,7 @@ bank <-
   add_generator("Evelyn", Evelyn, at(12))
 
 bank %>% run(until = 400)
-bank %>% get_mon_arrivals
+bank %>% get_mon_arrivals()
 
 ## ------------------------------------------------------------------------
 library(simmer)
@@ -138,7 +133,7 @@ bank <-
   add_generator("Customer", customer, from_to(0, 41, function() {10}))
 
 bank %>% run(until = 400)
-bank %>% get_mon_arrivals
+bank %>% get_mon_arrivals()
 
 ## ------------------------------------------------------------------------
 library(simmer)
@@ -156,7 +151,7 @@ bank <-
   add_generator("Customer", customer, function() {c(0, rexp(4, 1/10), -1)})
 
 bank %>% run(until = 400)
-bank %>% get_mon_arrivals
+bank %>% get_mon_arrivals()
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -182,8 +177,8 @@ bank <-
 
 bank %>% run(until = 400)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -210,8 +205,8 @@ bank <-
 
 bank %>% run(until = 400)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -235,8 +230,8 @@ bank <-
 
 bank %>% run(until = 400)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -262,12 +257,12 @@ bank <-
 
 bank %>% run(until = 400)
 bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(service_start_time = end_time - activity_time) %>%
-  dplyr::arrange(start_time)
+  get_mon_arrivals() %>%
+  transform(service_start_time = end_time - activity_time) %>%
+  .[order(.$start_time),]
 bank %>%
-  get_mon_resources %>%
-  dplyr::arrange(time)
+  get_mon_resources() %>%
+  .[order(.$time),]
 
 ## ---- message = FALSE----------------------------------------------------
 library(simmer)
@@ -289,8 +284,8 @@ bank %>% run(until = 1000)
 
 result <-
   bank %>%
-  get_mon_arrivals %>%
-  dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+  get_mon_arrivals() %>%
+  transform(waiting_time = end_time - start_time - activity_time)
 
 ## ---- message = FALSE----------------------------------------------------
 paste("Average wait for ", sum(result$finished), " completions was ",
@@ -317,8 +312,8 @@ mclapply(c(393943, 100005, 777999555, 319999772), function(the_seed) {
   bank %>% run(until = 400)
   result <-
     bank %>%
-    get_mon_arrivals %>%
-    dplyr::mutate(waiting_time = end_time - start_time - activity_time)
+    get_mon_arrivals() %>%
+    transform(waiting_time = end_time - start_time - activity_time)
   paste("Average wait for ", sum(result$finished), " completions was ",
         mean(result$waiting_time), "minutes.")
 }) %>% unlist()

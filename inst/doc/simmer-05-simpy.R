@@ -2,11 +2,6 @@
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
-required <- c("dplyr")
-
-if (!all(sapply(required, requireNamespace, quietly = TRUE)))
-  knitr::opts_chunk$set(eval = FALSE)
-
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 library(simmer)
 
@@ -61,7 +56,6 @@ env <- simmer()
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 make_parts <- function(machine)
   trajectory() %>%
-    set_attribute("parts", 0) %>%
     seize(machine, 1) %>%
     timeout(function() rnorm(1, PT_MEAN, PT_SIGMA)) %>%
     set_attribute("parts", 1, mod="+") %>%
@@ -103,10 +97,7 @@ env %>%
   run(SIM_TIME) %>% invisible
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
-get_mon_attributes(env) %>%
-  dplyr::group_by(name) %>%
-  dplyr::slice(n()) %>%
-  dplyr::arrange(name)
+aggregate(value ~ name, get_mon_attributes(env), max)
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 library(simmer)
@@ -174,23 +165,20 @@ env %>%
 ## ---- message=FALSE, warning=FALSE---------------------------------------
 # get the three rows with the sold out instants
 sold_time <- get_mon_resources(env) %>%
-  dplyr::filter(resource != "counter" & capacity == 0)
+  subset(resource != "counter" & capacity == 0)
 
 # get the arrivals that left at the sold out instants
 # count the number of arrivals per movie
-n_reneges <- dplyr::left_join(
-  get_mon_arrivals(env) %>%
-    dplyr::filter(finished == FALSE & end_time %in% sold_time$time),
-  get_mon_attributes(env)
-) %>%
-  dplyr::mutate(resource = movies[value]) %>%
-  dplyr::group_by(resource) %>%
-  dplyr::count()
+n_reneges <- get_mon_arrivals(env) %>%
+  subset(finished == FALSE & end_time %in% sold_time$time) %>%
+  merge(get_mon_attributes(env)) %>%
+  transform(resource = movies[value]) %>%
+  aggregate(value ~ resource, data=., length)
 
 # merge the info  and print
-invisible(apply(dplyr::left_join(sold_time, n_reneges), 1, function(i) {
+invisible(apply(merge(sold_time, n_reneges), 1, function(i) {
   cat("Movie '", i["resource"], "' was sold out in ", i["time"], " minutes.\n", 
-      "  Number of people that left the queue: ", i["n"], "\n", sep="")
+      "  Number of people that left the queue: ", i["value"], "\n", sep="")
 }))
 
 ## ---- message=FALSE, warning=FALSE---------------------------------------
