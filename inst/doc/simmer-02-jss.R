@@ -1,5 +1,5 @@
 ## ---- setup, include=FALSE-----------------------------------------------
-knitr::opts_chunk$set(fig.width=5, fig.height=3, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(fig.width=4, fig.height=3*4/5, warning=FALSE, message=FALSE)
 
 knitr::knit_hooks$set(document = function(x, options) {
   # fix line width
@@ -14,9 +14,7 @@ knitr::include_graphics("includes/jss-job-shop.pdf")
 
 ## ---- job-shop-1---------------------------------------------------------
 library("simmer")
-
 set.seed(1234)
-
 (env <- simmer("Job Shop"))
 
 RUNNING <- function() rexp(1, 1)
@@ -43,12 +41,13 @@ job <- trajectory() %>%
   release("operative") %>%
   release("machine")
 
+## ---- job-shop-3---------------------------------------------------------
 task <- trajectory() %>%
   seize("operative") %>%
   timeout(AWAY) %>%
   release("operative")
 
-## ---- job-shop-3---------------------------------------------------------
+## ---- job-shop-4---------------------------------------------------------
 env %>%
   add_resource("machine", 10) %>%
   add_resource("operative", 5) %>%
@@ -56,7 +55,7 @@ env %>%
   add_generator("task", task, NEW_TASK) %>%
   run(until=1000)
 
-## ---- job-shop-4---------------------------------------------------------
+## ---- job-shop-5---------------------------------------------------------
 aggregate(cbind(server, queue) ~ resource, get_mon_resources(env), mean)
 
 ## ---- trajectory-1-------------------------------------------------------
@@ -76,15 +75,16 @@ traj2 <- join(traj0[c(1, 3)], traj0[2])
 traj2[1] <- traj2[3]
 traj2
 
-## ---- trajectory-attributes----------------------------------------------
+## ---- trajectory-attributes-1--------------------------------------------
 env <- simmer()
 
+## ---- trajectory-attributes-2--------------------------------------------
 traj <- trajectory() %>%
   set_attribute("weight", 80) %>%
   set_attribute("weight", 1, mod="+") %>%
   log_(function() paste0("My weight is ", get_attribute(env, "weight")))
 
-## ---- trajectory-seize-advanced------------------------------------------
+## ---- trajectory-seize-advanced-1----------------------------------------
 patient <- trajectory() %>%
   log_("arriving...") %>%
   seize(
@@ -97,56 +97,58 @@ patient <- trajectory() %>%
       log_("nurse seized") %>%
       timeout(2) %>%
       release("nurse", 1) %>%
-      log_("nurse released")
-  ) %>%
+      log_("nurse released")) %>%
   timeout(5) %>%
   release("doctor", 1) %>%
   log_("doctor released")
 
+## ---- trajectory-seize-advanced-2----------------------------------------
 env <- simmer() %>%
   add_resource("doctor", capacity = 1, queue_size = 0) %>%
   add_resource("nurse", capacity = 10, queue_size = 0) %>%
   add_generator("patient", patient, at(0, 1)) %>%
   run()
 
-## ---- trajectory-sources-------------------------------------------------
+## ---- trajectory-sources-1-----------------------------------------------
 traj <- trajectory() %>%
   deactivate("dummy") %>%
   timeout(1) %>%
   activate("dummy")
 
+## ---- trajectory-sources-2-----------------------------------------------
 simmer() %>%
   add_generator("dummy", traj, function() 1) %>%
   run(10) %>%
   get_mon_arrivals()
 
-## ---- trajectory-branching-----------------------------------------------
+## ---- trajectory-branching-1---------------------------------------------
 env <- simmer()
 
+## ---- trajectory-branching-2---------------------------------------------
 traj <- trajectory() %>%
   branch(
     option = function() round(now(env)), continue = c(FALSE, TRUE),
     trajectory() %>% log_("branch 1"),
-    trajectory() %>% log_("branch 2")
-  ) %>%
+    trajectory() %>% log_("branch 2")) %>%
   clone(
     n = 2,
     trajectory() %>% log_("clone 0"),
-    trajectory() %>% log_("clone 1")
-  ) %>%
+    trajectory() %>% log_("clone 1")) %>%
   synchronize(wait = TRUE) %>%
   log_("out")
 
+## ---- trajectory-branching-3---------------------------------------------
 env %>%
   add_generator("dummy", traj, at(1, 2)) %>%
   run() %>% invisible
 
-## ---- trajectory-loops---------------------------------------------------
+## ---- trajectory-loops-1-------------------------------------------------
 hello <- trajectory() %>%
   log_("Hello!") %>%
   timeout(1) %>%
   rollback(amount = 2, times = 2)
 
+## ---- trajectory-loops-2-------------------------------------------------
 simmer() %>%
   add_generator("hello_sayer", hello, at(0)) %>%
   run() %>% invisible
@@ -159,34 +161,33 @@ roller <- trajectory() %>%
   release("rollercoaster", 1) %>%
   separate()
 
-## ---- trajectory-async---------------------------------------------------
+## ---- trajectory-async-1-------------------------------------------------
 t_blocked <- trajectory() %>%
   trap(
     "you shall pass",
     handler = trajectory() %>%
-      log_("got a signal!")
-  ) %>%
+      log_("got a signal!")) %>%
   log_("waiting...") %>%
   wait() %>%
   log_("continuing!")
 
+## ---- trajectory-async-2-------------------------------------------------
 t_signal <- trajectory() %>%
   log_("you shall pass") %>%
   send("you shall pass")
 
+## ---- trajectory-async-3-------------------------------------------------
 simmer() %>%
   add_generator("blocked", t_blocked, at(0)) %>%
   add_generator("signaler", t_signal, at(5)) %>%
   run() %>% invisible
 
-## ---- trajectory-reneging------------------------------------------------
+## ---- trajectory-reneging-1----------------------------------------------
 bank <- trajectory() %>%
   log_("Here I am") %>%
   renege_in(
-    5,
-    out = trajectory() %>%
-      log_("Lost my patience. Reneging...")
-  ) %>%
+    5, out = trajectory() %>%
+      log_("Lost my patience. Reneging...")) %>%
   seize("clerk", 1) %>%
   renege_abort() %>%
   log_("I'm being attended") %>%
@@ -194,6 +195,7 @@ bank <- trajectory() %>%
   release("clerk", 1) %>%
   log_("Finished")
 
+## ---- trajectory-reneging-2----------------------------------------------
 simmer() %>%
   add_resource("clerk", 1) %>%
   add_generator("customer", bank, at(0, 1)) %>%
@@ -206,35 +208,32 @@ env <- simmer() %>%
   print()
 
 ## ---- simmer-2-----------------------------------------------------------
-env %>%
-  run(until=30)
+env %>% run(until=30)
 
-## ---- mm1-simulation-----------------------------------------------------
-library("simmer")
-
+## ---- mm1-simulation-1---------------------------------------------------
 set.seed(1234)
-
 lambda <- 2
 mu <- 4
 rho <- lambda/mu
 
+## ---- mm1-simulation-2---------------------------------------------------
 mm1.traj <- trajectory() %>%
   seize("mm1.resource", amount=1) %>%
   timeout(function() rexp(1, mu)) %>%
   release("mm1.resource", amount=1)
 
+## ---- mm1-simulation-3---------------------------------------------------
 mm1.env <- simmer() %>%
   add_resource("mm1.resource", capacity=1, queue_size=Inf) %>%
   add_generator("arrival", mm1.traj, function() rexp(1, lambda)) %>%
   run(until=2000)
 
-## ---- mm1-plot, echo=FALSE, eval=requireNamespace("simmer.plot", quietly=TRUE), out.width='.49\\linewidth', fig.height=4, fig.cap='Detail of the resource usage\\label{mm1-plot}.', fig.subcap=c("Instantaneous usage.", "Convergence over time.")----
+## ---- mm1-plot, echo=FALSE, eval=requireNamespace("simmer.plot", quietly=TRUE), out.width='.49\\linewidth', fig.asp=4/5, fig.cap='Detail of the resource usage\\label{mm1-plot}.', fig.subcap=c("Instantaneous usage.", "Convergence over time.")----
 library("simmer.plot")
 
 mm1.env.res <- get_mon_resources(mm1.env)
 
-plot(mm1.env.res, "usage", "mm1.resource",
-     items=c("server", "queue"), steps=TRUE) +
+plot(mm1.env.res, "usage", "mm1.resource", items=c("server", "queue"), steps=TRUE) +
   theme_bw() + xlim(0, 15) + ylim(0, 5) +
   theme(legend.justification=c(0, 1), legend.position=c(0.01, 0.99))
 
@@ -242,74 +241,72 @@ plot(mm1.env.res, "usage", "mm1.resource", items="system") +
   theme_bw() + geom_hline(yintercept=rho/(1-rho)) +
   theme(legend.justification=c(1, 0), legend.position=c(0.99, 0.01))
 
-## ---- mm1-replication----------------------------------------------------
-library("simmer")
+## ---- mm1-replication-1--------------------------------------------------
 library("parallel")
-
 set.seed(1234)
 
+## ---- mm1-replication-2--------------------------------------------------
 mm1.envs <- mclapply(1:100, function(i) {
   simmer() %>%
     add_resource("mm1.resource", capacity=1, queue_size=Inf) %>%
     add_generator("arrival", mm1.traj, function() rexp(100, lambda)) %>%
-    run(until=1000/lambda) %>%
-    wrap()
+    run(until=1000/lambda) %>% wrap()
 }, mc.set.seed=FALSE)
 
 ## ---- mm1-replication-test-----------------------------------------------
-mm1.data <-
-  get_mon_arrivals(mm1.envs) %>%
+mm1.data <- get_mon_arrivals(mm1.envs) %>%
   aggregate(end_time - start_time ~ replication, data=., mean)
-
 t.test(mm1.data[[2]])
 
 ## ---- beep-1-------------------------------------------------------------
 beep <- trajectory() %>%
   log_("beeeep!")
 
+## ---- beep-2-------------------------------------------------------------
 env <- simmer() %>%
   add_generator("beep", beep, function() 1) %>%
   run(2.5)
 
-## ---- beep-2-------------------------------------------------------------
+## ---- beep-3-------------------------------------------------------------
 alarm <- trajectory() %>%
   timeout(1) %>%
   log_("beeeep!") %>%
   rollback(2)
 
+## ---- beep-4-------------------------------------------------------------
 env <- simmer() %>%
   add_generator("alarm", alarm, at(0)) %>%
   run(2.5)
 
-## ---- xgn----------------------------------------------------------------
+## ---- xgn-1--------------------------------------------------------------
 xgn <- function(resource, G, n)
   trajectory() %>%
     seize(resource, n) %>%
     timeout(G) %>%
     release(resource, n)
 
+## ---- xgn-2--------------------------------------------------------------
 (mm1.traj <- xgn("mm1.resource", function() rexp(1, mu), 1))
 
-## ---- best-coding--------------------------------------------------------
+## ---- best-coding-1------------------------------------------------------
 set.seed(1234)
 env <- simmer()
 
+## ---- best-coding-2------------------------------------------------------
 traj <- trajectory() %>%
   log_(function() paste0("Current simulation time: ", now(env)))
 
+## ---- best-coding-3------------------------------------------------------
 env <- env %>%
   add_generator("dummy", traj, at(rexp(1, 1))) %>%
   run()
 
 ## ---- performance-mm1-simmer, eval=FALSE---------------------------------
-#  library("simmer")
-#  
 #  test_mm1_simmer <- function(n, m, mon=FALSE) {
 #    mm1 <- trajectory() %>%
 #      seize("server", 1) %>%
 #      timeout(function() rexp(1, 1.1)) %>%
 #      release("server", 1)
-#  
 #    env <- simmer() %>%
 #      add_resource("server", 1, mon=mon) %>%
 #      add_generator("customer", mm1, function() rexp(m, 1), mon=mon) %>%
@@ -326,13 +323,11 @@ env <- env %>%
 #            dt = random.expovariate(lambd)
 #            yield env.timeout(dt)
 #            env.process(customer(env, server, mu))
-#  
 #    def customer(env, server, mu):
 #        with server.request() as req:
 #            yield req
 #            dt = random.expovariate(mu)
 #            yield env.timeout(dt)
-#  
 #    env = simpy.Environment()
 #    server = simpy.Resource(env, capacity=1)
 #    env.process(exp_source(env, 1, server, 1.1))
@@ -361,14 +356,12 @@ env <- env %>%
 #        Process(env, customer, server, mu)
 #      end
 #    end
-#  
 #    function customer(env::Environment, server::Resource, mu::Float64)
 #      yield(Request(server))
 #      dt = rand(Exponential(1/mu))
 #      yield(Timeout(env, dt))
 #      yield(Release(server))
 #    end
-#  
 #    env = Environment()
 #    server = Resource(env, 1)
 #    Process(env, exp_source, 1.0, server, 1.1)
@@ -388,26 +381,20 @@ env <- env %>%
 ## ---- performance-mm1-ref, eval=FALSE------------------------------------
 #  n <- 1e4L
 #  times <- 20
-#  
 #  ref <- data.frame(
 #    SimPy = rPython::python.call("benchmark", n, times),
-#    SimJulia = rjulia::j2r(paste0("benchmark(", n, ".0, ", times, ")"))
-#  )
+#    SimJulia = rjulia::j2r(paste0("benchmark(", n, ".0, ", times, ")")))
 
 ## ---- performance-mm1-plot, echo=FALSE, out.width='.49\\linewidth', fig.cap='Performance comparison.', fig.subcap=c('Boxplots for 20 runs of the M/M/1 test with \\code{n=1e4}.\\label{performance-mm1-init}', 'Performance evolution with the batch size $m$.\\label{performance-mm1-plot}')----
 knitr::include_graphics(c("includes/jss-benchmark-boxplot.pdf", "includes/jss-benchmark-batched.pdf"))
 
 ## ---- performance-simmer-------------------------------------------------
-library("simmer")
-
 test_simmer <- function(n, delay) {
   test <- trajectory() %>%
     timeout(delay)
-
   env <- simmer() %>%
     add_generator("test", test, at(1:n)) %>%
     run(Inf)
-
   arrivals <- get_mon_arrivals(env)
 }
 
@@ -418,7 +405,6 @@ test_simmer <- function(n, delay) {
 #    end_time <- numeric(n)
 #    activity_time <- logical(n)
 #    finished <- numeric(n)
-#  
 #    for (i in 1:n) {
 #      name[i] <- paste0("test", i-1)
 #      start_time[i] <- i
@@ -426,28 +412,17 @@ test_simmer <- function(n, delay) {
 #      activity_time[i] <- 1
 #      finished[i] <- TRUE
 #    }
-#  
-#    arrivals <- data.frame(
-#      name=name,
-#      start_time=start_time,
-#      end_time=end_time,
-#      activity_time=activity_time,
-#      finished=finished,
-#      replication = 1
-#    )
+#    arrivals <- data.frame(name = name, start_time = start_time,
+#      end_time = end_time, activity_time = activity_time,
+#      finished = finished, replication = 1)
 #  }
 
 ## ---- performance-R2, eval=FALSE-----------------------------------------
 #  test_R_lapply <- function(n) {
 #    as.data.frame(do.call(rbind, lapply(1:n, function(i) {
-#      list(
-#        name = paste0("test", i - 1),
-#        start_time = i,
-#        end_time = i + 1,
-#        activity_time = 1,
-#        finished = TRUE,
-#        replication = 1
-#      )
+#      list(name = paste0("test", i - 1), start_time = i,
+#        end_time = i + 1, activity_time = 1, finished = TRUE,
+#        replication = 1)
 #    })))
 #  }
 
