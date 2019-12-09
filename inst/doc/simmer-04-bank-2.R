@@ -1,4 +1,4 @@
-## ---- cache = FALSE, include=FALSE---------------------------------------
+## ---- cache = FALSE, include=FALSE--------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
@@ -7,7 +7,7 @@ required <- c("simmer.plot")
 if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(1933)
@@ -37,7 +37,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(1933)
@@ -67,7 +67,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 
 timeInBank <- 12 # mean, minutes
@@ -110,7 +110,7 @@ bank %>% run(until = maxTime)
 number_balked <- sum(!get_mon_arrivals(bank)$finished)
 paste("Balking rate is", number_balked / now(bank), "customers per minute.")
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 timeInBank <- 15 # mean, minutes
@@ -150,7 +150,7 @@ bank <-
 
 bank %>% run(until = maxTime)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 timeInBank <-  20
@@ -194,7 +194,7 @@ bank <-
 
 bank %>% run(until = maxTime)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 maxTime = 400
@@ -239,7 +239,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 maxTime = 150
@@ -280,7 +280,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 maxTime = 150
@@ -319,7 +319,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  get_capacity
 #  get_mon_arrivals
 #  get_mon_attributes
@@ -330,7 +330,7 @@ bank %>%
 #  get_queue_size
 #  get_server_count
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 library(simmer.plot)
 # library(ggplot2) # (automatically loaded with simmer.plot)
@@ -359,7 +359,7 @@ bank %>%
   xlab("Time spent in the system") +
   ylab("Number of customers")
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(1234)
@@ -402,7 +402,7 @@ mean_waiting_customers <- sum(queue_state * time_state_lasted) / time_at_end
 cat(" Average waiting = ", mean_waiting_customers, "\n",
     "Average active  = ", mean_active_customers, "\n")
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 library(simmer.plot)
 

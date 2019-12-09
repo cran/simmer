@@ -1,8 +1,8 @@
-## ---- cache = FALSE, include=FALSE---------------------------------------
+## ---- cache = FALSE, include=FALSE--------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 
 customer <-
@@ -18,7 +18,7 @@ bank <-
 bank %>% run(until = 100)
 bank %>% get_mon_arrivals()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 
 set.seed(10212)
@@ -36,7 +36,7 @@ bank <-
 bank %>% run(until = 100)
 bank %>% get_mon_arrivals()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to specify a series of waiting times, that loop around
 loop <- function(...) {
     time_diffs <- c(...)
@@ -54,7 +54,7 @@ loop <- function(...) {
 x <- loop(10, 7, 20)
 x(); x(); x(); x(); x()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 
 # Function to specify a series of waiting times in a loop
@@ -85,7 +85,7 @@ bank <-
 bank %>% run(until = 400)
 bank %>% get_mon_arrivals()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 
 # Create a template trajectory
@@ -119,7 +119,7 @@ bank <-
 bank %>% run(until = 400)
 bank %>% get_mon_arrivals()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 
 customer <-
@@ -135,7 +135,7 @@ bank <-
 bank %>% run(until = 400)
 bank %>% get_mon_arrivals()
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(simmer)
 
 set.seed(1289)
@@ -153,7 +153,7 @@ bank <-
 bank %>% run(until = 400)
 bank %>% get_mon_arrivals()
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(1234)
@@ -180,7 +180,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(1269)
@@ -208,7 +208,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(1269)
@@ -233,7 +233,7 @@ bank %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(1014)
@@ -264,7 +264,7 @@ bank %>%
   get_mon_resources() %>%
   .[order(.$time),]
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 
 set.seed(100005)
@@ -287,11 +287,11 @@ result <-
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time)
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 paste("Average wait for ", sum(result$finished), " completions was ",
       mean(result$waiting_time), "minutes.")
 
-## ---- message = FALSE----------------------------------------------------
+## ---- message = FALSE---------------------------------------------------------
 library(simmer)
 library(parallel)
 

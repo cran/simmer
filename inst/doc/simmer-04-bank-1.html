@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -13,7 +12,7 @@
 
 <meta name="author" content="Duncan Garmonsway" />
 
-<meta name="date" content="2019-07-30" />
+<meta name="date" content="2019-12-09" />
 
 <title>The Bank Tutorial: Part I</title>
 
@@ -304,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">The Bank Tutorial: Part I</h1>
 <h4 class="author">Duncan Garmonsway</h4>
-<h4 class="date">2019-07-30</h4>
+<h4 class="date">2019-12-09</h4>
 
 
 <div id="TOC">
@@ -661,18 +660,12 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb8-42" data-line-number="42">bank <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb8-43" data-line-number="43"><span class="st">  </span><span class="kw">get_mon_arrivals</span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb8-44" data-line-number="44"><span class="st">  </span><span class="kw">transform</span>(<span class="dt">waiting_time =</span> end_time <span class="op">-</span><span class="st"> </span>start_time <span class="op">-</span><span class="st"> </span>activity_time)</a>
-<a class="sourceLine" id="cb8-45" data-line-number="45"><span class="co">#&gt;        name start_time end_time activity_time finished replication</span></a>
-<a class="sourceLine" id="cb8-46" data-line-number="46"><span class="co">#&gt; 1 Customer0    0.00000 12.00000            12     TRUE           1</span></a>
-<a class="sourceLine" id="cb8-47" data-line-number="47"><span class="co">#&gt; 2 Customer1   25.01759 37.01759            12     TRUE           1</span></a>
-<a class="sourceLine" id="cb8-48" data-line-number="48"><span class="co">#&gt; 3 Customer2   27.48517 49.01759            12     TRUE           1</span></a>
-<a class="sourceLine" id="cb8-49" data-line-number="49"><span class="co">#&gt; 4 Customer3   27.55099 61.01759            12     TRUE           1</span></a>
-<a class="sourceLine" id="cb8-50" data-line-number="50"><span class="co">#&gt; 5 Customer4   44.97846 73.01759            12     TRUE           1</span></a>
-<a class="sourceLine" id="cb8-51" data-line-number="51"><span class="co">#&gt;   waiting_time</span></a>
-<a class="sourceLine" id="cb8-52" data-line-number="52"><span class="co">#&gt; 1     0.000000</span></a>
-<a class="sourceLine" id="cb8-53" data-line-number="53"><span class="co">#&gt; 2     0.000000</span></a>
-<a class="sourceLine" id="cb8-54" data-line-number="54"><span class="co">#&gt; 3     9.532411</span></a>
-<a class="sourceLine" id="cb8-55" data-line-number="55"><span class="co">#&gt; 4    21.466592</span></a>
-<a class="sourceLine" id="cb8-56" data-line-number="56"><span class="co">#&gt; 5    16.039131</span></a></code></pre></div>
+<a class="sourceLine" id="cb8-45" data-line-number="45"><span class="co">#&gt;        name start_time end_time activity_time finished replication waiting_time</span></a>
+<a class="sourceLine" id="cb8-46" data-line-number="46"><span class="co">#&gt; 1 Customer0    0.00000 12.00000            12     TRUE           1     0.000000</span></a>
+<a class="sourceLine" id="cb8-47" data-line-number="47"><span class="co">#&gt; 2 Customer1   25.01759 37.01759            12     TRUE           1     0.000000</span></a>
+<a class="sourceLine" id="cb8-48" data-line-number="48"><span class="co">#&gt; 3 Customer2   27.48517 49.01759            12     TRUE           1     9.532411</span></a>
+<a class="sourceLine" id="cb8-49" data-line-number="49"><span class="co">#&gt; 4 Customer3   27.55099 61.01759            12     TRUE           1    21.466592</span></a>
+<a class="sourceLine" id="cb8-50" data-line-number="50"><span class="co">#&gt; 5 Customer4   44.97846 73.01759            12     TRUE           1    16.039131</span></a></code></pre></div>
 <p>Examining the trace we see that the first two customers get instant service but the others have to wait. We still only have five customers, so we cannot draw general conclusions.</p>
 </div>
 <div id="a-server-with-a-random-service-time" class="section level3">
@@ -868,28 +861,17 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb11-59" data-line-number="59">bank <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb11-60" data-line-number="60"><span class="st">  </span><span class="kw">get_mon_resources</span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb11-61" data-line-number="61"><span class="st">  </span>.[<span class="kw">order</span>(.<span class="op">$</span>time),]</a>
-<a class="sourceLine" id="cb11-62" data-line-number="62"><span class="co">#&gt;    resource     time server queue capacity queue_size system limit</span></a>
-<a class="sourceLine" id="cb11-63" data-line-number="63"><span class="co">#&gt; 1  counter1  0.00000      1     0        1        Inf      1   Inf</span></a>
-<a class="sourceLine" id="cb11-64" data-line-number="64"><span class="co">#&gt; 2  counter2 23.71444      1     0        1        Inf      1   Inf</span></a>
-<a class="sourceLine" id="cb11-65" data-line-number="65"><span class="co">#&gt; 3  counter1 30.40110      1     1        1        Inf      2   Inf</span></a>
-<a class="sourceLine" id="cb11-66" data-line-number="66"><span class="co">#&gt; 4  counter2 32.41632      1     1        1        Inf      2   Inf</span></a>
-<a class="sourceLine" id="cb11-67" data-line-number="67"><span class="co">#&gt; 5  counter2 33.94103      1     0        1        Inf      1   Inf</span></a>
-<a class="sourceLine" id="cb11-68" data-line-number="68"><span class="co">#&gt; 6  counter2 39.53020      0     0        1        Inf      0   Inf</span></a>
-<a class="sourceLine" id="cb11-69" data-line-number="69"><span class="co">#&gt; 7  counter2 48.85593      1     0        1        Inf      1   Inf</span></a>
-<a class="sourceLine" id="cb11-70" data-line-number="70"><span class="co">#&gt; 8  counter2 55.39645      0     0        1        Inf      0   Inf</span></a>
-<a class="sourceLine" id="cb11-71" data-line-number="71"><span class="co">#&gt; 9  counter1 62.10372      1     0        1        Inf      1   Inf</span></a>
-<a class="sourceLine" id="cb11-72" data-line-number="72"><span class="co">#&gt; 10 counter1 62.38853      0     0        1        Inf      0   Inf</span></a>
-<a class="sourceLine" id="cb11-73" data-line-number="73"><span class="co">#&gt;    replication</span></a>
-<a class="sourceLine" id="cb11-74" data-line-number="74"><span class="co">#&gt; 1            1</span></a>
-<a class="sourceLine" id="cb11-75" data-line-number="75"><span class="co">#&gt; 2            1</span></a>
-<a class="sourceLine" id="cb11-76" data-line-number="76"><span class="co">#&gt; 3            1</span></a>
-<a class="sourceLine" id="cb11-77" data-line-number="77"><span class="co">#&gt; 4            1</span></a>
-<a class="sourceLine" id="cb11-78" data-line-number="78"><span class="co">#&gt; 5            1</span></a>
-<a class="sourceLine" id="cb11-79" data-line-number="79"><span class="co">#&gt; 6            1</span></a>
-<a class="sourceLine" id="cb11-80" data-line-number="80"><span class="co">#&gt; 7            1</span></a>
-<a class="sourceLine" id="cb11-81" data-line-number="81"><span class="co">#&gt; 8            1</span></a>
-<a class="sourceLine" id="cb11-82" data-line-number="82"><span class="co">#&gt; 9            1</span></a>
-<a class="sourceLine" id="cb11-83" data-line-number="83"><span class="co">#&gt; 10           1</span></a></code></pre></div>
+<a class="sourceLine" id="cb11-62" data-line-number="62"><span class="co">#&gt;    resource     time server queue capacity queue_size system limit replication</span></a>
+<a class="sourceLine" id="cb11-63" data-line-number="63"><span class="co">#&gt; 1  counter1  0.00000      1     0        1        Inf      1   Inf           1</span></a>
+<a class="sourceLine" id="cb11-64" data-line-number="64"><span class="co">#&gt; 2  counter2 23.71444      1     0        1        Inf      1   Inf           1</span></a>
+<a class="sourceLine" id="cb11-65" data-line-number="65"><span class="co">#&gt; 3  counter1 30.40110      1     1        1        Inf      2   Inf           1</span></a>
+<a class="sourceLine" id="cb11-66" data-line-number="66"><span class="co">#&gt; 4  counter2 32.41632      1     1        1        Inf      2   Inf           1</span></a>
+<a class="sourceLine" id="cb11-67" data-line-number="67"><span class="co">#&gt; 5  counter2 33.94103      1     0        1        Inf      1   Inf           1</span></a>
+<a class="sourceLine" id="cb11-68" data-line-number="68"><span class="co">#&gt; 6  counter2 39.53020      0     0        1        Inf      0   Inf           1</span></a>
+<a class="sourceLine" id="cb11-69" data-line-number="69"><span class="co">#&gt; 7  counter2 48.85593      1     0        1        Inf      1   Inf           1</span></a>
+<a class="sourceLine" id="cb11-70" data-line-number="70"><span class="co">#&gt; 8  counter2 55.39645      0     0        1        Inf      0   Inf           1</span></a>
+<a class="sourceLine" id="cb11-71" data-line-number="71"><span class="co">#&gt; 9  counter1 62.10372      1     0        1        Inf      1   Inf           1</span></a>
+<a class="sourceLine" id="cb11-72" data-line-number="72"><span class="co">#&gt; 10 counter1 62.38853      0     0        1        Inf      0   Inf           1</span></a></code></pre></div>
 <p>The results show that the customers chose the counter with the smallest number. Unlucky Customer2 who joins the wrong queue has to wait until Customer0 finishes at time 62.10372, and is the last to leave. There are, however, too few arrivals in these runs, limited as they are to five customers, to draw any general conclusions about the relative efficiencies of the two systems.</p>
 </div>
 <div id="the-bank-with-a-monitor-aka-summary-statistics" class="section level3">

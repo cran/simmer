@@ -1,4 +1,4 @@
-## ---- cache = FALSE, include=FALSE---------------------------------------
+## ---- cache = FALSE, include=FALSE--------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
@@ -7,12 +7,12 @@ required <- c("simmer.plot")
 if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 library(simmer)
 library(simmer.plot)
 set.seed(1234)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 lambda <- 3
 mu <- 4
 
@@ -26,11 +26,11 @@ mm23.env <- simmer() %>%
   add_generator("arrival", m.queue, function() rexp(1, lambda)) %>%
   run(until=2000)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 get_mon_arrivals(mm23.env) %>%
   with(sum(!finished) / length(finished))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Theoretical value
 rho <- lambda/mu
 div <- 1 / c(1, 1, factorial(2) * 2^(2:3-2))
@@ -40,7 +40,7 @@ mm23.N <- sum(0:3 * rho^(0:3) * div) / sum(rho^(0:3) * div)
 plot(get_mon_resources(mm23.env), "usage", "server", items="system") +
   geom_hline(yintercept=mm23.N)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 update.delay <- trajectory() %>%
   set_attribute(c("start", "multiplier", "delay"), function() {
     # previous multiplier, service time left
@@ -53,7 +53,7 @@ update.delay <- trajectory() %>%
   }) %>%
   timeout_from_attribute("delay")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sd.queue <- trajectory() %>%
   seize("sd.server") %>%
   # initialisation
@@ -67,7 +67,7 @@ sd.queue <- trajectory() %>%
   release("sd.server") %>%
   send("update delay")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 lambda <- mu <- 4
 capacity <- 2
 arrivals <- data.frame(time=rexp(2000*lambda, lambda))
@@ -85,7 +85,7 @@ env %>%
   get_mon_resources() %>%
   plot(metric="usage", c("server", "sd.server"))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 mean_pkt_size <- 100        # bytes
 lambda1 <- 2                # pkts/s
 lambda3 <- 0.5              # pkts/s
@@ -102,7 +102,7 @@ md1 <- function(., id)
   timeout(function() get_attribute(env, "size") / rate) %>%
   release(paste0("md1_", id), 1)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 to_queue_1 <- trajectory() %>%
   set_msg_size() %>%
   md1(1) %>%
@@ -122,7 +122,7 @@ to_queue_4 <- trajectory() %>%
   set_msg_size() %>%
   md1(4)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 env <- simmer()
 for (i in 1:4) env %>% 
   add_resource(paste0("md1_", i))
@@ -132,7 +132,7 @@ env %>%
   add_generator("arrival4_", to_queue_4, function() rexp(1, lambda4), mon=2) %>%
   run(4000)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 res <- get_mon_arrivals(env, per_resource = TRUE) %>%
   subset(resource %in% c("md1_3", "md1_4"), select=c("name", "resource"))
 

@@ -1,10 +1,10 @@
-## ----setup, cache=FALSE, include=FALSE-----------------------------------
+## ----setup, cache=FALSE, include=FALSE----------------------------------------
 knitr::opts_chunk$set(collapse=TRUE, echo=TRUE, eval=FALSE)
 knitr::read_chunk("includes/5G-1.R")
 knitr::read_chunk("includes/5G-2.R")
 knitr::read_chunk("includes/5G-3.R")
 
-## ----1.configuration-----------------------------------------------------
+## ----1.configuration----------------------------------------------------------
 #  C <- 40e9                                   # link capacity [bps]
 #  rho <- 0.75                                 # utilization
 #  
@@ -20,7 +20,7 @@ knitr::read_chunk("includes/5G-3.R")
 #  
 #  Tsim <- 1e5 / (FH_lambda + BH_lambda)       # simulation time
 
-## ----1.simulation--------------------------------------------------------
+## ----1.simulation-------------------------------------------------------------
 #  library(simmer)
 #  
 #  set.seed(1234)
@@ -75,7 +75,7 @@ knitr::read_chunk("includes/5G-3.R")
 #                               mc.cores=nrow(cases), mc.set.seed=FALSE)
 #  })
 
-## ----1.analysis----------------------------------------------------------
+## ----1.analysis---------------------------------------------------------------
 #  library(tidyverse)
 #  
 #  bp.vals <- function(x, probs=c(0.05, 0.25, 0.5, 0.75, 0.95)) {
@@ -112,7 +112,7 @@ knitr::read_chunk("includes/5G-3.R")
 #    theme(legend.justification=c(0, 1), legend.position=c(.02, .98)) +
 #    labs(y = "Queueing Delay [ns]", x = "No. of switches")
 
-## ----2.configuration-----------------------------------------------------
+## ----2.configuration----------------------------------------------------------
 #  C <- 1.25e9                           # link capacity [bps]
 #  Tg <- 1e-6                            # guard time [s]
 #  
@@ -127,7 +127,7 @@ knitr::read_chunk("includes/5G-3.R")
 #  RRH_period <- RRH_on * C / 720e6      # RRH total period [s]
 #  RRH_off <- RRH_period - RRH_on        # RRH off period [s]
 
-## ----2.helpers-----------------------------------------------------------
+## ----2.helpers----------------------------------------------------------------
 #  # helper function: round-robin-based selection of ONUs
 #  cyclic_counter <- function(n) {
 #    n <- as.numeric(n)
@@ -149,7 +149,7 @@ knitr::read_chunk("includes/5G-3.R")
 #  gen_exp <- function(lambda, burst) function()
 #    unlist(lapply(rexp(100/burst, lambda/burst), function(i) c(i, rep(0, rpois(1, burst)))))
 
-## ----2.simulation--------------------------------------------------------
+## ----2.simulation-------------------------------------------------------------
 #  library(simmer)
 #  
 #  set.seed(1234)
@@ -269,7 +269,7 @@ knitr::read_chunk("includes/5G-3.R")
 #                               mc.cores=nrow(cases), mc.set.seed=FALSE)
 #  })
 
-## ----2.analysis----------------------------------------------------------
+## ----2.analysis---------------------------------------------------------------
 #  library(tidyverse)
 #  
 #  bp.vals <- function(x, probs=c(0.05, 0.25, 0.5, 0.75, 0.95)) {
@@ -294,7 +294,7 @@ knitr::read_chunk("includes/5G-3.R")
 #    theme(legend.justification=c(0, 1), legend.position=c(.02, .98)) +
 #    labs(y=expression(paste("Queueing Delay [", mu, "s]")), x=element_blank(), color="Limit [bytes]")
 
-## ----3.configuration-----------------------------------------------------
+## ----3.configuration----------------------------------------------------------
 #  m <- 9            # number of RA retries
 #  Ps <- 0.03        # sleep power consumption [mW]
 #  Pi <- 10          # idle power consumption [mW]
@@ -321,7 +321,7 @@ knitr::read_chunk("includes/5G-3.R")
 #  tx_period <- 3600 # time between transmissions (seconds)
 #  Tsim <- 24*3600   # simulation time (seconds)
 
-## ----3.simulation--------------------------------------------------------
+## ----3.simulation-------------------------------------------------------------
 #  library(simmer)
 #  
 #  set.seed(1234)
@@ -393,7 +393,7 @@ knitr::read_chunk("includes/5G-3.R")
 #                               mc.cores=nrow(cases), mc.set.seed=FALSE)
 #  })
 
-## ----3.analysis----------------------------------------------------------
+## ----3.analysis---------------------------------------------------------------
 #  library(tidyverse)
 #  
 #  bp.vals <- function(x, probs=c(0.05, 0.25, 0.5, 0.75, 0.95)) {
