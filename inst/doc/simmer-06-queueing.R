@@ -41,6 +41,52 @@ plot(get_mon_resources(mm23.env), "usage", "server", items="system") +
   geom_hline(yintercept=mm23.N)
 
 ## -----------------------------------------------------------------------------
+env <- simmer()
+
+lifo <- trajectory() %>%
+  set_global("resource prio", 1, mod="+") %>%
+  set_prioritization(function() c(get_global(env, "resource prio"), NA, NA)) %>%
+  seize("resource") %>%
+  log_("processing") %>%
+  timeout(5) %>%
+  release("resource")
+
+env %>%
+  add_resource("resource") %>%
+  add_generator("dummy", lifo, at(0:4)) %>%
+  run() %>% invisible()
+
+## -----------------------------------------------------------------------------
+env <- simmer()
+
+custom <- trajectory() %>%
+  set_attribute("arrival time", function() now(env)) %>%
+  renege_if(
+    "recompute priority",
+    out = trajectory() %>%
+      # e.g., increase priority if wait_time < 3
+      set_prioritization(function() {
+        if (now(env) - get_attribute(env, "arrival time") < 3)
+          c(1, NA, NA)     # only change the priority
+        else c(NA, NA, NA) # don't change anything
+      }, mod="+") %>%
+      # go 2 steps back to renege_if
+      rollback(2)) %>%
+  seize("resource") %>%
+  renege_abort() %>%
+  log_("processing") %>%
+  timeout(5) %>%
+  # trigger this before releasing the resource
+  send("recompute priority") %>%
+  timeout(0) %>%
+  release("resource")
+
+env %>%
+  add_resource("resource") %>%
+  add_generator("dummy", custom, at(0:4)) %>%
+  run() %>% invisible()
+
+## -----------------------------------------------------------------------------
 update.delay <- trajectory() %>%
   set_attribute(c("start", "multiplier", "delay"), function() {
     # previous multiplier, service time left
