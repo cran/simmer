@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar, Bart Smeets" />
 
-<meta name="date" content="2020-04-10" />
+<meta name="date" content="2020-06-06" />
 
 <title>Advanced Trajectory Usage</title>
 
@@ -20,26 +20,27 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +49,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -301,7 +302,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Advanced Trajectory Usage</h1>
 <h4 class="author">Iñaki Ucar, Bart Smeets</h4>
-<h4 class="date">2020-04-10</h4>
+<h4 class="date">2020-06-06</h4>
 
 
 <div id="TOC">
@@ -313,34 +314,34 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </ul>
 </div>
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(simmer)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(simmer)</span></code></pre></div>
 <div id="available-set-of-activities" class="section level2">
 <h2>Available set of activities</h2>
 <p>When a generator creates an arrival, it couples the arrival to a given trajectory. A trajectory is defined as an interlinkage of activities which together form the arrivals’ lifetime in the system. Once an arrival is coupled to the trajectory, it will (in general) start processing activities in the specified order and, eventually, leave the system. Consider the following:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="st">  </span><span class="kw">seize</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="st">  </span><span class="kw">timeout</span>(<span class="dt">task =</span> <span class="dv">3</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="st">  </span><span class="kw">release</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="st">  </span><span class="kw">seize</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>) <span class="op">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="st">  </span><span class="kw">timeout</span>(<span class="dt">task =</span> <span class="dv">3</span>) <span class="op">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="st">  </span><span class="kw">release</span>(<span class="dt">resource =</span> <span class="st">&quot;doctor&quot;</span>, <span class="dt">amount =</span> <span class="dv">1</span>)</span></code></pre></div>
 <p>Here we create a trajectory where a patient <em>seizes</em> a doctor for 3 minutes and then <em>releases</em> him again. This is a very straightforward example, however, most of the trajectory-related functions allow for more advanced usage.</p>
 <p>Usage examples are provided in the help page for each activity. The complete set of activities can be found and navigated in the <a href="https://r-simmer.org/reference/#section-add-activities-to-trajectories">reference page</a>, or you can list them as follows:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">methods</span>(<span class="dt">class=</span><span class="st">&quot;trajectory&quot;</span>)</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt;  [1] activate                batch                   branch                 </span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="co">#&gt;  [4] clone                   deactivate              get_n_activities       </span></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt;  [7] handle_unfinished       join                    leave                  </span></a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt; [10] length                  log_                    plot                   </span></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt; [13] print                   release_all             release_selected_all   </span></a>
-<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt; [16] release_selected        release                 renege_abort           </span></a>
-<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt; [19] renege_if               renege_in               rep                    </span></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt; [22] rollback                seize_selected          seize                  </span></a>
-<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt; [25] select                  send                    separate               </span></a>
-<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt; [28] set_attribute           set_capacity_selected   set_capacity           </span></a>
-<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt; [31] set_global              set_prioritization      set_queue_size_selected</span></a>
-<a class="sourceLine" id="cb3-13" title="13"><span class="co">#&gt; [34] set_queue_size          set_source              set_trajectory         </span></a>
-<a class="sourceLine" id="cb3-14" title="14"><span class="co">#&gt; [37] stop_if                 synchronize             timeout_from_attribute </span></a>
-<a class="sourceLine" id="cb3-15" title="15"><span class="co">#&gt; [40] timeout                 [                       [&lt;-                    </span></a>
-<a class="sourceLine" id="cb3-16" title="16"><span class="co">#&gt; [43] [[                      [[&lt;-                    trap                   </span></a>
-<a class="sourceLine" id="cb3-17" title="17"><span class="co">#&gt; [46] untrap                  wait                   </span></a>
-<a class="sourceLine" id="cb3-18" title="18"><span class="co">#&gt; see &#39;?methods&#39; for accessing help and source code</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">methods</span>(<span class="dt">class=</span><span class="st">&quot;trajectory&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#&gt;  [1] activate                batch                   branch                 </span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt;  [4] clone                   deactivate              get_n_activities       </span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt;  [7] handle_unfinished       join                    leave                  </span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt; [10] length                  log_                    plot                   </span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt; [13] print                   release_all             release_selected_all   </span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt; [16] release_selected        release                 renege_abort           </span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt; [19] renege_if               renege_in               rep                    </span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt; [22] rollback                seize_selected          seize                  </span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt; [25] select                  send                    separate               </span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt; [28] set_attribute           set_capacity_selected   set_capacity           </span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt; [31] set_global              set_prioritization      set_queue_size_selected</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt; [34] set_queue_size          set_source              set_trajectory         </span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#&gt; [37] stop_if                 synchronize             timeout_from_attribute </span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt; [40] timeout                 [                       [&lt;-                    </span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co">#&gt; [43] [[                      [[&lt;-                    trap                   </span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="co">#&gt; [46] untrap                  wait                   </span></span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="co">#&gt; see &#39;?methods&#39; for accessing help and source code</span></span></code></pre></div>
 <p>Additionally, you may want to try the <code>simmer.bricks</code> package, a plugin for <code>simmer</code> which provides helper methods for trajectories. Each <em>brick</em> wraps a common activity pattern that can be used to build trajectories more conveniently (see the <a href="http://r-simmer.org/extensions/bricks/articles/introduction.html"><em>Introduction to <code>simmer.bricks</code></em></a>).</p>
 </div>
 <div id="dynamic-arguments" class="section level2">
@@ -350,136 +351,136 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>task: the timeout duration supplied by either passing a numeric or a callable object (a function) which must return a numeric.</p>
 </blockquote>
 <p>Be aware that if you want the <code>timeout()</code>’s <code>task</code> parameter to be evaluated dynamically, you should supply a callable function. For example in <code>timeout(function() rexp(1, 10))</code>, <code>rexp(1, 10)</code> will be evaluated every time the timeout activity is executed. However, if you supply it in the form of <code>timeout(rexp(1, 10))</code>, it will only be evaluated once when the trajectory is defined, and will remain static after that.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="st">  </span><span class="kw">timeout</span>(<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">10</span>)) <span class="op">%&gt;%</span><span class="st">        </span><span class="co"># fixed</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">10</span>)) <span class="co"># dynamic</span></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="co">#&gt; { Activity: Timeout      | delay: 0.0246759 }</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="co">#&gt; { Activity: Timeout      | delay: function() }</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="st">  </span><span class="kw">timeout</span>(<span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">10</span>)) <span class="op">%&gt;%</span><span class="st">        </span><span class="co"># fixed</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="st">  </span><span class="kw">timeout</span>(<span class="cf">function</span>() <span class="kw">rexp</span>(<span class="dv">1</span>, <span class="dv">10</span>)) <span class="co"># dynamic</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="co">#&gt; { Activity: Timeout      | delay: 0.0246759 }</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt; { Activity: Timeout      | delay: function() }</span></span></code></pre></div>
 <p>Of course, this <code>task</code>, supplied as a function, may be as complex as you need and, for instance, it may check the status of a particular resource, interact with other entities in your simulation model… The same applies to all the activities when they accept a function as a parameter.</p>
 </div>
 <div id="interaction-with-the-environment" class="section level2">
 <h2>Interaction with the environment</h2>
 <p>Dynamic arguments may interact with the environment to extract parameters of interest such as the current simulation time (see <code>?now</code>), status of resources (see <code>?get_capacity</code>), status of generators (see <code>?get_n_generated</code>), or directly to gather the history of monitored values (see <code>?get_mon</code>). The only requirement is that the simulation environment must be in the scope of the trajectory.</p>
 <p>Therefore, this will not work:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() <span class="kw">as.character</span>(<span class="kw">now</span>(env)))</a>
-<a class="sourceLine" id="cb5-3" title="3"></a>
-<a class="sourceLine" id="cb5-4" title="4">env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, traj, <span class="cf">function</span>() <span class="dv">1</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="st">  </span><span class="kw">run</span>(<span class="dv">4</span>)</a>
-<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt; 1: dummy0: 2.50175860496223</span></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt; 2: dummy1: 2.50175860496223</span></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt; 3: dummy2: 2.50175860496223</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() <span class="kw">as.character</span>(<span class="kw">now</span>(env)))</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a>env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="op">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, traj, <span class="cf">function</span>() <span class="dv">1</span>) <span class="op">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="st">  </span><span class="kw">run</span>(<span class="dv">4</span>)</span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; 1: dummy0: 2.50175860496223</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt; 2: dummy1: 2.50175860496223</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt; 3: dummy2: 2.50175860496223</span></span></code></pre></div>
 <p>because the global <code>env</code> is not available at runtime: the simulation runs <em>and then</em> the resulting object is assigned to <code>env</code>. For <code>env</code> to be in the scope of <code>t</code> during this simulation, it is enough to detach the <code>run()</code> method from the definition pipe:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() <span class="kw">as.character</span>(<span class="kw">now</span>(env)))</a>
-<a class="sourceLine" id="cb6-3" title="3"></a>
-<a class="sourceLine" id="cb6-4" title="4">env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, traj, <span class="cf">function</span>() <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb6-6" title="6"></a>
-<a class="sourceLine" id="cb6-7" title="7">env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>(<span class="dv">4</span>) <span class="op">%&gt;%</span><span class="st"> </span>invisible</a>
-<a class="sourceLine" id="cb6-8" title="8"><span class="co">#&gt; 1: dummy0: 1</span></a>
-<a class="sourceLine" id="cb6-9" title="9"><span class="co">#&gt; 2: dummy1: 2</span></a>
-<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; 3: dummy2: 3</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() <span class="kw">as.character</span>(<span class="kw">now</span>(env)))</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a>env &lt;-<span class="st"> </span><span class="kw">simmer</span>() <span class="op">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, traj, <span class="cf">function</span>() <span class="dv">1</span>)</span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a>env <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">run</span>(<span class="dv">4</span>) <span class="op">%&gt;%</span><span class="st"> </span>invisible</span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; 1: dummy0: 1</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; 2: dummy1: 2</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt; 3: dummy2: 3</span></span></code></pre></div>
 <p>And we get the expected output. However, as a general rule of good practice, <strong>it is recommended to instantiate the environment always in the first place</strong> to avoid possible mistakes, and because the code becomes more readable:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co"># first, instantiate the environment</span></a>
-<a class="sourceLine" id="cb7-2" title="2">env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</a>
-<a class="sourceLine" id="cb7-3" title="3"></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="co"># here I&#39;m using it</span></a>
-<a class="sourceLine" id="cb7-5" title="5">traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb7-6" title="6"><span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() <span class="kw">as.character</span>(<span class="kw">now</span>(env)))</a>
-<a class="sourceLine" id="cb7-7" title="7"></a>
-<a class="sourceLine" id="cb7-8" title="8"><span class="co"># and finally, run it</span></a>
-<a class="sourceLine" id="cb7-9" title="9">env <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb7-10" title="10"><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, traj, <span class="cf">function</span>() <span class="dv">1</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb7-11" title="11"><span class="st">  </span><span class="kw">run</span>(<span class="dv">4</span>) <span class="op">%&gt;%</span><span class="st"> </span>invisible</a>
-<a class="sourceLine" id="cb7-12" title="12"><span class="co">#&gt; 1: dummy0: 1</span></a>
-<a class="sourceLine" id="cb7-13" title="13"><span class="co">#&gt; 2: dummy1: 2</span></a>
-<a class="sourceLine" id="cb7-14" title="14"><span class="co">#&gt; 3: dummy2: 3</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># first, instantiate the environment</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>env &lt;-<span class="st"> </span><span class="kw">simmer</span>()</span>
+<span id="cb7-3"><a href="#cb7-3"></a></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co"># here I&#39;m using it</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>traj &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="st">  </span><span class="kw">log_</span>(<span class="cf">function</span>() <span class="kw">as.character</span>(<span class="kw">now</span>(env)))</span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="co"># and finally, run it</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>env <span class="op">%&gt;%</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="st">  </span><span class="kw">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, traj, <span class="cf">function</span>() <span class="dv">1</span>) <span class="op">%&gt;%</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a><span class="st">  </span><span class="kw">run</span>(<span class="dv">4</span>) <span class="op">%&gt;%</span><span class="st"> </span>invisible</span>
+<span id="cb7-12"><a href="#cb7-12"></a><span class="co">#&gt; 1: dummy0: 1</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="co">#&gt; 2: dummy1: 2</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="co">#&gt; 3: dummy2: 3</span></span></code></pre></div>
 </div>
 <div id="trajectory-toolbox-joining-and-subsetting" class="section level2">
 <h2>Trajectory toolbox: joining and subsetting</h2>
 <p>The <code>join(...)</code> method is very useful to concatenate together any number of trajectories. It may be used as a standalone function as follows:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">t1 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">seize</span>(<span class="st">&quot;dummy&quot;</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb8-2" title="2">t2 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">timeout</span>(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb8-3" title="3">t3 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">release</span>(<span class="st">&quot;dummy&quot;</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb8-4" title="4"></a>
-<a class="sourceLine" id="cb8-5" title="5">t0 &lt;-<span class="st"> </span><span class="kw">join</span>(t1, t2, t3)</a>
-<a class="sourceLine" id="cb8-6" title="6">t0</a>
-<a class="sourceLine" id="cb8-7" title="7"><span class="co">#&gt; trajectory: anonymous, 3 activities</span></a>
-<a class="sourceLine" id="cb8-8" title="8"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb8-9" title="9"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a>
-<a class="sourceLine" id="cb8-10" title="10"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>t1 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">seize</span>(<span class="st">&quot;dummy&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb8-2"><a href="#cb8-2"></a>t2 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">timeout</span>(<span class="dv">1</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>t3 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">release</span>(<span class="st">&quot;dummy&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>t0 &lt;-<span class="st"> </span><span class="kw">join</span>(t1, t2, t3)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>t0</span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt; trajectory: anonymous, 3 activities</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>Or it may operate inline, like another activity:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">t0 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="st">  </span><span class="kw">join</span>(t1) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="st">  </span><span class="kw">timeout</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="st">  </span><span class="kw">join</span>(t3)</a>
-<a class="sourceLine" id="cb9-5" title="5">t0</a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt; trajectory: anonymous, 3 activities</span></a>
-<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>t0 &lt;-<span class="st"> </span><span class="kw">trajectory</span>() <span class="op">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="st">  </span><span class="kw">join</span>(t1) <span class="op">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="st">  </span><span class="kw">timeout</span>(<span class="dv">1</span>) <span class="op">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="st">  </span><span class="kw">join</span>(t3)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>t0</span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt; trajectory: anonymous, 3 activities</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>You can think about a trajectory object as a list of activities that has a length</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">length</span>(t0)</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt; [1] 3</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">length</span>(t0)</span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt; [1] 3</span></span></code></pre></div>
 <p>and can be subset using the standard operator <code>[</code>. For instance, you can select the activities you want with a logical vector:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">t0[<span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">FALSE</span>, <span class="ot">TRUE</span>)]</a>
-<a class="sourceLine" id="cb11-2" title="2"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb11-3" title="3"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb11-4" title="4"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>t0[<span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">FALSE</span>, <span class="ot">TRUE</span>)]</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>Or a set of indices that respect the order given:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">t0[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)]</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb12-5" title="5">t0[<span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">1</span>)]</a>
-<a class="sourceLine" id="cb12-6" title="6"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb12-7" title="7"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb12-8" title="8"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>t0[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)]</span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>t0[<span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">1</span>)]</span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>Or a set of indices to remove from the selection:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">t0[<span class="op">-</span><span class="dv">2</span>]</a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb13-3" title="3"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb13-4" title="4"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>t0[<span class="op">-</span><span class="dv">2</span>]</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>Or by name, but note that this does <strong>not</strong> respect the order given though, because it performs a match:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">t0[<span class="kw">c</span>(<span class="st">&quot;seize&quot;</span>, <span class="st">&quot;release&quot;</span>)]</a>
-<a class="sourceLine" id="cb14-2" title="2"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb14-3" title="3"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb14-4" title="4"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb14-5" title="5">t0[<span class="kw">c</span>(<span class="st">&quot;release&quot;</span>, <span class="st">&quot;seize&quot;</span>)]</a>
-<a class="sourceLine" id="cb14-6" title="6"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb14-7" title="7"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb14-8" title="8"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>t0[<span class="kw">c</span>(<span class="st">&quot;seize&quot;</span>, <span class="st">&quot;release&quot;</span>)]</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>t0[<span class="kw">c</span>(<span class="st">&quot;release&quot;</span>, <span class="st">&quot;seize&quot;</span>)]</span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>If you provide no indices, the whole trajectory is returned:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">t0[]</a>
-<a class="sourceLine" id="cb15-2" title="2"><span class="co">#&gt; trajectory: anonymous, 3 activities</span></a>
-<a class="sourceLine" id="cb15-3" title="3"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb15-4" title="4"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a>
-<a class="sourceLine" id="cb15-5" title="5"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>t0[]</span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="co">#&gt; trajectory: anonymous, 3 activities</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>In fact, you are <strong>cloning</strong> the trajectory with the latter command. It is equivalent to <code>t0[1:length(t0)]</code> or <code>join(t0)</code>.</p>
 <p>The generics <code>head()</code> and <code>tail()</code> use the <code>[</code> operator under the hood, thus you can use them as well:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">head</span>(t0, <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb16-2" title="2"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb16-3" title="3"><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a>
-<a class="sourceLine" id="cb16-5" title="5"><span class="kw">tail</span>(t0, <span class="dv">-1</span>)</a>
-<a class="sourceLine" id="cb16-6" title="6"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb16-7" title="7"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a>
-<a class="sourceLine" id="cb16-8" title="8"><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">head</span>(t0, <span class="dv">2</span>)</span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="co">#&gt; { Activity: Seize        | resource: dummy, amount: 1 }</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="kw">tail</span>(t0, <span class="dv">-1</span>)</span>
+<span id="cb16-6"><a href="#cb16-6"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a><span class="co">#&gt; { Activity: Release      | resource: dummy, amount: 1 }</span></span></code></pre></div>
 <p>The <code>[[</code> operator can also be used to extract <strong>only one</strong> element:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">t0[[<span class="dv">2</span>]]</a>
-<a class="sourceLine" id="cb17-2" title="2"><span class="co">#&gt; trajectory: anonymous, 1 activities</span></a>
-<a class="sourceLine" id="cb17-3" title="3"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>t0[[<span class="dv">2</span>]]</span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="co">#&gt; trajectory: anonymous, 1 activities</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span></code></pre></div>
 <p>which is equivalent to <code>t0[2]</code>. If a string is provided, it ensures that only the first match is returned:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">join</span>(t0, t0)[<span class="st">&quot;timeout&quot;</span>]</a>
-<a class="sourceLine" id="cb18-2" title="2"><span class="co">#&gt; trajectory: anonymous, 2 activities</span></a>
-<a class="sourceLine" id="cb18-3" title="3"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a>
-<a class="sourceLine" id="cb18-4" title="4"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a>
-<a class="sourceLine" id="cb18-5" title="5"><span class="kw">join</span>(t0, t0)[[<span class="st">&quot;timeout&quot;</span>]]</a>
-<a class="sourceLine" id="cb18-6" title="6"><span class="co">#&gt; trajectory: anonymous, 1 activities</span></a>
-<a class="sourceLine" id="cb18-7" title="7"><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">join</span>(t0, t0)[<span class="st">&quot;timeout&quot;</span>]</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="co">#&gt; trajectory: anonymous, 2 activities</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a><span class="kw">join</span>(t0, t0)[[<span class="st">&quot;timeout&quot;</span>]]</span>
+<span id="cb18-6"><a href="#cb18-6"></a><span class="co">#&gt; trajectory: anonymous, 1 activities</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a><span class="co">#&gt; { Activity: Timeout      | delay: 1 }</span></span></code></pre></div>
 </div>
 
 

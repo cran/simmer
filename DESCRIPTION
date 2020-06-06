@@ -1,7 +1,7 @@
 Package: simmer
 Type: Package
 Title: Discrete-Event Simulation for R
-Version: 4.4.1
+Version: 4.4.2
 Authors@R: c(
     person("Iñaki", "Ucar", email="iucar@fedoraproject.org",
       role=c("aut", "cph", "cre"), comment=c(ORCID="0000-0001-6403-5550")),
@@ -27,9 +27,9 @@ LinkingTo: Rcpp (>= 0.12.9), BH (>= 1.62.0-1)
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2020-04-10 16:31:02 UTC; iucar
+Packaged: 2020-06-06 17:51:21 UTC; iucar
 Author: Iñaki Ucar [aut, cph, cre] (<https://orcid.org/0000-0001-6403-5550>),
   Bart Smeets [aut, cph]
 Maintainer: Iñaki Ucar <iucar@fedoraproject.org>
 Repository: CRAN
-Date/Publication: 2020-04-11 16:40:02 UTC
+Date/Publication: 2020-06-06 18:30:03 UTC
