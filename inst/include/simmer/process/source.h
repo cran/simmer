@@ -1,4 +1,4 @@
-// Copyright (C) 2018 Iñaki Ucar
+// Copyright (C) 2018,2021 Iñaki Ucar
 //
 // This file is part of simmer.
 //
@@ -24,12 +24,15 @@
 #include <simmer/activity.h>
 
 namespace simmer {
-
   /**
    * Abstract class for source processes.
    */
   class Source : public Process {
+    friend class Arrival;
+
   public:
+    typedef USET<Arrival*> ArrSet;
+
     /**
     * Constructor.
     * @param sim             a pointer to the simulator
@@ -44,7 +47,20 @@ namespace simmer {
       : Process(sim, name_prefix, mon, PRIORITY_MIN), count(0), order(order),
         first_activity(internal::head(trj)), trj(trj) {}
 
-    virtual void reset() { count = 0; }
+    virtual void reset() {
+      count = 0;
+      ahead.clear();
+    }
+
+    virtual bool deactivate() {
+      foreach_ (Arrival* arrival, ahead) {
+        arrival->deactivate();
+        delete arrival;
+        count--;
+      }
+      ahead.clear();
+      return Process::deactivate();
+    }
 
     int get_n_generated() const { return count; }
 
@@ -65,17 +81,33 @@ namespace simmer {
     Arrival* new_arrival(double delay) {
       // format the name and create the next arrival
       std::string arr_name = MakeString() << name << count++;
-      Arrival* arrival = new Arrival(sim, arr_name, is_monitored(),
-                                     order, first_activity, count);
+      Arrival* arrival = new Arrival(
+        sim, arr_name, is_monitored(), order, first_activity, count, this);
+      ahead.emplace(arrival);
 
       if (sim->verbose) sim->print("source", name, "new", arr_name,
           MakeString() << (sim->now() + delay));
 
+      // schedule the arrival
+      sim->schedule(delay, arrival, first_activity && first_activity->priority ?
+                      first_activity->priority : count);
+
       return arrival;
+    }
+
+    void unregister_arrival(Arrival* arrival) {
+      ahead.erase(arrival);
+    }
+
+    bool check_stop(double delay) {
+      if (delay < 0 || RNum::is_na(delay))
+        return true;
+      return false;
     }
 
   private:
     REnv trj;
+    ArrSet ahead;
   };
 
 } // namespace simmer

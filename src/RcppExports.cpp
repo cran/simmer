@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // Seize__new
 SEXP Seize__new(const std::string& resource, int amount, std::vector<bool> cont, const std::vector<Environment>& trj, unsigned short mask);
 RcppExport SEXP _simmer_Seize__new(SEXP resourceSEXP, SEXP amountSEXP, SEXP contSEXP, SEXP trjSEXP, SEXP maskSEXP) {
@@ -635,13 +640,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // Batch__new_func1
-SEXP Batch__new_func1(int n, const Function& timeout, bool permanent, const std::string& name);
+SEXP Batch__new_func1(const Function& n, double timeout, bool permanent, const std::string& name);
 RcppExport SEXP _simmer_Batch__new_func1(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const Function& >::type timeout(timeoutSEXP);
+    Rcpp::traits::input_parameter< const Function& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type timeout(timeoutSEXP);
     Rcpp::traits::input_parameter< bool >::type permanent(permanentSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
     rcpp_result_gen = Rcpp::wrap(Batch__new_func1(n, timeout, permanent, name));
@@ -649,8 +654,36 @@ BEGIN_RCPP
 END_RCPP
 }
 // Batch__new_func2
-SEXP Batch__new_func2(int n, double timeout, bool permanent, const std::string& name, const Function& rule);
-RcppExport SEXP _simmer_Batch__new_func2(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP, SEXP ruleSEXP) {
+SEXP Batch__new_func2(int n, const Function& timeout, bool permanent, const std::string& name);
+RcppExport SEXP _simmer_Batch__new_func2(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const Function& >::type timeout(timeoutSEXP);
+    Rcpp::traits::input_parameter< bool >::type permanent(permanentSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(Batch__new_func2(n, timeout, permanent, name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Batch__new_func3
+SEXP Batch__new_func3(const Function& n, const Function& timeout, bool permanent, const std::string& name);
+RcppExport SEXP _simmer_Batch__new_func3(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Function& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const Function& >::type timeout(timeoutSEXP);
+    Rcpp::traits::input_parameter< bool >::type permanent(permanentSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(Batch__new_func3(n, timeout, permanent, name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Batch__new_func4
+SEXP Batch__new_func4(int n, double timeout, bool permanent, const std::string& name, const Function& rule);
+RcppExport SEXP _simmer_Batch__new_func4(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP, SEXP ruleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -659,13 +692,28 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type permanent(permanentSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
     Rcpp::traits::input_parameter< const Function& >::type rule(ruleSEXP);
-    rcpp_result_gen = Rcpp::wrap(Batch__new_func2(n, timeout, permanent, name, rule));
+    rcpp_result_gen = Rcpp::wrap(Batch__new_func4(n, timeout, permanent, name, rule));
     return rcpp_result_gen;
 END_RCPP
 }
-// Batch__new_func3
-SEXP Batch__new_func3(int n, const Function& timeout, bool permanent, const std::string& name, const Function& rule);
-RcppExport SEXP _simmer_Batch__new_func3(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP, SEXP ruleSEXP) {
+// Batch__new_func5
+SEXP Batch__new_func5(const Function& n, double timeout, bool permanent, const std::string& name, const Function& rule);
+RcppExport SEXP _simmer_Batch__new_func5(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP, SEXP ruleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Function& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type timeout(timeoutSEXP);
+    Rcpp::traits::input_parameter< bool >::type permanent(permanentSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< const Function& >::type rule(ruleSEXP);
+    rcpp_result_gen = Rcpp::wrap(Batch__new_func5(n, timeout, permanent, name, rule));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Batch__new_func6
+SEXP Batch__new_func6(int n, const Function& timeout, bool permanent, const std::string& name, const Function& rule);
+RcppExport SEXP _simmer_Batch__new_func6(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP, SEXP ruleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -674,7 +722,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type permanent(permanentSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
     Rcpp::traits::input_parameter< const Function& >::type rule(ruleSEXP);
-    rcpp_result_gen = Rcpp::wrap(Batch__new_func3(n, timeout, permanent, name, rule));
+    rcpp_result_gen = Rcpp::wrap(Batch__new_func6(n, timeout, permanent, name, rule));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Batch__new_func7
+SEXP Batch__new_func7(const Function& n, const Function& timeout, bool permanent, const std::string& name, const Function& rule);
+RcppExport SEXP _simmer_Batch__new_func7(SEXP nSEXP, SEXP timeoutSEXP, SEXP permanentSEXP, SEXP nameSEXP, SEXP ruleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Function& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const Function& >::type timeout(timeoutSEXP);
+    Rcpp::traits::input_parameter< bool >::type permanent(permanentSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< const Function& >::type rule(ruleSEXP);
+    rcpp_result_gen = Rcpp::wrap(Batch__new_func7(n, timeout, permanent, name, rule));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1380,15 +1443,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// record_ongoing_
-void record_ongoing_(SEXP sim_, bool per_resource);
-RcppExport SEXP _simmer_record_ongoing_(SEXP sim_SEXP, SEXP per_resourceSEXP) {
+// get_ongoing_
+DataFrame get_ongoing_(SEXP sim_, bool per_resource);
+RcppExport SEXP _simmer_get_ongoing_(SEXP sim_SEXP, SEXP per_resourceSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
     Rcpp::traits::input_parameter< bool >::type per_resource(per_resourceSEXP);
-    record_ongoing_(sim_, per_resource);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(get_ongoing_(sim_, per_resource));
+    return rcpp_result_gen;
 END_RCPP
 }
 
@@ -1444,8 +1508,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_simmer_Synchronize__new", (DL_FUNC) &_simmer_Synchronize__new, 2},
     {"_simmer_Batch__new", (DL_FUNC) &_simmer_Batch__new, 4},
     {"_simmer_Batch__new_func1", (DL_FUNC) &_simmer_Batch__new_func1, 4},
-    {"_simmer_Batch__new_func2", (DL_FUNC) &_simmer_Batch__new_func2, 5},
-    {"_simmer_Batch__new_func3", (DL_FUNC) &_simmer_Batch__new_func3, 5},
+    {"_simmer_Batch__new_func2", (DL_FUNC) &_simmer_Batch__new_func2, 4},
+    {"_simmer_Batch__new_func3", (DL_FUNC) &_simmer_Batch__new_func3, 4},
+    {"_simmer_Batch__new_func4", (DL_FUNC) &_simmer_Batch__new_func4, 5},
+    {"_simmer_Batch__new_func5", (DL_FUNC) &_simmer_Batch__new_func5, 5},
+    {"_simmer_Batch__new_func6", (DL_FUNC) &_simmer_Batch__new_func6, 5},
+    {"_simmer_Batch__new_func7", (DL_FUNC) &_simmer_Batch__new_func7, 5},
     {"_simmer_Separate__new", (DL_FUNC) &_simmer_Separate__new, 0},
     {"_simmer_RenegeIn__new", (DL_FUNC) &_simmer_RenegeIn__new, 3},
     {"_simmer_RenegeIn__new_func", (DL_FUNC) &_simmer_RenegeIn__new_func, 3},
@@ -1503,7 +1571,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_simmer_add_resource_", (DL_FUNC) &_simmer_add_resource_, 10},
     {"_simmer_add_resource_manager_", (DL_FUNC) &_simmer_add_resource_manager_, 7},
     {"_simmer_add_global_manager_", (DL_FUNC) &_simmer_add_global_manager_, 6},
-    {"_simmer_record_ongoing_", (DL_FUNC) &_simmer_record_ongoing_, 2},
+    {"_simmer_get_ongoing_", (DL_FUNC) &_simmer_get_ongoing_, 2},
     {NULL, NULL, 0}
 };
 

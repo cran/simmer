@@ -205,12 +205,28 @@ Batch__new_func1 <- function(n, timeout, permanent, name) {
     .Call(`_simmer_Batch__new_func1`, n, timeout, permanent, name)
 }
 
-Batch__new_func2 <- function(n, timeout, permanent, name, rule) {
-    .Call(`_simmer_Batch__new_func2`, n, timeout, permanent, name, rule)
+Batch__new_func2 <- function(n, timeout, permanent, name) {
+    .Call(`_simmer_Batch__new_func2`, n, timeout, permanent, name)
 }
 
-Batch__new_func3 <- function(n, timeout, permanent, name, rule) {
-    .Call(`_simmer_Batch__new_func3`, n, timeout, permanent, name, rule)
+Batch__new_func3 <- function(n, timeout, permanent, name) {
+    .Call(`_simmer_Batch__new_func3`, n, timeout, permanent, name)
+}
+
+Batch__new_func4 <- function(n, timeout, permanent, name, rule) {
+    .Call(`_simmer_Batch__new_func4`, n, timeout, permanent, name, rule)
+}
+
+Batch__new_func5 <- function(n, timeout, permanent, name, rule) {
+    .Call(`_simmer_Batch__new_func5`, n, timeout, permanent, name, rule)
+}
+
+Batch__new_func6 <- function(n, timeout, permanent, name, rule) {
+    .Call(`_simmer_Batch__new_func6`, n, timeout, permanent, name, rule)
+}
+
+Batch__new_func7 <- function(n, timeout, permanent, name, rule) {
+    .Call(`_simmer_Batch__new_func7`, n, timeout, permanent, name, rule)
 }
 
 Separate__new <- function() {
@@ -441,7 +457,7 @@ add_global_manager_ <- function(sim_, key, init, intervals, values, period) {
     .Call(`_simmer_add_global_manager_`, sim_, key, init, intervals, values, period)
 }
 
-record_ongoing_ <- function(sim_, per_resource) {
-    invisible(.Call(`_simmer_record_ongoing_`, sim_, per_resource))
+get_ongoing_ <- function(sim_, per_resource) {
+    .Call(`_simmer_get_ongoing_`, sim_, per_resource)
 }
 

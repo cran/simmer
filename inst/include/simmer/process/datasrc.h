@@ -1,4 +1,4 @@
-// Copyright (C) 2018 Iñaki Ucar
+// Copyright (C) 2018,2021 Iñaki Ucar
 //
 // This file is part of simmer.
 //
@@ -39,7 +39,7 @@ namespace simmer {
       int i = 0;
 
       while (i++ != batch) {
-        if (time.size() <= count)
+        if (time.size() <= count || check_stop(time[count]))
           return;
         delay += time[count];
 
@@ -54,11 +54,6 @@ namespace simmer {
           arrival->order.set_preemptible(preemptible[count-1]);
         if (col_restart)
           arrival->order.set_restart(restart[count-1]);
-
-        // schedule the arrival
-        sim->schedule(delay, arrival,
-                      first_activity && first_activity->priority ?
-                        first_activity->priority : count);
       }
       // schedule the generator
       sim->schedule(delay, this, Source::priority);

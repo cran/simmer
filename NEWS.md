@@ -1,3 +1,20 @@
+# simmer 4.4.3
+
+## New features
+
+- Add support for functions in `when_activated()` (#250).
+- Add support for dynamic batch sizes (#258 addressing #245).
+
+## Minor changes and fixes
+
+- Fix multiple reporting of ongoing arrivals (#240).
+- Set package namespace as parent of `simmer` and `wrap` environments (#241).
+- Fix arrival restart after queue drops (#257).
+- Fix segfault printing activities with empty vectors (#253).
+- Fix source behaviour with missing values, which now stop arrival generation
+  in the same way as negative values do (#256).
+- Fix `deactivate()`, which now unschedules future arrivals (#249).
+
 # simmer 4.4.2
 
 ## Minor changes and fixes

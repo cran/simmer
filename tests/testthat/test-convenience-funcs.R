@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2019 Iñaki Ucar
+# Copyright (C) 2015-2019,2021 Iñaki Ucar
 #
 # This file is part of simmer.
 #
@@ -14,8 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with simmer. If not, see <http://www.gnu.org/licenses/>.
-
-context("convenience funcs")
 
 test_that("at returns the correct values", {
   gen_func <- at(c(0, 10, 15)) # values passed as vector
@@ -175,7 +173,7 @@ test_that("when_activated returns the correct values", {
   expect_equal(gen_func(), -1)
   expect_equal(gen_func(), c(0, -1))
 
-  gen_func <- when_activated(5)
+  gen_func <- when_activated(function() 5)
   expect_equal(gen_func(), -1)
   expect_equal(gen_func(), c(rep(0, 5), -1))
 })

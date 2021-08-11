@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Iñaki Ucar
+# Copyright (C) 2016,2021 Iñaki Ucar
 #
 # This file is part of simmer.
 #
@@ -15,14 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with simmer. If not, see <http://www.gnu.org/licenses/>.
 
-context("activate/deactivate")
-
 test_that("several deactivates don't crash", {
   t <- trajectory() %>%
-    deactivate("dummy")
+    deactivate("dummy0")
 
   env <- simmer(verbose = TRUE) %>%
-    add_generator("dummy", t, at(0, 0, 1)) %>%
+    add_generator("dummy0", t, at(0, 2)) %>%
+    add_generator("dummy1", t, at(1)) %>%
     run()
 
   expect_equal(now(env), 1)
@@ -39,6 +38,7 @@ test_that("generators are deactivated and activated again as expected", {
     run(10)
   arr <- get_mon_arrivals(env)
 
+  expect_equal(arr$name, paste0("dummy", 0:3))
   expect_equal(arr$start_time, c(1, 3, 5, 7))
   expect_equal(arr$end_time, c(2, 4, 6, 8))
 })

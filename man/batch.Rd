@@ -12,7 +12,8 @@ separate(.trj)
 \arguments{
 \item{.trj}{the trajectory object.}
 
-\item{n}{batch size, accepts a numeric.}
+\item{n}{batch size, accepts a numeric or a callable object (a function)
+which must return a numeric.}
 
 \item{timeout}{set an optional timer which triggers batches every
 \code{timeout} time units even if the batch size has not been fulfilled,
@@ -27,7 +28,8 @@ different trajectories into a same batch, you need to specify a common name
 across all your \code{batch} activities.}
 
 \item{rule}{an optional callable object (a function) which will be applied to
-every arrival to determine whether it should be included into the batch, thus}
+every arrival to determine whether it should be included into the batch, thus
+it must return a boolean.}
 }
 \value{
 Returns the trajectory object.
