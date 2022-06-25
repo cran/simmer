@@ -1,6 +1,6 @@
 # Copyright (C) 2014-2015 Bart Smeets
 # Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
-# Copyright (C) 2016-2021 Iñaki Ucar
+# Copyright (C) 2016-2022 Iñaki Ucar
 #
 # This file is part of simmer.
 #
@@ -36,16 +36,20 @@
 #' \code{\link{now}}, \code{\link{peek}}, \code{\link{reset}}
 #'
 #' \item Resources: \code{\link{add_resource}}, \code{\link{get_resources}},
-#' \code{\link{get_capacity}}, \code{\link{get_queue_size}},
-#' \code{\link{get_server_count}}, \code{\link{get_queue_count}},
-#' \code{\link{get_capacity_selected}}, \code{\link{get_queue_size_selected}},
-#' \code{\link{get_server_count_selected}}, \code{\link{get_queue_count_selected}},
+#' \code{\link{get_capacity}}, \code{\link{get_capacity_selected}},
+#' \code{\link{get_queue_size}}, \code{\link{get_queue_size_selected}},
+#' \code{\link{get_server_count}}, \code{\link{get_server_count_selected}},
+#' \code{\link{get_queue_count}}, \code{\link{get_queue_count_selected}},
 #' \code{\link{get_seized}}, \code{\link{get_seized_selected}},
+#' \code{\link{get_activity_time}}, \code{\link{get_activity_time_selected}},
 #' \code{\link{get_selected}}
 #'
 #' \item Sources: \code{\link{add_generator}}, \code{\link{add_dataframe}},
 #' \code{\link{get_sources}}, \code{\link{get_n_generated}},
 #' \code{\link{get_trajectory}}
+#'
+#' \item Arrivals: \code{\link{get_name}}, \code{\link{get_attribute}},
+#' \code{\link{get_prioritization}}, \code{\link{get_batch_size}}
 #'
 #' \item Globals: \code{\link{add_global}}, \code{\link{get_global}}
 #'
@@ -366,7 +370,7 @@ add_resource.simmer <- function(.env, name, capacity=1, queue_size=Inf, mon=TRUE
 #'
 #' @return Returns the simulation environment.
 #' @seealso Convenience functions: \code{\link{at}}, \code{\link{from}},
-#' \code{\link{to}}, \code{\link{from_to}}.
+#' \code{\link{to}}, \code{\link{from_to}}, \code{\link{when_activated}}.
 #'
 #' Other sources: \code{\link{add_dataframe}}.
 #' @export
@@ -602,7 +606,8 @@ get_resources.simmer <- function(.env) names(.env$resources)
 #'
 #' Getters for processes (sources and arrivals) number of arrivals generated
 #' by a source, the name of the active arrival, an attribute from the active
-#' arrival or a global one, and prioritization values.
+#' arrival or a global one, prioritization values, or the number of arrivals
+#' in an active batch.
 #'
 #' @inheritParams reset
 #' @param sources one or more resource names.
@@ -621,7 +626,7 @@ get_resources.simmer <- function(.env) names(.env$resources)
 #'
 #' @seealso \code{\link{get_sources}}, \code{\link{set_trajectory}},
 #' \code{\link{set_attribute}}, \code{\link{set_global}},
-#' \code{\link{set_prioritization}}.
+#' \code{\link{set_prioritization}}, \code{\link{batch}}.
 #' @export
 get_n_generated <- function(.env, sources) UseMethod("get_n_generated")
 
@@ -674,19 +679,29 @@ get_prioritization <- function(.env) UseMethod("get_prioritization")
 #' @export
 get_prioritization.simmer <- function(.env) get_prioritization_(.env$sim_obj)
 
+#' @rdname get_n_generated
+#' @export
+get_batch_size <- function(.env) UseMethod("get_batch_size")
+
+#' @export
+get_batch_size.simmer <- function(.env) get_batch_size_(.env$sim_obj)
+
 #' Get Resource Parameters
 #'
 #' Getters for resources: server capacity/count and queue size/count, seized
-#' amount and selected resources.
+#' amount, activity time, and selected resources.
 #'
 #' @inheritParams reset
 #' @inheritParams select
 #' @param resources one or more resource names.
 #'
+#' @details If no resources are provided to \code{get_activity_time}, the
+#' overall activity time is reported.
+#'
 #' @return Return a vector (character for \code{get_selected}, numeric for the
 #' rest of them).
 #' @seealso \code{\link{get_resources}}, \code{\link{set_capacity}},
-#' \code{\link{set_queue_size}}.
+#' \code{\link{set_queue_size}}, \code{\link{seize}}, \code{\link{timeout}}.
 #' @export
 get_capacity <- function(.env, resources) UseMethod("get_capacity")
 
@@ -778,6 +793,26 @@ get_seized_selected <- function(.env, id=0) UseMethod("get_seized_selected")
 #' @export
 get_seized_selected.simmer <- function(.env, id=0) {
   get_seized_selected_(.env$sim_obj, id)
+}
+
+#' @rdname get_capacity
+#' @export
+get_activity_time <- function(.env, resources) UseMethod("get_activity_time")
+
+#' @export
+get_activity_time.simmer <- function(.env, resources) {
+  if (missing(resources))
+    resources <- character(0)
+  get_activity_time_(.env$sim_obj, resources)
+}
+
+#' @rdname get_capacity
+#' @export
+get_activity_time_selected <- function(.env, id=0) UseMethod("get_activity_time_selected")
+
+#' @export
+get_activity_time_selected.simmer <- function(.env, id=0) {
+  get_activity_time_selected_(.env$sim_obj, id)
 }
 
 #' @rdname get_capacity

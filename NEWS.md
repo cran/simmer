@@ -1,3 +1,23 @@
+# simmer 4.4.5
+
+## New features
+
+- Add arithmetic support for `schedule` objects (#272).
+- New `get_batch_size()` getter allows a batch to retrieve its size (#263).
+- New `get_activity_time()` and `get_activity_time_selected()` getters allow an
+  arrival to retrieve the amount of activity time spent in resources (#186).
+
+## Minor changes and fixes
+
+- Apply magrittr workaround and avoid copying `simmer` and `monitor` objects in
+  function environments for generators too (#279).
+- Fix file removal on object destruction for file-backed monitors (#277).
+- Remove cap on the number of nested branches for trajectory printing (#262).
+- Fix duplicate time-based batch trigger (as part of #263).
+- Fix typo and trajectory in bank vignettes (#283).
+- Fix clone synchronization with `wait=FALSE`, i.e., arrivals don't need to
+  trigger the same `synchronize()` activity to be in sync (#275).
+
 # simmer 4.4.4
 
 ## Minor changes and fixes

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2022-02-07" />
+<meta name="date" content="2022-06-25" />
 
 <title>Introduction to simmer</title>
 
@@ -26,6 +26,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -141,7 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">Introduction to simmer</h1>
 <h4 class="author">Bart Smeets, Iñaki Ucar</h4>
-<h4 class="date">2022-02-07</h4>
+<h4 class="date">2022-06-25</h4>
 
 
 <div id="TOC">
@@ -264,23 +265,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>envs <span class="sc">%&gt;%</span> </span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_mon_resources</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   resource      time server queue capacity queue_size system limit replication</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    nurse  9.385089      1     0        1        Inf      1   Inf           1</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2    nurse 18.804124      1     1        1        Inf      2   Inf           1</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    nurse 25.244986      1     0        1        Inf      1   Inf           1</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   doctor 25.244986      1     0        2        Inf      1   Inf           1</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    nurse 28.461609      1     1        1        Inf      2   Inf           1</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6    nurse 39.825822      1     0        1        Inf      1   Inf           1</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   resource     time server queue capacity queue_size system limit replication</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    nurse 10.33551      1     0        1        Inf      1   Inf           1</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2    nurse 17.02854      1     1        1        Inf      2   Inf           1</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    nurse 24.51741      1     2        1        Inf      3   Inf           1</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4    nurse 24.62260      1     1        1        Inf      2   Inf           1</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5   doctor 24.62260      1     0        2        Inf      1   Inf           1</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6    nurse 33.77690      1     2        1        Inf      3   Inf           1</span></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>envs <span class="sc">%&gt;%</span> </span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_mon_arrivals</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       name start_time end_time activity_time finished replication</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 patient0   9.385089 50.24754      40.86245     TRUE           1</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 patient1  18.804124 61.60407      36.35908     TRUE           1</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 patient0   8.217726 48.83686      40.61913     TRUE           2</span></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 patient1  15.947883 66.56367      43.31565     TRUE           2</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 patient2  25.315168 79.27427      38.19125     TRUE           2</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 patient0   7.116724 48.61934      41.50262     TRUE           3</span></span></code></pre></div>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 patient0   10.33551 50.08339      39.74789     TRUE           1</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 patient1   17.02854 65.87678      41.25418     TRUE           1</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 patient2   24.51741 78.18856      37.21759     TRUE           1</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 patient0   11.47047 49.38547      37.91500     TRUE           2</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 patient1   21.22910 63.87300      38.14235     TRUE           2</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 patient2   32.35953 77.51834      38.28486     TRUE           2</span></span></code></pre></div>
 <p>Unfortunately, as the C++ simulation cores are destroyed, the downside of this kind of parallelization is that one cannot resume execution of the replicas.</p>
 </div>
 <div id="basic-visualisation-tools" class="section level2">

@@ -337,6 +337,10 @@ CsvMonitor__new <- function(ends_path, releases_path, attributes_path, resources
     .Call(`_simmer_CsvMonitor__new`, ends_path, releases_path, attributes_path, resources_path, sep)
 }
 
+close_files_ <- function(mon_) {
+    invisible(.Call(`_simmer_close_files_`, mon_))
+}
+
 get_arrivals_ <- function(mon_, per_resource) {
     .Call(`_simmer_get_arrivals_`, mon_, per_resource)
 }
@@ -367,6 +371,10 @@ get_attribute_ <- function(sim_, keys, global) {
 
 get_prioritization_ <- function(sim_) {
     .Call(`_simmer_get_prioritization_`, sim_)
+}
+
+get_batch_size_ <- function(sim_) {
+    .Call(`_simmer_get_batch_size_`, sim_)
 }
 
 get_capacity_ <- function(sim_, names) {
@@ -411,6 +419,14 @@ get_seized_selected_ <- function(sim_, id) {
 
 get_selected_ <- function(sim_, id) {
     .Call(`_simmer_get_selected_`, sim_, id)
+}
+
+get_activity_time_ <- function(sim_, names) {
+    .Call(`_simmer_get_activity_time_`, sim_, names)
+}
+
+get_activity_time_selected_ <- function(sim_, id) {
+    .Call(`_simmer_get_activity_time_selected_`, sim_, id)
 }
 
 Simulator__new <- function(name, verbose, mon, log_level) {

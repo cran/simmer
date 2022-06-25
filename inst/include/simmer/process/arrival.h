@@ -1,5 +1,5 @@
 // Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
-// Copyright (C) 2016-2021 Iñaki Ucar
+// Copyright (C) 2016-2022 Iñaki Ucar
 //
 // This file is part of simmer.
 //
@@ -67,13 +67,15 @@ namespace simmer {
     Arrival(Simulator* sim, const std::string& name, int mon, Order order,
             Activity* first_activity, int priority = 0, Source* src = NULL)
       : Process(sim, name, mon, priority), order(order), src(src), paused(0),
-        clones(new int(0)), activity(first_activity), timer(NULL),
-        dropout(NULL), batch(NULL), act_shd(new ActVec()) { init(); }
+        sync(new Arrival*(NULL)), clones(new int(0)), activity(first_activity),
+        timer(NULL), dropout(NULL), batch(NULL), act_shd(new ActVec())
+    { init(); }
 
     Arrival(const Arrival& o)
-      : Process(o), order(o.order), src(o.src), paused(o.paused),
-        clones(o.clones), activity(NULL), attributes(o.attributes),
-        timer(NULL), dropout(NULL), batch(NULL), act_shd(o.act_shd) { init(); }
+      : Process(o), order(o.order), src(o.src), paused(o.paused), sync(o.sync),
+        clones(o.clones), activity(NULL), attributes(o.attributes), timer(NULL),
+        dropout(NULL), batch(NULL), act_shd(o.act_shd)
+    { init(); *sync = NULL; }
 
     ~Arrival() { reset(); }
 
@@ -140,7 +142,15 @@ namespace simmer {
 
     virtual void terminate(bool finished);
 
-    int get_clones() const { return *clones; }
+    virtual size_t size() const { Rcpp::stop("'%s' is not a batch", name); }
+
+    bool sync_keep(bool wait) {
+      if (*sync == NULL && (*clones == 1 || !wait))
+        *sync = this;
+      if (*sync == this)
+        return true;
+      return false;
+    }
 
     virtual void set_attribute(const std::string& key, double value, bool global=false) {
       if (global) return sim->set_attribute(key, value);
@@ -157,14 +167,15 @@ namespace simmer {
       return search->second;
     }
 
-    double get_start(const std::string& name);
+    double get_start_time(const std::string& name);
+    double get_start_time() const { return lifetime.start; }
 
-    double get_start() const { return lifetime.start; }
+    double get_activity_time(const std::string& name) const;
+    double get_activity_time() const { return lifetime.activity; }
 
     double get_remaining() const { return status.remaining; }
 
     void set_activity(Activity* ptr) { activity = ptr; }
-
     Activity* get_activity() const { return activity; }
 
     void set_resource_selected(int id, Resource* res) { selected[id] = res; }
@@ -232,6 +243,7 @@ namespace simmer {
   private:
     Source* src;
     int paused;
+    Arrival** sync;
     int* clones;          /**< number of active clones */
     ArrStatus status;     /**< arrival timing status */
     ArrTime lifetime;     /**< time spent in the whole trajectory */
@@ -262,6 +274,7 @@ namespace simmer {
         foreach_ (ActVec::value_type& itr, *act_shd)
           itr->remove(this);
         delete act_shd;
+        delete sync;
         delete clones;
       }
       sim->unregister_arrival(this);

@@ -1057,6 +1057,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// close_files_
+void close_files_(SEXP mon_);
+RcppExport SEXP _simmer_close_files_(SEXP mon_SEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type mon_(mon_SEXP);
+    close_files_(mon_);
+    return R_NilValue;
+END_RCPP
+}
 // get_arrivals_
 DataFrame get_arrivals_(SEXP mon_, bool per_resource);
 RcppExport SEXP _simmer_get_arrivals_(SEXP mon_SEXP, SEXP per_resourceSEXP) {
@@ -1147,6 +1157,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
     rcpp_result_gen = Rcpp::wrap(get_prioritization_(sim_));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_batch_size_
+int get_batch_size_(SEXP sim_);
+RcppExport SEXP _simmer_get_batch_size_(SEXP sim_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    rcpp_result_gen = Rcpp::wrap(get_batch_size_(sim_));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1279,6 +1300,30 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
     Rcpp::traits::input_parameter< int >::type id(idSEXP);
     rcpp_result_gen = Rcpp::wrap(get_selected_(sim_, id));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_activity_time_
+SEXP get_activity_time_(SEXP sim_, const std::vector<std::string>& names);
+RcppExport SEXP _simmer_get_activity_time_(SEXP sim_SEXP, SEXP namesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type names(namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_activity_time_(sim_, names));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_activity_time_selected_
+SEXP get_activity_time_selected_(SEXP sim_, int id);
+RcppExport SEXP _simmer_get_activity_time_selected_(SEXP sim_SEXP, SEXP idSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type sim_(sim_SEXP);
+    Rcpp::traits::input_parameter< int >::type id(idSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_activity_time_selected_(sim_, id));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1541,6 +1586,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_simmer_activity_clone_", (DL_FUNC) &_simmer_activity_clone_, 1},
     {"_simmer_MemMonitor__new", (DL_FUNC) &_simmer_MemMonitor__new, 0},
     {"_simmer_CsvMonitor__new", (DL_FUNC) &_simmer_CsvMonitor__new, 5},
+    {"_simmer_close_files_", (DL_FUNC) &_simmer_close_files_, 1},
     {"_simmer_get_arrivals_", (DL_FUNC) &_simmer_get_arrivals_, 2},
     {"_simmer_get_attributes_", (DL_FUNC) &_simmer_get_attributes_, 1},
     {"_simmer_get_resources_", (DL_FUNC) &_simmer_get_resources_, 1},
@@ -1549,6 +1595,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_simmer_get_name_", (DL_FUNC) &_simmer_get_name_, 1},
     {"_simmer_get_attribute_", (DL_FUNC) &_simmer_get_attribute_, 3},
     {"_simmer_get_prioritization_", (DL_FUNC) &_simmer_get_prioritization_, 1},
+    {"_simmer_get_batch_size_", (DL_FUNC) &_simmer_get_batch_size_, 1},
     {"_simmer_get_capacity_", (DL_FUNC) &_simmer_get_capacity_, 2},
     {"_simmer_get_capacity_selected_", (DL_FUNC) &_simmer_get_capacity_selected_, 2},
     {"_simmer_get_queue_size_", (DL_FUNC) &_simmer_get_queue_size_, 2},
@@ -1560,6 +1607,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_simmer_get_seized_", (DL_FUNC) &_simmer_get_seized_, 2},
     {"_simmer_get_seized_selected_", (DL_FUNC) &_simmer_get_seized_selected_, 2},
     {"_simmer_get_selected_", (DL_FUNC) &_simmer_get_selected_, 2},
+    {"_simmer_get_activity_time_", (DL_FUNC) &_simmer_get_activity_time_, 2},
+    {"_simmer_get_activity_time_selected_", (DL_FUNC) &_simmer_get_activity_time_selected_, 2},
     {"_simmer_Simulator__new", (DL_FUNC) &_simmer_Simulator__new, 4},
     {"_simmer_reset_", (DL_FUNC) &_simmer_reset_, 1},
     {"_simmer_now_", (DL_FUNC) &_simmer_now_, 1},

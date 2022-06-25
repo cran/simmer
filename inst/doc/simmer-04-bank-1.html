@@ -12,7 +12,7 @@
 
 <meta name="author" content="Duncan Garmonsway" />
 
-<meta name="date" content="2022-02-07" />
+<meta name="date" content="2022-06-25" />
 
 <title>The Bank Tutorial: Part I</title>
 
@@ -26,6 +26,7 @@
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
     </style>
+
 
 
 <style type="text/css">
@@ -141,7 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">The Bank Tutorial: Part I</h1>
 <h4 class="author">Duncan Garmonsway</h4>
-<h4 class="date">2022-02-07</h4>
+<h4 class="date">2022-06-25</h4>
 
 
 <div id="TOC">
@@ -718,7 +719,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="the-bank-with-a-monitor-aka-summary-statistics" class="section level3">
 <h3>The bank with a monitor (aka summary statistics)</h3>
 <p>We now demonstrate how to calculate average waiting times for our customers. In the original SimPy version of this tutorial, this involved using ‘Monitors’. In simmer, data is returned by the <code>get_mon_*</code> family of functions, as has already been demonstrated. Here, we simply summarise the data frame returned by the <code>get_mon_arrivals</code> function, using standard R functions.</p>
-<p>We also increase the number of customers to 50 (find the number ‘49’ in the code.code).</p>
+<p>We also increase the number of customers to 50 (find the number ‘49’ in the code).</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100005</span>)</span>
