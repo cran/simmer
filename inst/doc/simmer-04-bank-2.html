@@ -12,30 +12,42 @@
 
 <meta name="author" content="Duncan Garmonsway" />
 
-<meta name="date" content="2022-06-25" />
+<meta name="date" content="2023-07-15" />
 
 <title>The Bank Tutorial: Part II</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -53,55 +65,54 @@ pre > code.sourceCode { white-space: pre-wrap; }
 pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {   }
+{ }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -110,13 +121,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -128,7 +146,187 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -142,31 +340,41 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">The Bank Tutorial: Part II</h1>
 <h4 class="author">Duncan Garmonsway</h4>
-<h4 class="date">2022-06-25</h4>
+<h4 class="date">2023-07-15</h4>
 
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#priority-customers">Priority customers</a>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#priority-customers" id="toc-priority-customers">Priority
+customers</a>
 <ul>
-<li><a href="#priority-customers-without-preemption">Priority customers without preemption</a></li>
-<li><a href="#priority-customers-with-preemption">Priority customers with preemption</a></li>
+<li><a href="#priority-customers-without-preemption" id="toc-priority-customers-without-preemption">Priority customers
+without preemption</a></li>
+<li><a href="#priority-customers-with-preemption" id="toc-priority-customers-with-preemption">Priority customers with
+preemption</a></li>
 </ul></li>
-<li><a href="#balking-and-reneging-customers">Balking and reneging customers</a>
+<li><a href="#balking-and-reneging-customers" id="toc-balking-and-reneging-customers">Balking and reneging
+customers</a>
 <ul>
-<li><a href="#balking-customers">Balking customers</a></li>
-<li><a href="#reneging-or-abandoning-customers">Reneging (or abandoning) customers</a></li>
+<li><a href="#balking-customers" id="toc-balking-customers">Balking
+customers</a></li>
+<li><a href="#reneging-or-abandoning-customers" id="toc-reneging-or-abandoning-customers">Reneging (or abandoning)
+customers</a></li>
 </ul></li>
-<li><a href="#interrupting-a-process">Interrupting a process</a></li>
-<li><a href="#wait-until-the-bank-door-opens">Wait until the bank door opens</a></li>
-<li><a href="#wait-for-the-doorman-to-give-a-signal">Wait for the doorman to give a signal</a>
+<li><a href="#interrupting-a-process" id="toc-interrupting-a-process">Interrupting a process</a></li>
+<li><a href="#wait-until-the-bank-door-opens" id="toc-wait-until-the-bank-door-opens">Wait until the bank door
+opens</a></li>
+<li><a href="#wait-for-the-doorman-to-give-a-signal" id="toc-wait-for-the-doorman-to-give-a-signal">Wait for the doorman to
+give a signal</a>
 <ul>
-<li><a href="#monitors">Monitors</a>
+<li><a href="#monitors" id="toc-monitors">Monitors</a>
 <ul>
-<li><a href="#plotting-a-histogram-of-monitor-results">Plotting a histogram of monitor results</a></li>
-<li><a href="#monitoring-a-resource">Monitoring a resource</a></li>
-<li><a href="#plotting-from-resource-monitors">Plotting from resource monitors</a></li>
+<li><a href="#plotting-a-histogram-of-monitor-results" id="toc-plotting-a-histogram-of-monitor-results">Plotting a histogram of
+monitor results</a></li>
+<li><a href="#monitoring-a-resource" id="toc-monitoring-a-resource">Monitoring a resource</a></li>
+<li><a href="#plotting-from-resource-monitors" id="toc-plotting-from-resource-monitors">Plotting from resource
+monitors</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -174,18 +382,38 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This tutorial is adapted from a tutorial for the Python 2 package ‘SimPy’, <a href="https://pythonhosted.org/SimPy/Tutorials/TheBank2.html">here</a>. Users familiar with SimPy may find this tutorial helpful for transitioning to <code>simmer</code>. Some very basic material is not covered. Beginners should first read <a href="simmer-04-bank-1.html"><em>The Bank Tutorial: Part I</em></a>.</p>
+<p>This tutorial is adapted from a tutorial for the Python 2 package
+‘SimPy’, <a href="https://pythonhosted.org/SimPy/Tutorials/TheBank2.html">here</a>.
+Users familiar with SimPy may find this tutorial helpful for
+transitioning to <code>simmer</code>. Some very basic material is not
+covered. Beginners should first read <a href="simmer-04-bank-1.html"><em>The Bank Tutorial: Part I</em></a>.</p>
 </div>
 <div id="priority-customers" class="section level2">
 <h2>Priority customers</h2>
-<p>In many situations there is a system of priority service. Those customers with high priority are served first, those with low priority must wait. In some cases, preemptive priority will even allow a high-priority customer to interrupt the service of one with a lower priority.</p>
-<p>Simmer implements priority requests with an extra integer priority argument to <code>add_generator()</code>. By default, priority is zero; higher integers have higher priority. For this to operate, the resource must have been created with <code>preemptive = TRUE</code>.</p>
+<p>In many situations there is a system of priority service. Those
+customers with high priority are served first, those with low priority
+must wait. In some cases, preemptive priority will even allow a
+high-priority customer to interrupt the service of one with a lower
+priority.</p>
+<p>Simmer implements priority requests with an extra integer priority
+argument to <code>add_generator()</code>. By default, priority is zero;
+higher integers have higher priority. For this to operate, the resource
+must have been created with <code>preemptive = TRUE</code>.</p>
 <div id="priority-customers-without-preemption" class="section level3">
 <h3>Priority customers without preemption</h3>
-<p>In the first example, we modify the program with random arrivals, one counter, and a fixed service time (like <em>One Service counter</em> in <em>The Bank Tutorial: Part I</em>) to process a high priority customer.</p>
-<p>Here, we give each customer a priority. Since the default is <code>priority = 0</code> this is easy for most of them.</p>
-<p>To observe the priority in action, while all other customers have the default priority of 0, we create and activate one special customer, Guido, with priority 1 who arrives at time 23. This is to ensure that he arrives after Customer2.</p>
-<p>Since the activity trace does not produce the waiting time by default, this is calculated and appended using the <code>transform</code> function.</p>
+<p>In the first example, we modify the program with random arrivals, one
+counter, and a fixed service time (like <em>One Service counter</em> in
+<em>The Bank Tutorial: Part I</em>) to process a high priority
+customer.</p>
+<p>Here, we give each customer a priority. Since the default is
+<code>priority = 0</code> this is easy for most of them.</p>
+<p>To observe the priority in action, while all other customers have the
+default priority of 0, we create and activate one special customer,
+Guido, with priority 1 who arrives at time 23. This is to ensure that he
+arrives after Customer2.</p>
+<p>Since the activity trace does not produce the waiting time by
+default, this is calculated and appended using the
+<code>transform</code> function.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1933</span>)</span>
@@ -244,12 +472,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 Customer2  8.6410598       48            12     TRUE           1     27.35894</span></span>
 <span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 Customer3 21.1345850       60            12     TRUE           1     26.86541</span></span>
 <span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 Customer4 28.0923489       72            12     TRUE           1     31.90765</span></span></code></pre></div>
-<p>The output above displays the number of customers in the queue just as each one arrives. That count does not include any customer in service.</p>
-<p>Reading carefully one can see that when Guido arrives Customer0 has been served and left at 12, Customer1 is in service and two (customers 2 and 3) are queueing. Guido has priority over those waiting and is served before them at 24. When Guido leaves at 36, Customer2 starts service.</p>
+<p>The output above displays the number of customers in the queue just
+as each one arrives. That count does not include any customer in
+service.</p>
+<p>Reading carefully one can see that when Guido arrives Customer0 has
+been served and left at 12, Customer1 is in service and two (customers 2
+and 3) are queueing. Guido has priority over those waiting and is served
+before them at 24. When Guido leaves at 36, Customer2 starts
+service.</p>
 </div>
 <div id="priority-customers-with-preemption" class="section level3">
 <h3>Priority customers with preemption</h3>
-<p>Now we allow Guido to have preemptive priority. He will displace any customer in service when he arrives. That customer will resume when Guido finishes (unless higher priority customers intervene). It requires only a change to one line of the program, adding the argument, <code>preemptive = TRUE</code> to the <code>add_resource</code> function call.</p>
+<p>Now we allow Guido to have preemptive priority. He will displace any
+customer in service when he arrives. That customer will resume when
+Guido finishes (unless higher priority customers intervene). It requires
+only a change to one line of the program, adding the argument,
+<code>preemptive = TRUE</code> to the <code>add_resource</code> function
+call.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1933</span>)</span>
@@ -308,17 +547,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 Customer2  8.6410598       48            12     TRUE           1     27.35894</span></span>
 <span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 Customer3 21.1345850       60            12     TRUE           1     26.86541</span></span>
 <span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 Customer4 28.0923489       72            12     TRUE           1     31.90765</span></span></code></pre></div>
-<p>Though Guido arrives at the same time, 23, he no longer has to wait and immediately goes into service, displacing the incumbent, Customer1. That customer had already completed 23 - 12 = 11 minutes of his service. When Guido finishes at 35, Customer1 resumes service and takes 36 - 35 = 1 minutes to finish. His total service time is the same as before (12 minutes).</p>
+<p>Though Guido arrives at the same time, 23, he no longer has to wait
+and immediately goes into service, displacing the incumbent, Customer1.
+That customer had already completed 23 - 12 = 11 minutes of his service.
+When Guido finishes at 35, Customer1 resumes service and takes 36 - 35 =
+1 minutes to finish. His total service time is the same as before (12
+minutes).</p>
 </div>
 </div>
 <div id="balking-and-reneging-customers" class="section level2">
 <h2>Balking and reneging customers</h2>
-<p>Balking occurs when a customer refuses to join a queue if it is too long. Reneging (or, better, abandonment) occurs if an impatient customer gives up while still waiting and before being served.</p>
+<p>Balking occurs when a customer refuses to join a queue if it is too
+long. Reneging (or, better, abandonment) occurs if an impatient customer
+gives up while still waiting and before being served.</p>
 <div id="balking-customers" class="section level3">
 <h3>Balking customers</h3>
-<p>Another term for a system with balking customers is one where “blocked customers” are “cleared”, termed by engineers a BCC system. This is very convenient analytically in queueing theory and formulae developed using this assumption are used extensively for planning communication systems. The easiest case is when no queueing is allowed.</p>
-<p>As an example let us investigate a BCC system with a single server but the waiting space is limited. We will estimate the rate of balking when the maximum number in the queue is set to 1. On arrival into the system the customer must first check to see if there is room. If there is not enough room, the customer balks.</p>
-<p>To get the balking rate, we first count the number of arrivals that didn’t finish, using the data given by <code>get_mon_arrivals()</code>. Then we divide it by the current model time from <code>now(bank)</code>.</p>
+<p>Another term for a system with balking customers is one where
+“blocked customers” are “cleared”, termed by engineers a BCC system.
+This is very convenient analytically in queueing theory and formulae
+developed using this assumption are used extensively for planning
+communication systems. The easiest case is when no queueing is
+allowed.</p>
+<p>As an example let us investigate a BCC system with a single server
+but the waiting space is limited. We will estimate the rate of balking
+when the maximum number in the queue is set to 1. On arrival into the
+system the customer must first check to see if there is room. If there
+is not enough room, the customer balks.</p>
+<p>To get the balking rate, we first count the number of arrivals that
+didn’t finish, using the data given by <code>get_mon_arrivals()</code>.
+Then we divide it by the current model time from
+<code>now(bank)</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>timeInBank <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="co"># mean, minutes</span></span>
@@ -384,12 +642,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>number_balked <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">get_mon_arrivals</span>(bank)<span class="sc">$</span>finished)</span>
 <span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">&quot;Balking rate is&quot;</span>, number_balked <span class="sc">/</span> <span class="fu">now</span>(bank), <span class="st">&quot;customers per minute.&quot;</span>)</span>
 <span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Balking rate is 0.146951011425317 customers per minute.&quot;</span></span></code></pre></div>
-<p>When Customer2 arrives, Customer0 is already in service and Customer1 is waiting. There is no room, so Customer2 balks. By the vagaries of exponential random numbers, Customer0 takes a very long time to serve (22.7358 minutes) so the first one to find room is number Customer6 at 25.5339.</p>
+<p>When Customer2 arrives, Customer0 is already in service and Customer1
+is waiting. There is no room, so Customer2 balks. By the vagaries of
+exponential random numbers, Customer0 takes a very long time to serve
+(22.7358 minutes) so the first one to find room is number Customer6 at
+25.5339.</p>
 </div>
 <div id="reneging-or-abandoning-customers" class="section level3">
 <h3>Reneging (or abandoning) customers</h3>
-<p>Often in practice an impatient customer will leave the queue before being served. Simmer can model this reneging behaviour using the <code>renege_in()</code> function in a trajectory. This defines the maximum time that a customer will wait before reneging, as well as an ‘out’ trajectory for them to follow when they renege.</p>
-<p>If the customer reaches the server before reneging, then their impatience must be cancelled with the <code>renege_abort()</code> function.</p>
+<p>Often in practice an impatient customer will leave the queue before
+being served. Simmer can model this reneging behaviour using the
+<code>renege_in()</code> function in a trajectory. This defines the
+maximum time that a customer will wait before reneging, as well as an
+‘out’ trajectory for them to follow when they renege.</p>
+<p>If the customer reaches the server before reneging, then their
+impatience must be cancelled with the <code>renege_abort()</code>
+function.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>timeInBank <span class="ot">&lt;-</span> <span class="dv">15</span> <span class="co"># mean, minutes</span></span>
@@ -444,17 +712,41 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; { Monitor: in memory }</span></span>
 <span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; { Resource: counter | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></span>
 <span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; { Source: Customer | monitored: 1 | n_generated: 5 }</span></span></code></pre></div>
-<p>Customer1 arrives after Customer0 but has only 12 minutes patience. After that time in the queue (at time 28.5058) he abandons the queue to leave Customer2 to take his place. Customer2 and Customer3 also renege. Customer4 is served within 12 minutes.</p>
+<p>Customer1 arrives after Customer0 but has only 12 minutes patience.
+After that time in the queue (at time 28.5058) he abandons the queue to
+leave Customer2 to take his place. Customer2 and Customer3 also renege.
+Customer4 is served within 12 minutes.</p>
 </div>
 </div>
 <div id="interrupting-a-process" class="section level2">
 <h2>Interrupting a process</h2>
-<p>Klaus goes into the bank to talk to the manager. For clarity we ignore the counters and other customers. During his conversation his cellphone rings. When he finishes the call he continues the conversation.</p>
-<p>In this example, the call is another trajectory, whose only activities are to send a signal (the ringing of the phone), and to write that event to the log.</p>
-<p>In Klaus’ trajectory, the <code>trap</code> activity causes him to listen for the phone to ring. Supposing the phone doesn’t ring, then his trajectory would continue to the <code>timeout</code> activity, where he would do his banking business for 20 minutes, and then finish.</p>
-<p>Supposing the phone <em>does</em> ring, then Klaus would enter the sub-trajectory defined within the <code>trap</code> function as a ‘handler’. In that trajectory, he makes his excuses, answers the phone, then returns to business. At the end of the trajectory, he continues the original trajectory at the next step <em>following</em> the original <code>timeout</code>, without spending the rest of the 20 minutes on his banking.</p>
-<p>To make Klaus spend a full 20 minutes banking, we add a <code>timeout</code> activity to the end of the ‘handler’, but first we have to calculate how much time remains after the interruption. This is done by storing the ‘start’ time in an attribute, and calculating how much time is left when the phone rings.</p>
-<p>By default, interruptions can themselves be interrupted, as illustrated in this example by the phone ringing twice. This could be avoided by setting <code>interruptible = FALSE</code> in the <code>trap</code> activity.</p>
+<p>Klaus goes into the bank to talk to the manager. For clarity we
+ignore the counters and other customers. During his conversation his
+cellphone rings. When he finishes the call he continues the
+conversation.</p>
+<p>In this example, the call is another trajectory, whose only
+activities are to send a signal (the ringing of the phone), and to write
+that event to the log.</p>
+<p>In Klaus’ trajectory, the <code>trap</code> activity causes him to
+listen for the phone to ring. Supposing the phone doesn’t ring, then his
+trajectory would continue to the <code>timeout</code> activity, where he
+would do his banking business for 20 minutes, and then finish.</p>
+<p>Supposing the phone <em>does</em> ring, then Klaus would enter the
+sub-trajectory defined within the <code>trap</code> function as a
+‘handler’. In that trajectory, he makes his excuses, answers the phone,
+then returns to business. At the end of the trajectory, he continues the
+original trajectory at the next step <em>following</em> the original
+<code>timeout</code>, without spending the rest of the 20 minutes on his
+banking.</p>
+<p>To make Klaus spend a full 20 minutes banking, we add a
+<code>timeout</code> activity to the end of the ‘handler’, but first we
+have to calculate how much time remains after the interruption. This is
+done by storing the ‘start’ time in an attribute, and calculating how
+much time is left when the phone rings.</p>
+<p>By default, interruptions can themselves be interrupted, as
+illustrated in this example by the phone ringing twice. This could be
+avoided by setting <code>interruptible = FALSE</code> in the
+<code>trap</code> activity.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>timeInBank <span class="ot">&lt;-</span>  <span class="dv">20</span></span>
@@ -513,13 +805,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; { Monitor: in memory }</span></span>
 <span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; { Source: Klaus | monitored: 1 | n_generated: 1 }</span></span>
 <span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; { Source: Phone | monitored: 1 | n_generated: 2 }</span></span></code></pre></div>
-<p>As this has no random numbers the results are reasonably clear: the first interrupting call occurs at 9. It takes Klaus 3 minutes to listen to the message and he resumes the conversation with the bank manager at 12. The phone rings again at 16, he listens for three more minutes, and resumes the conversation at 19, finally finishing at 26. The total time of conversation is 9 + 4 + 7 = 20 minutes, the same as it would have been if the interrupt had not occurred.</p>
+<p>As this has no random numbers the results are reasonably clear: the
+first interrupting call occurs at 9. It takes Klaus 3 minutes to listen
+to the message and he resumes the conversation with the bank manager at
+12. The phone rings again at 16, he listens for three more minutes, and
+resumes the conversation at 19, finally finishing at 26. The total time
+of conversation is 9 + 4 + 7 = 20 minutes, the same as it would have
+been if the interrupt had not occurred.</p>
 </div>
 <div id="wait-until-the-bank-door-opens" class="section level2">
 <h2>Wait until the bank door opens</h2>
-<p>Customers arrive at random, some of them getting to the bank before the door is opened by a doorman. They wait for the door to be opened and then rush in and queue to be served.</p>
-<p>This model defines the door as a resource, just like the counter. The capacity of the door is defined according to the <code>schedule</code> function, so that it has zero capacity when it is shut, and infinite capacity when it is open. Customers ‘seize’ the door and must then wait until it has capacity to ‘serve’ them. Once it is available, all waiting customers are ‘served’ immediately (i.e. they pass through the door). There is no <code>timeout</code> between ‘seizing’ and ‘releasing’ the door.</p>
-<p>For the sake of announcing in the log that the door has been opened, a doorman trajectory is defined.</p>
+<p>Customers arrive at random, some of them getting to the bank before
+the door is opened by a doorman. They wait for the door to be opened and
+then rush in and queue to be served.</p>
+<p>This model defines the door as a resource, just like the counter. The
+capacity of the door is defined according to the <code>schedule</code>
+function, so that it has zero capacity when it is shut, and infinite
+capacity when it is open. Customers ‘seize’ the door and must then wait
+until it has capacity to ‘serve’ them. Once it is available, all waiting
+customers are ‘served’ immediately (i.e. they pass through the door).
+There is no <code>timeout</code> between ‘seizing’ and ‘releasing’ the
+door.</p>
+<p>For the sake of announcing in the log that the door has been opened,
+a doorman trajectory is defined.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>maxTime <span class="ot">=</span> <span class="dv">400</span></span>
@@ -587,14 +895,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 Customer2   8.775635 71.50006      7.291950     TRUE           1     55.43248</span></span>
 <span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 Customer3  24.203687 73.96270      2.462632     TRUE           1     47.29638</span></span>
 <span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 Customer4  33.357600 79.25421      5.291510     TRUE           1     40.60510</span></span></code></pre></div>
-<p>The output above programs shows how the first two customers have to wait until the door is opened.</p>
+<p>The output above programs shows how the first two customers have to
+wait until the door is opened.</p>
 </div>
 <div id="wait-for-the-doorman-to-give-a-signal" class="section level1">
 <h1>Wait for the doorman to give a signal</h1>
-<p>Customers arrive at random, some of them getting to the bank before the door is open. This is controlled by an automatic machine called the doorman which opens the door only at intervals of 30 minutes (it is a very secure bank). The customers wait for the door to be opened and all those waiting enter and proceed to the counter. The door is closed behind them.</p>
-<p>There are at least two ways to implement this model. The first example uses a schedule, and the second uses batching.</p>
-<p>The principle behind the schedule is that the door is modelled as a server with zero capacity for 30 minutes, then infinite capacity for zero minutes, then repeat the 30-minute cycle. In the moment that it has infinite capacity, all the customers will pass through the door (i.e. they will be ‘served’).</p>
-<p>For the sake of announcing in the log that the door has been opened, a doorman trajectory is defined. The doorman has a <code>rollback</code> step so that it keeps opening and shutting the door every 30 minutes for ever.</p>
+<p>Customers arrive at random, some of them getting to the bank before
+the door is open. This is controlled by an automatic machine called the
+doorman which opens the door only at intervals of 30 minutes (it is a
+very secure bank). The customers wait for the door to be opened and all
+those waiting enter and proceed to the counter. The door is closed
+behind them.</p>
+<p>There are at least two ways to implement this model. The first
+example uses a schedule, and the second uses batching.</p>
+<p>The principle behind the schedule is that the door is modelled as a
+server with zero capacity for 30 minutes, then infinite capacity for
+zero minutes, then repeat the 30-minute cycle. In the moment that it has
+infinite capacity, all the customers will pass through the door
+(i.e. they will be ‘served’).</p>
+<p>For the sake of announcing in the log that the door has been opened,
+a doorman trajectory is defined. The doorman has a <code>rollback</code>
+step so that it keeps opening and shutting the door every 30 minutes for
+ever.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>maxTime <span class="ot">=</span> <span class="dv">150</span></span>
@@ -676,9 +998,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 Customer2   35.43338 66.77625      6.776253     TRUE           1     24.56662</span></span>
 <span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 Customer3   40.64133 71.39816      4.621910     TRUE           1     26.13493</span></span>
 <span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 Customer4   49.06301 79.57954      8.181380     TRUE           1     22.33516</span></span></code></pre></div>
-<p>The output run for this program shows how the first two customers have to wait until the door is opened, and then the next three have to wait.</p>
-<p>The second method is batching. Customers can be collected into batches of a given size, or for a given time, or whichever occurs first. Here, they are collected for periods of 30, and the number of customers in each batch is unrestricted.</p>
-<p>After the batch is created with <code>batch</code>, usually the customers will all be processed together by a server, before separating with <code>separate</code>. In this example, there is no need for a server – the door is modelled by the batch itself – so the customers are separated immediately after the batch.</p>
+<p>The output run for this program shows how the first two customers
+have to wait until the door is opened, and then the next three have to
+wait.</p>
+<p>The second method is batching. Customers can be collected into
+batches of a given size, or for a given time, or whichever occurs first.
+Here, they are collected for periods of 30, and the number of customers
+in each batch is unrestricted.</p>
+<p>After the batch is created with <code>batch</code>, usually the
+customers will all be processed together by a server, before separating
+with <code>separate</code>. In this example, there is no need for a
+server – the door is modelled by the batch itself – so the customers are
+separated immediately after the batch.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>maxTime <span class="ot">=</span> <span class="dv">150</span></span>
@@ -761,7 +1092,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>This second method gives the same output as the first.</p>
 <div id="monitors" class="section level2">
 <h2>Monitors</h2>
-<p>Monitors record events in a simulation. Unlike SimPy, Simmer does this by default, so the records are available after – in fact, even during – a simulation. Data that is collected by monitors is available from the following functions:</p>
+<p>Monitors record events in a simulation. Unlike SimPy, Simmer does
+this by default, so the records are available after – in fact, even
+during – a simulation. Data that is collected by monitors is available
+from the following functions:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>get_capacity</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>get_mon_arrivals</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>get_mon_attributes</span>
@@ -771,10 +1105,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>get_queue_count</span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>get_queue_size</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>get_server_count</span></code></pre></div>
-<p>The <code>get_mon_*()</code> functions return a data frame (which is growing during the simulation, so that, although possible, it is computationally expensive to call them from inside a trajectory). The others return a numeric value.</p>
+<p>The <code>get_mon_*()</code> functions return a data frame (which is
+growing during the simulation, so that, although possible, it is
+computationally expensive to call them from inside a trajectory). The
+others return a numeric value.</p>
 <div id="plotting-a-histogram-of-monitor-results" class="section level3">
 <h3>Plotting a histogram of monitor results</h3>
-<p>A histogram of the amount of time that customers spend in the bank can be plotted by taking some basic information – start and end time of each customer – from the <code>get_mon_arrivals()</code> function, and then calculating the elapsed time. This example draws the plot with the <code>ggplot2</code> package, but other plotting packages, and base R graphics, could do something similar.</p>
+<p>A histogram of the amount of time that customers spend in the bank
+can be plotted by taking some basic information – start and end time of
+each customer – from the <code>get_mon_arrivals()</code> function, and
+then calculating the elapsed time. This example draws the plot with the
+<code>ggplot2</code> package, but other plotting packages, and base R
+graphics, could do something similar.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer.plot)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># library(ggplot2) # (automatically loaded with simmer.plot)</span></span>
@@ -811,8 +1153,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="monitoring-a-resource" class="section level3">
 <h3>Monitoring a resource</h3>
-<p>Now consider observing the number of customers waiting or active in a Resource.</p>
-<p><code>get_mon_resources()</code> returns a table of states and times for the counter. Whenever a customer enters/leaves a queue/counter, a new row is created recording the number of customers in the queue, the counter and the system as a whole. We call this the ‘state’. The amount of time that the state lasts is the difference in time between one state and the next, which we calculate with the <code>diff()</code> function. Finally, we multiply the number of customers in each state by the duration of the state, and divide by the duration of the simulation (the time at the end) to get the average.</p>
+<p>Now consider observing the number of customers waiting or active in a
+Resource.</p>
+<p><code>get_mon_resources()</code> returns a table of states and times
+for the counter. Whenever a customer enters/leaves a queue/counter, a
+new row is created recording the number of customers in the queue, the
+counter and the system as a whole. We call this the ‘state’. The amount
+of time that the state lasts is the difference in time between one state
+and the next, which we calculate with the <code>diff()</code> function.
+Finally, we multiply the number of customers in each state by the
+duration of the state, and divide by the duration of the simulation (the
+time at the end) to get the average.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
@@ -883,8 +1234,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="plotting-from-resource-monitors" class="section level3">
 <h3>Plotting from resource monitors</h3>
-<p>All the <code>get_mon_*()</code> return information that enables us to graph the output. Alternative plotting packages can be used; here we use the <code>simmer.plot</code> package just to graph the number of customers waiting for the counter.</p>
-<p>The <code>simmer.plot</code> package is imported at line 2. The function <code>get_mon_resources()</code> is not called because the function <code>plot()</code> calles <code>get_mon_resources()</code> itself. The <code>plot()</code> function has arguments to specifiy what to plot.</p>
+<p>All the <code>get_mon_*()</code> return information that enables us
+to graph the output. Alternative plotting packages can be used; here we
+use the <code>simmer.plot</code> package just to graph the number of
+customers waiting for the counter.</p>
+<p>The <code>simmer.plot</code> package is imported at line 2. The
+function <code>get_mon_resources()</code> is not called because the
+function <code>plot()</code> calles <code>get_mon_resources()</code>
+itself. The <code>plot()</code> function has arguments to specifiy what
+to plot.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer.plot)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>

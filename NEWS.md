@@ -1,3 +1,18 @@
+# simmer 4.4.6
+
+## New features
+
+- Add support for activity tags via `tag` argument (as part of #287).
+- Add support for named rollbacks via tags. The `amount` argument is deprecated
+  in favor of the more generic name `target`. The former will still work, but
+  raises a warning (#287 addressing #197).
+- Switch to C++17, drop Boost usage (#297).
+
+## Minor changes and fixes
+
+- Fix call identification on error (#286).
+- Make tests less verbose by default.
+
 # simmer 4.4.5
 
 ## New features
