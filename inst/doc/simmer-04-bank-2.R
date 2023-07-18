@@ -426,8 +426,7 @@ bank <-
 
 bank %>% run(until = 400)
 
-plot(bank,
-     what = "resources",
+plot(get_mon_resources(bank),
      metric = "usage",
      names = "counter",
      items = "system",

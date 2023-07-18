@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2023-07-15" />
+<meta name="date" content="2023-07-18" />
 
 <title>Introduction to simmer</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to simmer</h1>
 <h4 class="author">Bart Smeets, Iñaki Ucar</h4>
-<h4 class="date">2023-07-15</h4>
+<h4 class="date">2023-07-18</h4>
 
 
 <div id="TOC">
@@ -499,22 +499,22 @@ a <code>simmer</code> environment.</p>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_mon_resources</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   resource     time server queue capacity queue_size system limit replication</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    nurse 12.34101      1     0        1        Inf      1   Inf           1</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2    nurse 22.15650      1     1        1        Inf      2   Inf           1</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    nurse 25.70956      1     0        1        Inf      1   Inf           1</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   doctor 25.70956      1     0        2        Inf      1   Inf           1</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    nurse 31.06466      1     1        1        Inf      2   Inf           1</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6    nurse 39.24787      1     0        1        Inf      1   Inf           1</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    nurse 10.78152      1     0        1        Inf      1   Inf           1</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2    nurse 20.36990      1     1        1        Inf      2   Inf           1</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    nurse 24.97230      1     0        1        Inf      1   Inf           1</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   doctor 24.97230      1     0        2        Inf      1   Inf           1</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    nurse 27.03483      1     1        1        Inf      2   Inf           1</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6    nurse 34.70210      1     2        1        Inf      3   Inf           1</span></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>envs <span class="sc">%&gt;%</span> </span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_mon_arrivals</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       name start_time end_time activity_time finished replication</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 patient0  12.341007 52.21403      39.87302     TRUE           1</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 patient1  22.156502 64.49476      38.78521     TRUE           1</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 patient2  31.064658 76.39425      37.14637     TRUE           1</span></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 patient0   7.437418 45.38114      37.94372     TRUE           2</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 patient1  18.312795 62.62199      40.54258     TRUE           2</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 patient2  26.932834 77.89242      40.39384     TRUE           2</span></span></code></pre></div>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 patient0   10.78152 51.03031      40.24879     TRUE           1</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 patient1   20.36990 66.67466      41.70236     TRUE           1</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 patient2   27.03483 77.29833      36.28945     TRUE           1</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 patient0   12.24152 52.45459      40.21307     TRUE           2</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 patient1   21.54830 64.07885      38.71983     TRUE           2</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 patient2   28.70046 79.86401      39.87060     TRUE           2</span></span></code></pre></div>
 <p>Unfortunately, as the C++ simulation cores are destroyed, the
 downside of this kind of parallelization is that one cannot resume
 execution of the replicas.</p>
