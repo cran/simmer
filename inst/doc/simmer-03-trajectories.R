@@ -1,8 +1,8 @@
-## ---- cache = FALSE, include=FALSE--------------------------------------------
+## ----cache = FALSE, include=FALSE---------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(simmer)
 
 ## -----------------------------------------------------------------------------
@@ -19,7 +19,7 @@ trajectory() %>%
   timeout(rexp(1, 10)) %>%        # fixed
   timeout(function() rexp(1, 10)) # dynamic
 
-## ---- error = TRUE------------------------------------------------------------
+## ----error = TRUE-------------------------------------------------------------
 traj <- trajectory() %>%
   log_(function() as.character(now(env)))
 

@@ -1,4 +1,4 @@
-## ---- cache = FALSE, include=FALSE--------------------------------------------
+## ----cache = FALSE, include=FALSE---------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
@@ -7,7 +7,7 @@ required <- c("simmer.plot")
 if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(simmer)
 library(simmer.plot)
 set.seed(1234)

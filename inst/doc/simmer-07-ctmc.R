@@ -1,4 +1,4 @@
-## ---- cache = FALSE, include=FALSE--------------------------------------------
+## ----cache = FALSE, include=FALSE---------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>",
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
@@ -7,7 +7,7 @@ required <- c("simmer.plot")
 if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(simmer)
 library(simmer.plot)
 set.seed(1234)
@@ -87,7 +87,7 @@ gas.station <- option.3(5000)
 plot(get_mon_resources(gas.station), "usage", "pump", items="system") +
   geom_hline(yintercept=N_average_theor)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(microbenchmark)
 #  
 #  t <- 1000/lambda
@@ -228,7 +228,7 @@ get_mon_resources(gas.station) %>%
   geom_hline(yintercept=2, lty=2, color="red") + 
   geom_hline(yintercept=N_average_theor)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(microbenchmark)
 #  
 #  t <- 1000/lambda

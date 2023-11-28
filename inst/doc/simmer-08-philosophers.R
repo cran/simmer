@@ -1,4 +1,4 @@
-## ---- cache=FALSE, include=FALSE----------------------------------------------
+## ----cache=FALSE, include=FALSE-----------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>", 
                       fig.width = 6, fig.height = 4, fig.align = "center")
 
@@ -7,7 +7,7 @@ required <- c("simmer.plot")
 if (!all(sapply(required, requireNamespace, quietly = TRUE)))
   knitr::opts_chunk$set(eval = FALSE)
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(simmer)
 library(simmer.plot)
 
@@ -40,7 +40,7 @@ simulate <- function(fork_seq, time, thinking=function() rexp(1, 1),
   run(env, time)
 }
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 states <- c("hungry", "eating")
 
 philosophers_gantt <- function(env, size=15) env %>%
@@ -50,7 +50,7 @@ philosophers_gantt <- function(env, size=15) env %>%
   ggplot(aes(y=philosopher, yend=philosopher)) + xlab("time") +
   geom_segment(aes(x=start_time, xend=end_time, color=state), size=size)
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 fork_seq <- list(
   Socrates   = c(1, 2),
   Pythagoras = c(2, 3),
@@ -62,7 +62,7 @@ simulate(fork_seq, time=50) %>%
   print() %>%
   philosophers_gantt() + theme_bw()
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 fork_seq$Aristotle <- rev(fork_seq$Aristotle)
 
 simulate(fork_seq, time=50) %>%
