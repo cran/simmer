@@ -12,7 +12,7 @@
 
 <meta name="author" content="Bart Smeets, Iñaki Ucar" />
 
-<meta name="date" content="2023-11-28" />
+<meta name="date" content="2024-07-04" />
 
 <title>Introduction to simmer</title>
 
@@ -51,7 +51,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -62,7 +62,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to simmer</h1>
 <h4 class="author">Bart Smeets, Iñaki Ucar</h4>
-<h4 class="date">2023-11-28</h4>
+<h4 class="date">2024-07-04</h4>
 
 
 <div id="TOC">
@@ -414,59 +414,59 @@ will be the next 3 events (<code>peek</code>).</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span> </span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">run</span>(<span class="dv">80</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">now</span>()</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; [1] 80</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>env <span class="sc">%&gt;%</span> <span class="fu">peek</span>(<span class="dv">3</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; [1] 80.69540 81.62105 81.62105</span></span></code></pre></div>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; [1] 80</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span> <span class="fu">peek</span>(<span class="dv">3</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] 80.69540 81.62105 81.62105</span></span></code></pre></div>
 <p>It is possible to run the simulation step by step, and such a method
 is chainable too.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">stepn</span>() <span class="sc">%&gt;%</span> <span class="co"># 1 step</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">print</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">stepn</span>(<span class="dv">3</span>)    <span class="co"># 3 steps</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; simmer environment: SuperDuperSim | now: 80.6953988949657 | next: 80.6953988949657</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; { Monitor: in memory }</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; { Resource: doctor | monitored: TRUE | server status: 1(2) | queue status: 0(Inf) }</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; { Resource: administration | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; { Source: patient | monitored: 1 | n_generated: 7 }</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; simmer environment: SuperDuperSim | now: 81.6210531397386 | next: 81.6210531397386</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; { Monitor: in memory }</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 2(Inf) }</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; { Resource: doctor | monitored: TRUE | server status: 1(2) | queue status: 0(Inf) }</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; { Resource: administration | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; { Source: patient | monitored: 1 | n_generated: 7 }</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>env <span class="sc">%&gt;%</span> <span class="fu">peek</span>(<span class="cn">Inf</span>, <span class="at">verbose=</span><span class="cn">TRUE</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;       time  process</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 1 81.62105  patient</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 2 86.74154 patient4</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 3 89.36934 patient3</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">stepn</span>() <span class="sc">%&gt;%</span> <span class="co"># 1 step</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">print</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">stepn</span>(<span class="dv">3</span>)    <span class="co"># 3 steps</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; simmer environment: SuperDuperSim | now: 80.6953988949657 | next: 80.6953988949657</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; { Monitor: in memory }</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 1(Inf) }</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; { Resource: doctor | monitored: TRUE | server status: 1(2) | queue status: 0(Inf) }</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; { Resource: administration | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; { Source: patient | monitored: 1 | n_generated: 7 }</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; simmer environment: SuperDuperSim | now: 81.6210531397386 | next: 81.6210531397386</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; { Monitor: in memory }</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; { Resource: nurse | monitored: TRUE | server status: 1(1) | queue status: 2(Inf) }</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; { Resource: doctor | monitored: TRUE | server status: 1(2) | queue status: 0(Inf) }</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; { Resource: administration | monitored: TRUE | server status: 0(1) | queue status: 0(Inf) }</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; { Source: patient | monitored: 1 | n_generated: 7 }</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span> <span class="fu">peek</span>(<span class="cn">Inf</span>, <span class="at">verbose=</span><span class="cn">TRUE</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt;       time  process</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; 1 81.62105  patient</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; 2 86.74154 patient4</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; 3 89.36934 patient3</span></span></code></pre></div>
 <p>Also, it is possible to resume the automatic execution simply by
 specifying a longer runtime. Below, we continue the execution until 120
 time units.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">run</span>(<span class="dv">120</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">now</span>()</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [1] 120</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">run</span>(<span class="dv">120</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">now</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; [1] 120</span></span></code></pre></div>
 <p>You can also reset the simulation, flush all results, resources and
 generators, and restart from the beginning.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span> </span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">reset</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">run</span>(<span class="dv">80</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">now</span>()</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; [1] 80</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>env <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">reset</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">run</span>(<span class="dv">80</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">now</span>()</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; [1] 80</span></span></code></pre></div>
 </div>
 <div id="replication" class="section level2">
 <h2>Replication</h2>
 <p>It is very easy to replicate a simulation multiple times using
 standard R functions.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>envs <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="cf">function</span>(i) {</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;SuperDuperSim&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;nurse&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;administration&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    <span class="fu">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient, <span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    <span class="fu">run</span>(<span class="dv">80</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>envs <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="cf">function</span>(i) {</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;SuperDuperSim&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;nurse&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;administration&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>    <span class="fu">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient, <span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    <span class="fu">run</span>(<span class="dv">80</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>})</span></code></pre></div>
 <p>The advantage of the latter approach is that, if the individual
 replicas are heavy, it is straightforward to parallelise their execution
 (for instance, in the next example we use the function
@@ -475,46 +475,46 @@ package. However, the external pointers to the C++ simmer core are no
 longer valid when the parallelised execution ends. Thus, it is necessary
 to extract the results for each thread at the end of the execution. This
 can be done with the helper function <code>wrap</code> as follows.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(parallel)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>envs <span class="ot">&lt;-</span> <span class="fu">mclapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="cf">function</span>(i) {</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;SuperDuperSim&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;nurse&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;administration&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>    <span class="fu">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient, <span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="fu">run</span>(<span class="dv">80</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>    <span class="fu">wrap</span>()</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(parallel)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>envs <span class="ot">&lt;-</span> <span class="fu">mclapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="cf">function</span>(i) {</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="fu">simmer</span>(<span class="st">&quot;SuperDuperSim&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;nurse&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;doctor&quot;</span>, <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">&quot;administration&quot;</span>, <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>    <span class="fu">add_generator</span>(<span class="st">&quot;patient&quot;</span>, patient, <span class="cf">function</span>() <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>    <span class="fu">run</span>(<span class="dv">80</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>    <span class="fu">wrap</span>()</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>})</span></code></pre></div>
 <p>This helper function brings the simulation data back to R and makes
 it accessible through the same methods that would ordinarily be used for
 a <code>simmer</code> environment.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>envs[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">get_n_generated</span>(<span class="st">&quot;patient&quot;</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; [1] 8</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>envs[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">get_queue_count</span>(<span class="st">&quot;doctor&quot;</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>envs[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">get_queue_size</span>(<span class="st">&quot;doctor&quot;</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; [1] Inf</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>envs <span class="sc">%&gt;%</span> </span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  <span class="fu">get_mon_resources</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">head</span>()</span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;   resource      time server queue capacity queue_size system limit replication</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; 1    nurse  8.991136      1     0        1        Inf      1   Inf           1</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; 2    nurse 18.792440      1     1        1        Inf      2   Inf           1</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; 3    nurse 24.289774      1     0        1        Inf      1   Inf           1</span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; 4   doctor 24.289774      1     0        2        Inf      1   Inf           1</span></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; 5    nurse 29.327380      1     1        1        Inf      2   Inf           1</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; 6    nurse 39.343013      1     0        1        Inf      1   Inf           1</span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>envs <span class="sc">%&gt;%</span> </span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>  <span class="fu">get_mon_arrivals</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>  <span class="fu">head</span>()</span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt;       name start_time end_time activity_time finished replication</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; 1 patient0   8.991136 48.15638      39.16524     TRUE           1</span></span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; 2 patient1  18.792440 64.14199      39.85222     TRUE           1</span></span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; 3 patient0  12.560029 51.90649      39.34646     TRUE           2</span></span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; 4 patient1  21.443180 69.04156      41.37348     TRUE           2</span></span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; 5 patient0   9.872578 49.77298      39.90040     TRUE           3</span></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; 6 patient1  18.675594 64.57205      38.72821     TRUE           3</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>envs[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">get_n_generated</span>(<span class="st">&quot;patient&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; [1] 10</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>envs[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">get_queue_count</span>(<span class="st">&quot;doctor&quot;</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>envs[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">get_queue_size</span>(<span class="st">&quot;doctor&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; [1] Inf</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>envs <span class="sc">%&gt;%</span> </span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">get_mon_resources</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">head</span>()</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt;   resource      time server queue capacity queue_size system limit replication</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; 1    nurse  8.761651      1     0        1        Inf      1   Inf           1</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 2    nurse 18.929619      1     1        1        Inf      2   Inf           1</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; 3    nurse 23.209715      1     0        1        Inf      1   Inf           1</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; 4   doctor 23.209715      1     0        2        Inf      1   Inf           1</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; 5    nurse 27.337886      1     1        1        Inf      2   Inf           1</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; 6    nurse 35.867948      1     2        1        Inf      3   Inf           1</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>envs <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="fu">get_mon_arrivals</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">head</span>()</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt;       name start_time end_time activity_time finished replication</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; 1 patient0   8.761651 48.01691      39.25525     TRUE           1</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; 2 patient1  18.929619 63.99047      40.78076     TRUE           1</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; 3 patient2  27.337886 79.18912      41.12195     TRUE           1</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; 4 patient0   6.494690 46.55239      40.05770     TRUE           2</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; 5 patient1  15.176666 59.71666      38.88741     TRUE           2</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 6 patient2  27.578357 76.40260      41.31628     TRUE           2</span></span></code></pre></div>
 <p>Unfortunately, as the C++ simulation cores are destroyed, the
 downside of this kind of parallelization is that one cannot resume
 execution of the replicas.</p>
