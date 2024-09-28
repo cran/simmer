@@ -16,12 +16,11 @@ bank <- simmer()
 
 customer <-
   trajectory("Customer's path") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   log_(function() {
          paste("Queue is", get_queue_count(bank, "counter"), "on arrival")
          }) %>%
   seize("counter") %>%
-  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(12) %>%
   release("counter") %>%
   log_("Completed")
@@ -46,12 +45,11 @@ bank <- simmer()
 
 customer <-
   trajectory("Customer's path") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   log_(function() {
          paste("Queue is", get_queue_count(bank, "counter"), "on arrival")
          }) %>%
   seize("counter") %>%
-  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(12) %>%
   release("counter") %>%
   log_("Completed")
@@ -85,13 +83,12 @@ bank <- simmer()
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter",
         continue = FALSE,
         reject = trajectory("Balked customer") %>%
           log_("BALKING") %>%
           leave(1)) %>%
-  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(function() {rexp(1, 1/timeInBank)}) %>%
   release("counter") %>%
   log_("Finished")
@@ -127,15 +124,14 @@ bank <- simmer()
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   renege_in(maxWaitTime,
             out = trajectory("Reneging customer") %>%
               log_(function() {
-                     paste("Waited", now(bank) - get_attribute(bank, "start_time"), "I am off")
+                     paste("Waited", now(bank) - get_start_time(bank), "I am off")
                    })) %>%
   seize("counter") %>%
   renege_abort() %>% # Stay if I'm being attended within maxWaitTime
-  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(function() {rexp(1, 1/timeInBank)}) %>%
   release("counter") %>%
   log_("Completed")
@@ -247,10 +243,9 @@ maxTime = 150
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am, but the door is shut.") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   seize("door") %>%
   log_("The door is open!") %>%
-  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   release("door") %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/10)}) %>%
@@ -288,11 +283,10 @@ maxTime = 150
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am, but the door is shut.") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   batch(n = Inf, timeout = 30) %>%
   separate() %>%
   log_("The door is open!") %>%
-  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/10)}) %>%
   release("counter") %>%
@@ -369,10 +363,9 @@ bank <- simmer()
 customer <-
   trajectory("Customer's path") %>%
   log_("Arrived") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
   log_("Got counter") %>%
-  log_(function() {paste("Waited", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(12) %>%
   release("counter") %>%
   log_("Finished")
@@ -414,7 +407,6 @@ bank <- simmer()
 
 customer <-
   trajectory("Customer's path") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
   timeout(function() {rexp(1, 1/timeInBank)}) %>%
   release("counter")

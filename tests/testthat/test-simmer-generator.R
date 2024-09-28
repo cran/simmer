@@ -1,5 +1,5 @@
 # Copyright (C) 2015 Iñaki Ucar and Bart Smeets
-# Copyright (C) 2015-2023 Iñaki Ucar
+# Copyright (C) 2015-2024 Iñaki Ucar
 #
 # This file is part of simmer.
 #
@@ -58,6 +58,23 @@ test_that("generators are reset", {
     run() %>% reset() %>% run() %>%
     get_mon_arrivals() %>% nrow()
   )
+
+  t <- trajectory() %>%
+    set_source("dummy", at(10)) %>%
+    set_trajectory("dummy", trajectory() %>% timeout(1))
+
+  env <- simmer(verbose = env_verbose) %>%
+    add_generator("dummy", t, at(0))
+
+  df1 <- env %>%
+    run() %>%
+    get_mon_arrivals()
+  df2 <- env %>%
+    reset() %>%
+    run() %>%
+    get_mon_arrivals()
+
+  expect_equal(df1, df2)
 })
 
 test_that("preemptible < priority shows a warning", {
@@ -66,15 +83,16 @@ test_that("preemptible < priority shows a warning", {
       add_generator("dummy", trajectory(), at(0), priority = 3, preemptible = 1))
 })
 
-test_that("arrival names are correctly retrieved", {
+test_that("arrival names and start times are correctly retrieved", {
   t <- trajectory() %>%
-    log_(function() get_name(env))
+    log_(function() paste(get_name(env), get_start_time(env)))
 
   env <- simmer() %>%
-    add_generator("dummy", t, at(0))
+    add_generator("dummy", t, at(1))
 
-  expect_output(run(env), "0: dummy0: dummy0")
+  expect_output(run(env), "1: dummy0: dummy0 1")
   expect_error(get_name(env))
+  expect_error(get_start_time(env))
 })
 
 test_that("arrivals are correctly monitored", {
@@ -164,7 +182,7 @@ test_that("arrivals are correctly monitored", {
 })
 
 test_that("several generators can be attached at once", {
-  env <- simmer(verbose=TRUE) %>%
+  env <- simmer(verbose = env_verbose) %>%
     add_generator(letters[1:3], trajectory(), function() 1)
 
   expect_equal(get_sources(env), letters[1:3])

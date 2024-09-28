@@ -12,7 +12,7 @@
 
 <meta name="author" content="Iñaki Ucar" />
 
-<meta name="date" content="2024-07-04" />
+<meta name="date" content="2024-09-27" />
 
 <title>Queueing Systems</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Queueing Systems</h1>
 <h4 class="author">Iñaki Ucar</h4>
-<h4 class="date">2024-07-04</h4>
+<h4 class="date">2024-09-27</h4>
 
 
 <div id="TOC">
@@ -452,36 +452,35 @@ priorities:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>env <span class="ot">&lt;-</span> <span class="fu">simmer</span>()</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>custom <span class="ot">&lt;-</span> <span class="fu">trajectory</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">set_attribute</span>(<span class="st">&quot;arrival time&quot;</span>, <span class="cf">function</span>() <span class="fu">now</span>(env)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">renege_if</span>(</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="st">&quot;recompute priority&quot;</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="at">out =</span> <span class="fu">trajectory</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>      <span class="co"># e.g., increase priority if wait_time &lt; 3</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>      <span class="fu">set_prioritization</span>(<span class="cf">function</span>() {</span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">now</span>(env) <span class="sc">-</span> <span class="fu">get_attribute</span>(env, <span class="st">&quot;arrival time&quot;</span>) <span class="sc">&lt;</span> <span class="dv">3</span>)</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>          <span class="fu">c</span>(<span class="dv">1</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)     <span class="co"># only change the priority</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>        <span class="cf">else</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>) <span class="co"># don&#39;t change anything</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>      }, <span class="at">mod=</span><span class="st">&quot;+&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>      <span class="co"># go 2 steps back to renege_if</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>      <span class="fu">rollback</span>(<span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="fu">seize</span>(<span class="st">&quot;resource&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  <span class="fu">renege_abort</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;processing&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  <span class="co"># trigger this before releasing the resource</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  <span class="fu">send</span>(<span class="st">&quot;recompute priority&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>  <span class="fu">release</span>(<span class="st">&quot;resource&quot;</span>)</span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a></span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>env <span class="sc">%&gt;%</span></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>  <span class="fu">add_resource</span>(<span class="st">&quot;resource&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, custom, <span class="fu">at</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>  <span class="fu">run</span>() <span class="sc">%&gt;%</span> <span class="fu">invisible</span>()</span>
-<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 0: dummy0: processing</span></span>
-<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 5: dummy3: processing</span></span>
-<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 10: dummy4: processing</span></span>
-<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 15: dummy1: processing</span></span>
-<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; 20: dummy2: processing</span></span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">renege_if</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    <span class="st">&quot;recompute priority&quot;</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="at">out =</span> <span class="fu">trajectory</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>      <span class="co"># e.g., increase priority if wait_time &lt; 3</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>      <span class="fu">set_prioritization</span>(<span class="cf">function</span>() {</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">now</span>(env) <span class="sc">-</span> <span class="fu">get_start_time</span>(env) <span class="sc">&lt;</span> <span class="dv">3</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>          <span class="fu">c</span>(<span class="dv">1</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)     <span class="co"># only change the priority</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>        <span class="cf">else</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>) <span class="co"># don&#39;t change anything</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>      }, <span class="at">mod=</span><span class="st">&quot;+&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>      <span class="co"># go 2 steps back to renege_if</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>      <span class="fu">rollback</span>(<span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="fu">seize</span>(<span class="st">&quot;resource&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="fu">renege_abort</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  <span class="fu">log_</span>(<span class="st">&quot;processing&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  <span class="co"># trigger this before releasing the resource</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  <span class="fu">send</span>(<span class="st">&quot;recompute priority&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  <span class="fu">release</span>(<span class="st">&quot;resource&quot;</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>env <span class="sc">%&gt;%</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>  <span class="fu">add_resource</span>(<span class="st">&quot;resource&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">&quot;dummy&quot;</span>, custom, <span class="fu">at</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>  <span class="fu">run</span>() <span class="sc">%&gt;%</span> <span class="fu">invisible</span>()</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 0: dummy0: processing</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 5: dummy3: processing</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 10: dummy4: processing</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 15: dummy1: processing</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 20: dummy2: processing</span></span></code></pre></div>
 <p>Note that a null timeout was added so that the resource is released
 in the last place. In this way, all arrivals recompute their priorities
 and enter the queue again before the resource is released.</p>
@@ -659,15 +658,15 @@ number of messages:</p>
 <span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; 1  arrival1    md1_3    5.1816915</span></span>
 <span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; 2  arrival3    md1_3    0.6969347</span></span>
 <span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; 3  arrival1    md1_4    4.9417576</span></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; 4  arrival4    md1_4    0.4751263</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">get_n_generated</span>(env, <span class="st">&quot;arrival1_&quot;</span>) <span class="sc">+</span> <span class="fu">get_n_generated</span>(env, <span class="st">&quot;arrival4_&quot;</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; [1] 10481</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">aggregate</span>(waiting_time <span class="sc">~</span> generator <span class="sc">+</span> resource, arr, length)</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt;   generator resource waiting_time</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; 1  arrival1    md1_3         3867</span></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; 2  arrival3    md1_3         2042</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; 3  arrival1    md1_4         2166</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 4  arrival4    md1_4         2401</span></span></code></pre></div>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; 4  arrival4    md1_4    0.4751263</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="fu">get_n_generated</span>(env, <span class="st">&quot;arrival1_&quot;</span>) <span class="sc">+</span> <span class="fu">get_n_generated</span>(env, <span class="st">&quot;arrival4_&quot;</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; [1] 10481</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="fu">aggregate</span>(waiting_time <span class="sc">~</span> generator <span class="sc">+</span> resource, arr, length)</span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt;   generator resource waiting_time</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; 1  arrival1    md1_3         3867</span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; 2  arrival3    md1_3         2042</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; 3  arrival1    md1_4         2166</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt; 4  arrival4    md1_4         2401</span></span></code></pre></div>
 </div>
 
 

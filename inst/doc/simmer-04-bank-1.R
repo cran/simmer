@@ -163,12 +163,11 @@ bank <- simmer()
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
-  log_(function() {paste("Waited: ", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(12) %>%
   release("counter") %>%
-  log_(function() {paste("Finished: ", now(bank))})
+  log_("Finished")
 
 bank <-
   simmer("bank") %>%
@@ -188,15 +187,14 @@ set.seed(1269)
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
-  log_(function() {paste("Waited: ", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   # timeout(rexp(1, 1/12)) would generate a single random time and use it for
   # every arrival, whereas the following line generates a random time for each
   # arrival
   timeout(function() {rexp(1, 1/12)}) %>%
   release("counter") %>%
-  log_(function() {paste("Finished: ", now(bank))})
+  log_("Finished")
 
 bank <-
   simmer("bank") %>%
@@ -216,12 +214,11 @@ set.seed(1269)
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   seize("counter") %>%
-  log_(function() {paste("Waited: ", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   release("counter") %>%
-  log_(function() {paste("Finished: ", now(bank))})
+  log_("Finished")
 
 bank <-
   simmer("bank") %>%
@@ -241,13 +238,12 @@ set.seed(1014)
 customer <-
   trajectory("Customer's path") %>%
   log_("Here I am") %>%
-  set_attribute("start_time", function() {now(bank)}) %>%
   select(c("counter1", "counter2"), policy = "shortest-queue") %>%
   seize_selected() %>%
-  log_(function() {paste("Waited: ", now(bank) - get_attribute(bank, "start_time"))}) %>%
+  log_(function() {paste("Waited: ", now(bank) - get_start_time(bank))}) %>%
   timeout(function() {rexp(1, 1/12)}) %>%
   release_selected() %>%
-  log_(function() {paste("Finished: ", now(bank))})
+  log_("Finished")
 
 bank <-
   simmer("bank") %>%

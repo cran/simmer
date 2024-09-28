@@ -1,5 +1,5 @@
 // Copyright (C) 2015-2016 Bart Smeets and Iñaki Ucar
-// Copyright (C) 2016-2023 Iñaki Ucar
+// Copyright (C) 2016-2024 Iñaki Ucar
 //
 // This file is part of simmer.
 //
@@ -31,18 +31,14 @@ namespace simmer {
   public:
     Generator(Simulator* sim, const std::string& name_prefix, int mon,
               const REnv& trj, const RFn& dist, const Order& order)
-      : Source(sim, name_prefix, mon, trj, order), source(dist) {}
+      : Source(sim, name_prefix, mon, trj, order), source_(dist), source(dist)
+        { reset(); }
 
     void reset() {
       Source::reset();
+      source = source_;
       RFn reset_fun(source.attr("reset"));
       reset_fun();
-    }
-
-    void set_source(const std::any& new_source) {
-      if (new_source.type() != typeid(RFn))
-        Rcpp::stop("function required");
-      source = STDANYCAST<RFn>(new_source);
     }
 
     void run() {
@@ -63,7 +59,13 @@ namespace simmer {
     }
 
   private:
-    RFn source;
+    RFn source_, source;
+
+    void set_source_impl(const std::any& new_source) {
+      if (new_source.type() != typeid(RFn))
+        Rcpp::stop("function required");
+      source = STDANYCAST<RFn>(new_source);
+    }
   };
 
 } // namespace simmer

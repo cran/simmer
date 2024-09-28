@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2023 Iñaki Ucar
+// Copyright (C) 2018-2024 Iñaki Ucar
 //
 // This file is part of simmer.
 //
@@ -30,36 +30,59 @@ namespace simmer {
             const REnv& trj, RData data, int batch, const std::string& col_time,
             const VEC<std::string>& col_attrs, const OPT<std::string>& col_priority,
             const OPT<std::string>& col_preemptible, const OPT<std::string>& col_restart)
-      : Source(sim, name_prefix, mon, trj, Order()), source(data), batch(batch),
+      : Source(sim, name_prefix, mon, trj, Order()), source_(data), batch(batch),
         col_time(col_time), col_attrs(col_attrs), col_priority(col_priority),
-        col_preemptible(col_preemptible), col_restart(col_restart) { set_source(data); }
+        col_preemptible(col_preemptible), col_restart(col_restart) { reset(); }
+
+    void reset() {
+      Source::reset();
+      source = source_;
+      set_source_impl(source);
+    }
 
     void run() {
       double delay = 0;
       int i = 0;
 
       while (i++ != batch) {
-        if (time.size() <= count || check_stop(time[count]))
+        if (time.size() <= index || check_stop(time[index]))
           return;
-        delay += time[count];
+        delay += time[index];
 
         Arrival* arrival = new_arrival(delay);
 
         for (size_t j = 0; j < col_attrs.size(); ++j)
-          arrival->set_attribute(col_attrs[j], attrs[j][count-1]);
+          arrival->set_attribute(col_attrs[j], attrs[j][index]);
 
         if (col_priority)
-          arrival->order.set_priority(priority[count-1]);
+          arrival->order.set_priority(priority[index]);
         if (col_preemptible)
-          arrival->order.set_preemptible(preemptible[count-1]);
+          arrival->order.set_preemptible(preemptible[index]);
         if (col_restart)
-          arrival->order.set_restart(restart[count-1]);
+          arrival->order.set_restart(restart[index]);
+
+        index++;
       }
       // schedule the generator
       sim->schedule(delay, this, Source::priority);
     }
 
-    void set_source(const std::any& new_source) {
+  private:
+    int index;
+    RData source_, source;
+    int batch;
+    std::string col_time;
+    VEC<std::string> col_attrs;
+    OPT<std::string> col_priority;
+    OPT<std::string> col_preemptible;
+    OPT<std::string> col_restart;
+    RNum time;
+    VEC<RNum> attrs;
+    RInt priority;
+    RInt preemptible;
+    RBool restart;
+
+    void set_source_impl(const std::any& new_source) {
       if (new_source.type() != typeid(RData))
         Rcpp::stop("data frame required");
       RData df = STDANYCAST<RData>(new_source);
@@ -77,6 +100,7 @@ namespace simmer {
       if (col_restart && !df.containsElementNamed((*col_restart).c_str()))
         Rcpp::stop("column '%s' not present", *col_restart);
 
+      index = 0;
       source = df;
       time = source[col_time];
       attrs.clear();
@@ -86,20 +110,6 @@ namespace simmer {
       if (col_preemptible) preemptible = source[*col_preemptible];
       if (col_restart) restart = source[*col_restart];
     }
-
-  private:
-    RData source;
-    int batch;
-    std::string col_time;
-    VEC<std::string> col_attrs;
-    OPT<std::string> col_priority;
-    OPT<std::string> col_preemptible;
-    OPT<std::string> col_restart;
-    RNum time;
-    VEC<RNum> attrs;
-    RInt priority;
-    RInt preemptible;
-    RBool restart;
   };
 
 } // namespace simmer

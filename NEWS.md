@@ -1,3 +1,17 @@
+# simmer 4.4.7
+
+## New features
+
+- Add support for subsetting by activity tag (#305).
+- New getter `get_start_time()` returns the running arrival's start time (#304).
+
+## Minor changes and fixes
+
+- Fix `set_source()` to avoid leaking arrivals from the old source (#322).
+- Fix sources to properly reset distributions and trajectories (#324).
+- Fix resources to properly reset initial parameters (#325).
+- Fix start time of arrivals in cloned batches (#285).
+
 # simmer 4.4.6.4
 
 ## New features

@@ -1,6 +1,6 @@
 // Copyright (C) 2014 Bart Smeets
 // Copyright (C) 2015 Iñaki Ucar and Bart Smeets
-// Copyright (C) 2015-2023 Iñaki Ucar
+// Copyright (C) 2015-2024 Iñaki Ucar
 //
 // This file is part of simmer.
 //
@@ -35,7 +35,7 @@ Vector<RTYPE> get_param(SEXP sim_, const VEC<std::string>& names,
 
 //[[Rcpp::export]]
 SEXP get_n_generated_(SEXP sim_, const std::vector<std::string>& names) {
-  return get_param<INTSXP,int>(sim_, names, std::mem_fn(&Source::get_n_generated));
+  return get_param<INTSXP,int>(sim_, names, std::mem_fn(&Source::get_count));
 }
 
 //[[Rcpp::export]]
@@ -46,6 +46,11 @@ SEXP get_trajectory_(SEXP sim_, const std::vector<std::string>& names) {
 //[[Rcpp::export]]
 std::string get_name_(SEXP sim_) {
   return XPtr<Simulator>(sim_)->get_running_arrival()->name;
+}
+
+//[[Rcpp::export]]
+double get_start_time_(SEXP sim_) {
+  return XPtr<Simulator>(sim_)->get_running_arrival()->get_start_time();
 }
 
 //[[Rcpp::export]]

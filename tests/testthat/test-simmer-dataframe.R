@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Iñaki Ucar
+# Copyright (C) 2018-2024 Iñaki Ucar
 #
 # This file is part of simmer.
 #
@@ -93,13 +93,28 @@ test_that("generates the expected amount", {
 })
 
 test_that("data sources are reset", {
-  DF <- data.frame(time=rep(1, 3))
-
   expect_equal(3, simmer(verbose = env_verbose) %>%
-    add_dataframe("dummy", trajectory(), DF) %>%
+    add_dataframe("dummy", trajectory(), data.frame(time=rep(1, 3))) %>%
     run() %>% reset() %>% run() %>%
     get_mon_arrivals() %>% nrow()
   )
+
+  t <- trajectory() %>%
+    set_source("dummy", data.frame(time=10)) %>%
+    set_trajectory("dummy", trajectory() %>% timeout(1))
+
+  env <- simmer(verbose = env_verbose) %>%
+    add_dataframe("dummy", t, data.frame(time=0))
+
+  df1 <- env %>%
+    run() %>%
+    get_mon_arrivals()
+  df2 <- env %>%
+    reset() %>%
+    run() %>%
+    get_mon_arrivals()
+
+  expect_equal(df1, df2)
 })
 
 test_that("priorities are set", {
@@ -146,16 +161,17 @@ test_that("attributes are set", {
   expect_equal(attr$value, c(1, 3, 2, 2, 3, 1))
 })
 
-test_that("arrival names are correctly retrieved", {
+test_that("arrival names and start times are correctly retrieved", {
   t <- trajectory() %>%
-    log_(function() get_name(env))
-  DF <- data.frame(time=0)
+    log_(function() paste(get_name(env), get_start_time(env)))
+  DF <- data.frame(time=1)
 
   env <- simmer() %>%
     add_dataframe("dummy", t, DF)
 
-  expect_output(run(env), "0: dummy0: dummy0")
+  expect_output(run(env), "1: dummy0: dummy0 1")
   expect_error(get_name(env))
+  expect_error(get_start_time(env))
 })
 
 test_that("arrivals are correctly monitored", {

@@ -60,13 +60,12 @@ env %>%
 env <- simmer()
 
 custom <- trajectory() %>%
-  set_attribute("arrival time", function() now(env)) %>%
   renege_if(
     "recompute priority",
     out = trajectory() %>%
       # e.g., increase priority if wait_time < 3
       set_prioritization(function() {
-        if (now(env) - get_attribute(env, "arrival time") < 3)
+        if (now(env) - get_start_time(env) < 3)
           c(1, NA, NA)     # only change the priority
         else c(NA, NA, NA) # don't change anything
       }, mod="+") %>%
